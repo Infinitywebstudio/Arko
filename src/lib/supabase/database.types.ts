@@ -69,26 +69,144 @@ export type Database = {
         }
         Relationships: []
       }
+      sitter_availability: {
+        Row: {
+          created_at: string
+          end_time: string
+          id: string
+          sitter_id: string
+          start_time: string
+          weekday: number
+        }
+        Insert: {
+          created_at?: string
+          end_time: string
+          id?: string
+          sitter_id: string
+          start_time: string
+          weekday: number
+        }
+        Update: {
+          created_at?: string
+          end_time?: string
+          id?: string
+          sitter_id?: string
+          start_time?: string
+          weekday?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sitter_availability_sitter_id_fkey"
+            columns: ["sitter_id"]
+            isOneToOne: false
+            referencedRelation: "sitter_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sitter_badges: {
+        Row: {
+          created_at: string
+          id: string
+          kind: Database["public"]["Enums"]["sitter_badge_kind"]
+          notes: string | null
+          sitter_id: string
+          verified_at: string | null
+          verified_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          kind: Database["public"]["Enums"]["sitter_badge_kind"]
+          notes?: string | null
+          sitter_id: string
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          kind?: Database["public"]["Enums"]["sitter_badge_kind"]
+          notes?: string | null
+          sitter_id?: string
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sitter_badges_sitter_id_fkey"
+            columns: ["sitter_id"]
+            isOneToOne: false
+            referencedRelation: "sitter_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sitter_profiles: {
+        Row: {
+          accepts_dangerous_breeds: boolean
+          available_from: string | null
+          available_until: string | null
+          bio: string | null
+          created_at: string
+          experience_years: number | null
+          id: string
+          service_zones: string[]
+          updated_at: string
+        }
+        Insert: {
+          accepts_dangerous_breeds?: boolean
+          available_from?: string | null
+          available_until?: string | null
+          bio?: string | null
+          created_at?: string
+          experience_years?: number | null
+          id: string
+          service_zones?: string[]
+          updated_at?: string
+        }
+        Update: {
+          accepts_dangerous_breeds?: boolean
+          available_from?: string | null
+          available_until?: string | null
+          bio?: string | null
+          created_at?: string
+          experience_years?: number | null
+          id?: string
+          service_zones?: string[]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sitter_profiles_id_fkey"
+            columns: ["id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sitter_profiles_id_fkey"
+            columns: ["id"]
+            isOneToOne: true
+            referencedRelation: "sitters_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       sitters_public: {
         Row: {
+          accepts_dangerous_breeds: boolean | null
+          available_from: string | null
+          available_until: string | null
           avatar_url: string | null
+          bio: string | null
           created_at: string | null
+          experience_years: number | null
           full_name: string | null
           id: string | null
-        }
-        Insert: {
-          avatar_url?: string | null
-          created_at?: string | null
-          full_name?: string | null
-          id?: string | null
-        }
-        Update: {
-          avatar_url?: string | null
-          created_at?: string | null
-          full_name?: string | null
-          id?: string | null
+          service_zones: string[] | null
         }
         Relationships: []
       }
@@ -97,6 +215,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
+      sitter_badge_kind: "id_check" | "background_check" | "first_aid"
       user_role: "client" | "sitter"
     }
     CompositeTypes: {
@@ -228,6 +347,7 @@ export const Constants = {
   },
   public: {
     Enums: {
+      sitter_badge_kind: ["id_check", "background_check", "first_aid"],
       user_role: ["client", "sitter"],
     },
   },

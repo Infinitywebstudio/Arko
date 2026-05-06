@@ -8,15 +8,17 @@ import {
   HomeCTA,
   HomeFooter,
 } from "@/components/homepage";
+import { listSittersForHome } from "@/lib/sitter/helpers";
 
-export default function Home() {
+export default async function Home() {
+  const sitters = await listSittersForHome(4);
   return (
     <>
       <HomeNav />
       <HomeHero />
       <HomeStats />
       <HomeHowItWorks />
-      <HomeSitters />
+      <HomeSitters sitters={sitters} />
       <HomeTrust />
       <HomeCTA />
       <HomeFooter />

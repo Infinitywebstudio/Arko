@@ -122,12 +122,30 @@ export default async function ComptePage() {
               color: "var(--ink-600)",
               lineHeight: 1.6,
               margin: 0,
-              marginBottom: "var(--space-8)",
+              marginBottom: "var(--space-6)",
             }}
           >
             Ton compte ARKO est actif. Les fonctionnalités complètes arrivent dans les
             prochains jours.
           </p>
+
+          {isSitter && (
+            <div
+              style={{
+                display: "flex",
+                gap: 12,
+                flexWrap: "wrap",
+                marginBottom: "var(--space-8)",
+              }}
+            >
+              <Link href="/sitter/profil" className="btn btn-primary btn-sm">
+                Compléter mon profil sitter
+              </Link>
+              <Link href="/sitter/disponibilites" className="btn btn-outline btn-sm">
+                Mes disponibilités
+              </Link>
+            </div>
+          )}
 
           <div
             style={{

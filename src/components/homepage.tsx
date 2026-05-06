@@ -1,5 +1,8 @@
 import Link from "next/link";
 import { Arko, Paw, Icon, type ArkoMood } from "./mascot";
+import type { Database } from "@/lib/supabase/database.types";
+
+type SitterPublic = Database["public"]["Views"]["sitters_public"]["Row"];
 
 export function HomeNav() {
   return (
@@ -525,22 +528,27 @@ export function HomeHowItWorks() {
   );
 }
 
-export function HomeSitters() {
-  const sitters: {
-    name: string;
-    area: string;
-    rating: string;
-    reviews: number;
-    price: number;
-    mood: ArkoMood;
-    collar: string;
-    badge: string;
-  }[] = [
-    { name: "Camille L.", area: "Le Marais", rating: "4.9", reviews: 87, price: 32, mood: "happy", collar: "#FF5A5F", badge: "Vérifiée" },
-    { name: "Julien M.", area: "Montmartre", rating: "4.8", reviews: 54, price: 32, mood: "alert", collar: "#1B2A49", badge: "Top sitter" },
-    { name: "Sophie R.", area: "Saint-Germain", rating: "5.0", reviews: 41, price: 32, mood: "waggy", collar: "#2E7D5B", badge: "Nouveau" },
-    { name: "Antoine P.", area: "Bastille", rating: "4.9", reviews: 112, price: 30, mood: "happy", collar: "#F4A261", badge: "Vérifié" },
-  ];
+// Pricing for the homepage card preview. Real billing happens server-side
+// from the same source of truth (booking flow line item).
+const HOME_CARD_DURATION_HOURS = 2;
+const HOME_CARD_PRICE_EUR = 32;
+
+// Visual rotation for the Arko mascot fallback when a sitter has no avatar.
+const FALLBACK_MOODS: ArkoMood[] = ["happy", "alert", "waggy", "happy"];
+const FALLBACK_COLLARS = ["#FF5A5F", "#1B2A49", "#2E7D5B", "#F4A261"];
+
+function displayName(full: string | null): string {
+  if (!full) return "Sitter";
+  const parts = full.trim().split(/\s+/);
+  if (parts.length === 1) return parts[0]!;
+  return `${parts[0]} ${parts[parts.length - 1]![0]!}.`;
+}
+
+export function HomeSitters({ sitters }: { sitters: SitterPublic[] }) {
+  if (!sitters || sitters.length === 0) {
+    // No sitters in DB yet — hide the whole section so the page stays clean.
+    return null;
+  }
   return (
     <section style={{ padding: "var(--space-20) var(--space-8)", maxWidth: 1280, margin: "0 auto" }}>
       <div
@@ -591,94 +599,85 @@ export function HomeSitters() {
         className="home-sitters-grid"
         style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "var(--space-5)" }}
       >
-        {sitters.map((s) => (
-          <div key={s.name} className="card card-hover">
-            <div
-              style={{
-                height: 180,
-                background: `linear-gradient(135deg, ${s.collar}22 0%, ${s.collar}55 100%)`,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                position: "relative",
-              }}
+        {sitters.slice(0, 4).map((s, i) => {
+          const collar = FALLBACK_COLLARS[i % FALLBACK_COLLARS.length]!;
+          const mood = FALLBACK_MOODS[i % FALLBACK_MOODS.length]!;
+          const area = (s.service_zones && s.service_zones[0]) || "Paris";
+          const sitterId = s.id ?? "";
+          return (
+            <Link
+              key={sitterId || i}
+              href={sitterId ? `/sitters/${sitterId}` : "#"}
+              className="card card-hover"
+              style={{ display: "flex", flexDirection: "column" }}
             >
-              <Arko size={130} mood={s.mood} collar={s.collar} />
-              <span className="badge badge-ink" style={{ position: "absolute", top: 12, left: 12 }}>
-                {s.badge}
-              </span>
-              <button
+              <div
                 style={{
-                  position: "absolute",
-                  top: 10,
-                  right: 10,
-                  width: 34,
-                  height: 34,
-                  borderRadius: 17,
-                  background: "white",
-                  border: "none",
+                  height: 180,
+                  background: s.avatar_url
+                    ? `url(${s.avatar_url}) center / cover no-repeat`
+                    : `linear-gradient(135deg, ${collar}22 0%, ${collar}55 100%)`,
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  cursor: "pointer",
+                  position: "relative",
                 }}
-                aria-label="Ajouter aux favoris"
               >
-                <Icon name="heart" size={16} color="var(--ink-700)" />
-              </button>
-            </div>
-            <div style={{ padding: "var(--space-5)" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
-                <div style={{ fontWeight: 600, fontSize: 16 }}>{s.name}</div>
-                <div style={{ fontFamily: "var(--font-mono)", fontSize: 13, color: "var(--ink-700)" }}>
-                  ★ {s.rating} <span style={{ color: "var(--ink-400)" }}>({s.reviews})</span>
+                {!s.avatar_url && <Arko size={130} mood={mood} collar={collar} />}
+              </div>
+              <div style={{ padding: "var(--space-5)", display: "flex", flexDirection: "column", flex: 1 }}>
+                <div style={{ fontWeight: 600, fontSize: 16 }}>{displayName(s.full_name)}</div>
+                <div
+                  style={{
+                    fontFamily: "var(--font-mono)",
+                    fontSize: 12,
+                    color: "var(--ink-500)",
+                    marginTop: 4,
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 4,
+                  }}
+                >
+                  <Icon name="pin" size={12} /> {area}
+                  {s.experience_years !== null && s.experience_years !== undefined && (
+                    <span style={{ marginLeft: 8 }}>
+                      · {s.experience_years === 0 ? "Débutant" : `${s.experience_years} an${s.experience_years > 1 ? "s" : ""} d'exp.`}
+                    </span>
+                  )}
+                </div>
+                <div
+                  style={{
+                    marginTop: "auto",
+                    paddingTop: "var(--space-4)",
+                    borderTop: "1px solid var(--ink-200)",
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                  }}
+                >
+                  <div>
+                    <div style={{ fontFamily: "var(--font-display)", fontSize: 22, letterSpacing: "-0.02em", lineHeight: 1 }}>
+                      {HOME_CARD_PRICE_EUR} €
+                    </div>
+                    <div
+                      style={{
+                        fontFamily: "var(--font-mono)",
+                        fontSize: 10,
+                        color: "var(--ink-500)",
+                        textTransform: "uppercase",
+                        letterSpacing: "0.06em",
+                        marginTop: 2,
+                      }}
+                    >
+                      pour {HOME_CARD_DURATION_HOURS}h
+                    </div>
+                  </div>
+                  <span className="btn btn-primary btn-sm">Voir</span>
                 </div>
               </div>
-              <div
-                style={{
-                  fontFamily: "var(--font-mono)",
-                  fontSize: 12,
-                  color: "var(--ink-500)",
-                  marginTop: 4,
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 4,
-                }}
-              >
-                <Icon name="pin" size={12} /> {s.area} · 4 min
-              </div>
-              <div
-                style={{
-                  marginTop: "var(--space-4)",
-                  paddingTop: "var(--space-4)",
-                  borderTop: "1px solid var(--ink-200)",
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                }}
-              >
-                <div>
-                  <div style={{ fontFamily: "var(--font-display)", fontSize: 22, letterSpacing: "-0.02em", lineHeight: 1 }}>
-                    {s.price} €
-                  </div>
-                  <div
-                    style={{
-                      fontFamily: "var(--font-mono)",
-                      fontSize: 10,
-                      color: "var(--ink-500)",
-                      textTransform: "uppercase",
-                      letterSpacing: "0.06em",
-                      marginTop: 2,
-                    }}
-                  >
-                    pour 2h
-                  </div>
-                </div>
-                <button className="btn btn-primary btn-sm">Choisir</button>
-              </div>
-            </div>
-          </div>
-        ))}
+            </Link>
+          );
+        })}
       </div>
     </section>
   );
