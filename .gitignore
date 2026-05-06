@@ -39,6 +39,9 @@ yarn-error.log*
 # claude code local settings
 .claude/
 
+# client/contract docs and design handoff bundle — local only, do NOT commit
+/ARKO-docs/
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts

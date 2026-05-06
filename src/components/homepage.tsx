@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Arko, Paw, Icon, type ArkoMood } from "./mascot";
 
 export function HomeNav() {
@@ -54,8 +55,12 @@ export function HomeNav() {
           <a>Aide</a>
         </div>
         <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
-          <button className="btn btn-ghost btn-sm">Connexion</button>
-          <button className="btn btn-primary btn-sm btn-pill">S&apos;inscrire</button>
+          <Link href="/connexion" className="btn btn-ghost btn-sm">
+            Connexion
+          </Link>
+          <Link href="/inscription" className="btn btn-primary btn-sm btn-pill">
+            S&apos;inscrire
+          </Link>
         </div>
       </div>
     </nav>

@@ -1,0 +1,66 @@
+import { z } from "zod";
+
+const emailSchema = z
+  .string({ message: "Email requis" })
+  .trim()
+  .toLowerCase()
+  .email({ message: "Email invalide" });
+
+// Min 8 chars matches Supabase Auth's default minimum_password_length.
+// The signup wizard surfaces a strength meter on top of this, but server-side
+// we only enforce the floor — UX guidance is not a security control.
+const passwordSchema = z
+  .string({ message: "Mot de passe requis" })
+  .min(8, { message: "Minimum 8 caractères" })
+  .max(128, { message: "Maximum 128 caractères" });
+
+// Permissive international phone shape: optional `+`, then 6–15 digits.
+// Spaces, dots, dashes are stripped before validation.
+const phoneSchema = z
+  .string()
+  .trim()
+  .transform((v) => v.replace(/[\s.\-()]/g, ""))
+  .refine((v) => v === "" || /^\+?\d{6,15}$/.test(v), {
+    message: "Numéro de téléphone invalide",
+  })
+  .transform((v) => (v === "" ? null : v));
+
+const fullNameSchema = z
+  .string({ message: "Nom requis" })
+  .trim()
+  .min(2, { message: "Minimum 2 caractères" })
+  .max(100, { message: "Maximum 100 caractères" });
+
+export const roleSchema = z.enum(["client", "sitter"], {
+  message: "Rôle invalide",
+});
+
+export const signUpSchema = z.object({
+  role: roleSchema,
+  email: emailSchema,
+  password: passwordSchema,
+  full_name: fullNameSchema,
+  phone: phoneSchema.optional().nullable(),
+  terms: z.literal(true, { message: "Vous devez accepter les conditions" }),
+});
+export type SignUpInput = z.infer<typeof signUpSchema>;
+
+export const signInSchema = z.object({
+  email: emailSchema,
+  password: z.string({ message: "Mot de passe requis" }).min(1, { message: "Mot de passe requis" }),
+});
+export type SignInInput = z.infer<typeof signInSchema>;
+
+export const forgotPasswordSchema = z.object({
+  email: emailSchema,
+});
+
+export const resetPasswordSchema = z
+  .object({
+    password: passwordSchema,
+    confirm_password: z.string(),
+  })
+  .refine((data) => data.password === data.confirm_password, {
+    message: "Les mots de passe ne correspondent pas",
+    path: ["confirm_password"],
+  });
