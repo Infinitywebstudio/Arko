@@ -8,6 +8,7 @@ import { createClient } from "@/lib/supabase/server";
 import { calculatePrice, type Duration } from "./pricing";
 import { createBookingSchema } from "./schemas";
 import { getStripe } from "@/lib/stripe/client";
+import { isDemoMode } from "@/lib/demo";
 import { zoneLabel } from "@/lib/zones";
 
 export type ActionResult =
@@ -205,11 +206,27 @@ export async function createBookingAction(
     return { ok: false, error: "Impossible de créer la réservation." };
   }
 
-  // ---------- Stripe Checkout session ---------------------
-  const stripe = getStripe();
   const siteUrl =
     process.env.NEXT_PUBLIC_SITE_URL ??
     (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000");
+
+  // ---------- Demo mode: skip Stripe entirely -------------
+  // Flip the booking straight to pending_acceptance (the state the webhook
+  // would set after a successful payment) and route the user to the merci
+  // page. The sitter notification email helper also short-circuits in demo
+  // so the chain produces console output, not real sends.
+  if (isDemoMode()) {
+    await supabase
+      .from("bookings")
+      .update({ status: "pending_acceptance" })
+      .eq("id", booking.id);
+    const { sendSitterBookingNotification } = await import("@/lib/email/booking");
+    void sendSitterBookingNotification(booking.id);
+    return { ok: true, redirectTo: `${siteUrl}/reservations/${booking.id}/merci` };
+  }
+
+  // ---------- Stripe Checkout session ---------------------
+  const stripe = getStripe();
 
   const dateLabel = new Intl.DateTimeFormat("fr-FR", {
     timeZone: PARIS_TZ,
@@ -314,7 +331,11 @@ export async function cancelBookingAction(
   // Refund through Stripe. We DON'T flip the booking status until the refund
   // call returns: if Stripe rejects we want the user to retry, not be stuck
   // with a cancelled-but-unrefunded row.
-  if (booking.stripe_payment_intent_id && !booking.refunded_at) {
+  if (
+    booking.stripe_payment_intent_id &&
+    !booking.refunded_at &&
+    !isDemoMode()
+  ) {
     try {
       await getStripe().refunds.create({
         payment_intent: booking.stripe_payment_intent_id,
@@ -419,7 +440,11 @@ export async function refuseBookingAction(
 
   // Refund FIRST. If Stripe fails the booking stays pending_acceptance and
   // the sitter can retry — better than a refused-but-not-refunded ghost.
-  if (booking.stripe_payment_intent_id && !booking.refunded_at) {
+  if (
+    booking.stripe_payment_intent_id &&
+    !booking.refunded_at &&
+    !isDemoMode()
+  ) {
     try {
       await getStripe().refunds.create({
         payment_intent: booking.stripe_payment_intent_id,

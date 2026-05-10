@@ -4,6 +4,7 @@ import {
   sendClientBookingNoResponseNotification,
 } from "@/lib/email/booking";
 import { createAdminClient } from "@/lib/supabase/server";
+import { isDemoMode } from "@/lib/demo";
 import { getStripe } from "@/lib/stripe/client";
 
 /**
@@ -68,7 +69,11 @@ export async function GET(request: NextRequest) {
   } else if (stalled && stalled.length > 0) {
     for (const booking of stalled) {
       try {
-        if (booking.stripe_payment_intent_id && !booking.refunded_at) {
+        if (
+          booking.stripe_payment_intent_id &&
+          !booking.refunded_at &&
+          !isDemoMode()
+        ) {
           await getStripe().refunds.create({
             payment_intent: booking.stripe_payment_intent_id,
           });

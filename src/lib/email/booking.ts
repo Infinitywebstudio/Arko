@@ -4,7 +4,45 @@ import { createAdminClient } from "@/lib/supabase/server";
 import { emailFrom, getResend } from "./client";
 import { formatEuros } from "@/lib/booking/pricing";
 import { telLink, whatsappLink } from "@/lib/contact";
+import { isDemoMode } from "@/lib/demo";
 import { zoneLabel } from "@/lib/zones";
+
+/**
+ * Internal helper — every booking email goes through this so the demo-mode
+ * short-circuit is enforced in one place. In demo mode we never call Resend;
+ * a console.info dump shows operators what *would* have shipped. In real
+ * mode any send error is logged but never thrown — emails are best-effort
+ * notifications on top of the in-app dashboards.
+ */
+async function deliver(args: {
+  to: string;
+  subject: string;
+  text: string;
+  html: string;
+  context: string;
+  bookingId: string;
+}): Promise<void> {
+  if (isDemoMode()) {
+    console.info(
+      `[demo email] ${args.context} would send to ${args.to} — subject: "${args.subject}"`,
+    );
+    return;
+  }
+  try {
+    const { error } = await getResend().emails.send({
+      from: emailFrom(),
+      to: args.to,
+      subject: args.subject,
+      text: args.text,
+      html: args.html,
+    });
+    if (error) {
+      console.error(`[email/${args.context}] send failed`, args.bookingId, error);
+    }
+  } catch (e) {
+    console.error(`[email/${args.context}] send threw`, args.bookingId, e);
+  }
+}
 
 const PARIS_TZ = "Europe/Paris";
 
@@ -135,20 +173,14 @@ export async function sendSitterBookingNotification(bookingId: string): Promise<
     </div>
   `;
 
-  try {
-    const { error } = await getResend().emails.send({
-      from: emailFrom(),
-      to: sitterEmail,
-      subject,
-      text: lines,
-      html,
-    });
-    if (error) {
-      console.error("[email/booking] send failed", bookingId, error);
-    }
-  } catch (e) {
-    console.error("[email/booking] send threw", bookingId, e);
-  }
+  await deliver({
+    to: sitterEmail,
+    subject,
+    text: lines,
+    html,
+    context: "booking",
+    bookingId,
+  });
 }
 
 /**
@@ -242,20 +274,14 @@ export async function sendClientBookingAcceptedNotification(
     </div>
   `;
 
-  try {
-    const { error } = await getResend().emails.send({
-      from: emailFrom(),
-      to: clientEmail,
-      subject,
-      text,
-      html,
-    });
-    if (error) {
-      console.error("[email/booking accepted] send failed", bookingId, error);
-    }
-  } catch (e) {
-    console.error("[email/booking accepted] send threw", bookingId, e);
-  }
+  await deliver({
+    to: clientEmail,
+    subject,
+    text,
+    html,
+    context: "booking accepted",
+    bookingId,
+  });
 }
 
 /**
@@ -353,18 +379,12 @@ async function sendClientCancellationNotification(
     </div>
   `;
 
-  try {
-    const { error } = await getResend().emails.send({
-      from: emailFrom(),
-      to: clientEmail,
-      subject,
-      text,
-      html,
-    });
-    if (error) {
-      console.error("[email/booking cancellation] send failed", bookingId, error);
-    }
-  } catch (e) {
-    console.error("[email/booking cancellation] send threw", bookingId, e);
-  }
+  await deliver({
+    to: clientEmail,
+    subject,
+    text,
+    html,
+    context: `booking ${opts.reason}`,
+    bookingId,
+  });
 }
