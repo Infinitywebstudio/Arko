@@ -36,6 +36,26 @@ export async function getSitterAvailability(userId: string): Promise<Availabilit
   return data;
 }
 
+/**
+ * Today's recurring slots for a sitter, ordered by start time. Uses the
+ * server's local weekday — the weekly schedule is conceptually a recurring
+ * pattern in the sitter's own timezone, which for the MVP we assume to
+ * coincide with the server (Vercel/eu-central-1 ≈ CEST). When we go
+ * multi-region we'll store a tz on the profile.
+ */
+export async function getTodayAvailability(userId: string): Promise<AvailabilityRow[]> {
+  const today = new Date().getDay(); // 0 = Sunday, 6 = Saturday — matches the weekday column.
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("sitter_availability")
+    .select("*")
+    .eq("sitter_id", userId)
+    .eq("weekday", today)
+    .order("start_time", { ascending: true });
+  if (error || !data) return [];
+  return data;
+}
+
 export async function getSitterBadges(userId: string): Promise<BadgeRow[]> {
   const supabase = await createClient();
   const { data, error } = await supabase
@@ -75,3 +95,4 @@ export async function listSittersForHome(limit = 8): Promise<SitterPublicRow[]> 
   if (error || !data) return [];
   return data;
 }
+

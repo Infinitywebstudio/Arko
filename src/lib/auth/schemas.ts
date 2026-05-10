@@ -64,3 +64,38 @@ export const resetPasswordSchema = z
     message: "Les mots de passe ne correspondent pas",
     path: ["confirm_password"],
   });
+
+// Editable identity fields shared by client and sitter accounts.
+// Note: phoneSchema yields `string | null`; full_name is required (NOT NULL in DB).
+export const identitySchema = z.object({
+  full_name: fullNameSchema,
+  phone: phoneSchema.optional().nullable(),
+});
+export type IdentityInput = z.infer<typeof identitySchema>;
+
+// New email — re-used by the email-change flow (Supabase sends a confirmation).
+export const updateEmailSchema = z.object({
+  email: emailSchema,
+});
+
+// Password change requires the current password (re-auth on the server before
+// calling auth.updateUser). We deliberately do NOT trust the session alone for
+// destructive identity actions.
+export const updatePasswordSchema = z
+  .object({
+    current_password: z.string({ message: "Mot de passe actuel requis" }).min(1, { message: "Mot de passe actuel requis" }),
+    password: passwordSchema,
+    confirm_password: z.string(),
+  })
+  .refine((data) => data.password === data.confirm_password, {
+    message: "Les mots de passe ne correspondent pas",
+    path: ["confirm_password"],
+  });
+
+// Account deletion: re-auth via current password + an explicit "SUPPRIMER" word
+// to defeat accidental clicks. The string is locale-bound to French on purpose;
+// this is a UX guard, not a security boundary.
+export const deleteAccountSchema = z.object({
+  current_password: z.string({ message: "Mot de passe requis" }).min(1, { message: "Mot de passe requis" }),
+  confirm: z.literal("SUPPRIMER", { message: "Tape SUPPRIMER pour confirmer" }),
+});

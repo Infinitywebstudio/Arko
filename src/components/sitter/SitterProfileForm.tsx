@@ -3,12 +3,17 @@
 import { useState, useTransition } from "react";
 
 import { updateSitterProfileAction } from "@/lib/sitter/actions";
+import { ZONES, isValidZoneId } from "@/lib/zones";
 import type { Database } from "@/lib/supabase/database.types";
 
 type SitterProfile = Database["public"]["Tables"]["sitter_profiles"]["Row"];
 
 type Props = {
   initial: SitterProfile;
+  identity: {
+    full_name: string;
+    phone: string | null;
+  };
 };
 
 const labelStyle: React.CSSProperties = {
@@ -45,15 +50,20 @@ const textareaStyle = (hasError: boolean): React.CSSProperties => ({
   lineHeight: 1.6,
 });
 
-export default function SitterProfileForm({ initial }: Props) {
+export default function SitterProfileForm({ initial, identity }: Props) {
+  const [fullName, setFullName] = useState(identity.full_name);
+  const [phone, setPhone] = useState(identity.phone ?? "");
   const [bio, setBio] = useState(initial.bio ?? "");
   const [years, setYears] = useState<string>(
     initial.experience_years === null ? "" : String(initial.experience_years),
   );
   const [acceptsDangerous, setAcceptsDangerous] = useState(initial.accepts_dangerous_breeds);
-  const [zonesText, setZonesText] = useState((initial.service_zones ?? []).join(", "));
-  const [from, setFrom] = useState(initial.available_from ?? "");
-  const [until, setUntil] = useState(initial.available_until ?? "");
+  // Filter out IDs that no longer exist in the curated list — happens when a zone
+  // is removed from src/lib/zones.ts after sitters have already saved profiles.
+  // Without this filter, the old slugs would make the validator reject the form.
+  const [selectedZones, setSelectedZones] = useState<Set<string>>(
+    () => new Set((initial.service_zones ?? []).filter(isValidZoneId)),
+  );
 
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
@@ -67,12 +77,15 @@ export default function SitterProfileForm({ initial }: Props) {
     setFieldErrors({});
 
     const fd = new FormData();
+    fd.append("full_name", fullName);
+    fd.append("phone", phone);
     fd.append("bio", bio);
     fd.append("experience_years", years);
     fd.append("accepts_dangerous_breeds", acceptsDangerous ? "true" : "false");
-    fd.append("service_zones", zonesText);
-    fd.append("available_from", from);
-    fd.append("available_until", until);
+    // Send each zone as a repeated field — the action's getAll("service_zones") handles this.
+    for (const id of selectedZones) {
+      fd.append("service_zones", id);
+    }
 
     startTransition(async () => {
       const result = await updateSitterProfileAction(fd);
@@ -87,6 +100,41 @@ export default function SitterProfileForm({ initial }: Props) {
 
   return (
     <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "var(--space-5)" }}>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+        <div>
+          <label htmlFor="full_name" style={labelStyle}>
+            Nom complet
+          </label>
+          <input
+            id="full_name"
+            type="text"
+            value={fullName}
+            onChange={(e) => setFullName(e.target.value)}
+            autoComplete="name"
+            maxLength={100}
+            style={inputStyle(!!fieldErrors.full_name)}
+            disabled={isPending}
+          />
+          {fieldErrors.full_name && <FieldError>{fieldErrors.full_name}</FieldError>}
+        </div>
+        <div>
+          <label htmlFor="phone" style={labelStyle}>
+            Téléphone
+          </label>
+          <input
+            id="phone"
+            type="tel"
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+            autoComplete="tel"
+            placeholder="+33 6 12 34 56 78"
+            style={inputStyle(!!fieldErrors.phone)}
+            disabled={isPending}
+          />
+          {fieldErrors.phone && <FieldError>{fieldErrors.phone}</FieldError>}
+        </div>
+      </div>
+
       <div>
         <label htmlFor="bio" style={labelStyle}>
           Bio
@@ -163,18 +211,54 @@ export default function SitterProfileForm({ initial }: Props) {
       </div>
 
       <div>
-        <label htmlFor="service_zones" style={labelStyle}>
-          Quartiers / zones d&apos;intervention
-        </label>
-        <input
-          id="service_zones"
-          type="text"
-          value={zonesText}
-          onChange={(e) => setZonesText(e.target.value)}
-          placeholder="Le Marais, Saint-Germain, Bastille…"
-          style={inputStyle(!!fieldErrors.service_zones)}
-          disabled={isPending}
-        />
+        <label style={labelStyle}>Zones d&apos;intervention</label>
+        <div
+          role="group"
+          aria-label="Zones d'intervention"
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            gap: 8,
+            padding: 12,
+            background: "white",
+            border: `1px solid ${fieldErrors.service_zones ? "var(--danger-500)" : "var(--ink-300)"}`,
+            borderRadius: 12,
+          }}
+        >
+          {ZONES.map((z) => {
+            const on = selectedZones.has(z.id);
+            return (
+              <button
+                type="button"
+                key={z.id}
+                aria-pressed={on}
+                disabled={isPending}
+                onClick={() => {
+                  setSelectedZones((prev) => {
+                    const next = new Set(prev);
+                    if (next.has(z.id)) next.delete(z.id);
+                    else next.add(z.id);
+                    return next;
+                  });
+                }}
+                style={{
+                  padding: "8px 12px",
+                  borderRadius: 999,
+                  fontFamily: "var(--font-mono)",
+                  fontSize: 12,
+                  fontWeight: 600,
+                  background: on ? "var(--coral-500)" : "white",
+                  color: on ? "white" : "var(--ink-700)",
+                  border: `1px solid ${on ? "var(--coral-500)" : "var(--ink-300)"}`,
+                  cursor: isPending ? "not-allowed" : "pointer",
+                  transition: "all 0.12s",
+                }}
+              >
+                {z.label}
+              </button>
+            );
+          })}
+        </div>
         <div
           style={{
             fontFamily: "var(--font-mono)",
@@ -183,40 +267,9 @@ export default function SitterProfileForm({ initial }: Props) {
             marginTop: 4,
           }}
         >
-          Sépare par des virgules (30 quartiers maximum)
+          {selectedZones.size} sélectionnée{selectedZones.size > 1 ? "s" : ""} — clique pour ajouter ou retirer
         </div>
         {fieldErrors.service_zones && <FieldError>{fieldErrors.service_zones}</FieldError>}
-      </div>
-
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
-        <div>
-          <label htmlFor="available_from" style={labelStyle}>
-            Plage horaire — début
-          </label>
-          <input
-            id="available_from"
-            type="time"
-            value={from}
-            onChange={(e) => setFrom(e.target.value)}
-            style={inputStyle(!!fieldErrors.available_from)}
-            disabled={isPending}
-          />
-          {fieldErrors.available_from && <FieldError>{fieldErrors.available_from}</FieldError>}
-        </div>
-        <div>
-          <label htmlFor="available_until" style={labelStyle}>
-            Plage horaire — fin
-          </label>
-          <input
-            id="available_until"
-            type="time"
-            value={until}
-            onChange={(e) => setUntil(e.target.value)}
-            style={inputStyle(!!fieldErrors.available_until)}
-            disabled={isPending}
-          />
-          {fieldErrors.available_until && <FieldError>{fieldErrors.available_until}</FieldError>}
-        </div>
       </div>
 
       {error && (

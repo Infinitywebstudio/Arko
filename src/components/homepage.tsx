@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Arko, Paw, Icon, type ArkoMood } from "./mascot";
+import { zoneLabel } from "@/lib/zones";
 import type { Database } from "@/lib/supabase/database.types";
 
 type SitterPublic = Database["public"]["Views"]["sitters_public"]["Row"];
@@ -602,7 +603,7 @@ export function HomeSitters({ sitters }: { sitters: SitterPublic[] }) {
         {sitters.slice(0, 4).map((s, i) => {
           const collar = FALLBACK_COLLARS[i % FALLBACK_COLLARS.length]!;
           const mood = FALLBACK_MOODS[i % FALLBACK_MOODS.length]!;
-          const area = (s.service_zones && s.service_zones[0]) || "Paris";
+          const area = s.service_zones && s.service_zones[0] ? zoneLabel(s.service_zones[0]) : "Arles";
           const sitterId = s.id ?? "";
           return (
             <Link

@@ -69,11 +69,17 @@ export default async function SitterLayout({ children }: { children: React.React
             </span>
           </Link>
           <nav style={navStyle}>
+            <Link href="/sitter" style={navLinkStyle}>
+              Aujourd&apos;hui
+            </Link>
             <Link href="/sitter/profil" style={navLinkStyle}>
               Mon profil
             </Link>
             <Link href="/sitter/disponibilites" style={navLinkStyle}>
               Disponibilités
+            </Link>
+            <Link href="/sitter/parametres" style={navLinkStyle}>
+              Paramètres
             </Link>
           </nav>
           <form action={signOutAction}>

@@ -9,6 +9,7 @@ import {
   getSitterPublic,
 } from "@/lib/sitter/helpers";
 import { Arko, Icon } from "@/components/mascot";
+import { zoneLabel } from "@/lib/zones";
 import type { Database } from "@/lib/supabase/database.types";
 
 type BadgeKind = Database["public"]["Enums"]["sitter_badge_kind"];
@@ -200,7 +201,7 @@ export default async function SitterProfilePage({
             {sitter.service_zones.map((zone) => (
               <span key={zone} className="badge badge-ink-soft" style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
                 <Icon name="pin" size={12} color="var(--ink-700)" />
-                {zone}
+                {zoneLabel(zone)}
               </span>
             ))}
           </div>
@@ -219,9 +220,7 @@ export default async function SitterProfilePage({
               margin: 0,
             }}
           >
-            {sitter.available_from && sitter.available_until
-              ? `Plage générale : ${trimSeconds(sitter.available_from)} – ${trimSeconds(sitter.available_until)}`
-              : "Pas encore renseigné."}
+            Pas encore renseigné.
           </p>
         ) : (
           <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>

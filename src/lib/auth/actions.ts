@@ -4,12 +4,16 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient, createClient } from "@/lib/supabase/server";
+import { requireUser } from "./helpers";
 import {
-  signUpSchema,
-  signInSchema,
+  deleteAccountSchema,
   forgotPasswordSchema,
   resetPasswordSchema,
+  signInSchema,
+  signUpSchema,
+  updateEmailSchema,
+  updatePasswordSchema,
 } from "./schemas";
 
 export type ActionResult =
@@ -196,4 +200,161 @@ export async function resetPasswordAction(
 
   revalidatePath("/", "layout");
   return { ok: true, redirectTo: "/compte" };
+}
+
+// =============================================================
+// Update email — sends a confirmation email to the new address
+// =============================================================
+//
+// Supabase's `auth.updateUser({ email })` behaviour: depending on project
+// settings (Secure email change), it sends a confirmation link to the new
+// address (and optionally to the old one). The email is not actually
+// changed until the user clicks through. We surface a generic success
+// message either way.
+export async function updateEmailAction(formData: FormData): Promise<ActionResult> {
+  await requireUser();
+
+  const parsed = updateEmailSchema.safeParse({ email: formData.get("email") });
+  if (!parsed.success) {
+    return {
+      ok: false,
+      error: "Email invalide.",
+      fieldErrors: fieldErrorsFromZod(parsed.error),
+    };
+  }
+
+  const supabase = await createClient();
+  const { error } = await supabase.auth.updateUser(
+    { email: parsed.data.email },
+    { emailRedirectTo: `${getSiteUrl()}/auth/callback?next=/compte` },
+  );
+
+  if (error) {
+    return { ok: false, error: translateAuthError(error.message) };
+  }
+
+  return { ok: true };
+}
+
+// =============================================================
+// Update password — requires the current password (re-auth)
+// =============================================================
+//
+// Defence in depth: even though the user is authenticated, we re-verify
+// the current password before changing it. Stops a hijacked session from
+// silently rotating credentials.
+export async function updatePasswordAction(formData: FormData): Promise<ActionResult> {
+  const session = await requireUser();
+
+  const parsed = updatePasswordSchema.safeParse({
+    current_password: formData.get("current_password"),
+    password: formData.get("password"),
+    confirm_password: formData.get("confirm_password"),
+  });
+  if (!parsed.success) {
+    return {
+      ok: false,
+      error: "Vérifie les informations saisies.",
+      fieldErrors: fieldErrorsFromZod(parsed.error),
+    };
+  }
+
+  const supabase = await createClient();
+
+  // Re-authenticate. signInWithPassword refreshes the session cookies for the
+  // same user — safe to call here.
+  const reauth = await supabase.auth.signInWithPassword({
+    email: session.email,
+    password: parsed.data.current_password,
+  });
+  if (reauth.error) {
+    return {
+      ok: false,
+      error: "Mot de passe actuel incorrect.",
+      fieldErrors: { current_password: "Mot de passe actuel incorrect" },
+    };
+  }
+
+  const { error } = await supabase.auth.updateUser({ password: parsed.data.password });
+  if (error) {
+    return { ok: false, error: translateAuthError(error.message) };
+  }
+
+  return { ok: true };
+}
+
+// =============================================================
+// Delete account — re-auth + irreversible
+// =============================================================
+//
+// Cascade order:
+//   1. Verify the password (defence in depth).
+//   2. Best-effort cleanup of user-owned storage (avatars). Orphans are not
+//      catastrophic — RLS on the bucket already prevents access — but we
+//      try anyway to honour data-deletion expectations.
+//   3. admin.deleteUser via service_role. ON DELETE CASCADE on
+//      profiles.id → auth.users.id removes the profile (and sitter_profiles,
+//      sitter_availability, sitter_badges by their own cascades).
+//   4. Sign out the local session (clears cookies).
+//
+// Storage cleanup is intentionally non-blocking: a leftover image is far less
+// bad than a half-deleted account.
+export async function deleteAccountAction(formData: FormData): Promise<ActionResult> {
+  const session = await requireUser();
+
+  const parsed = deleteAccountSchema.safeParse({
+    current_password: formData.get("current_password"),
+    confirm: formData.get("confirm"),
+  });
+  if (!parsed.success) {
+    return {
+      ok: false,
+      error: "Vérifie les informations saisies.",
+      fieldErrors: fieldErrorsFromZod(parsed.error),
+    };
+  }
+
+  const supabase = await createClient();
+
+  const reauth = await supabase.auth.signInWithPassword({
+    email: session.email,
+    password: parsed.data.current_password,
+  });
+  if (reauth.error) {
+    return {
+      ok: false,
+      error: "Mot de passe incorrect.",
+      fieldErrors: { current_password: "Mot de passe incorrect" },
+    };
+  }
+
+  // Best-effort storage cleanup (avatars + sitter-documents).
+  for (const bucket of ["avatars", "sitter-documents"]) {
+    try {
+      const { data: files } = await supabase.storage
+        .from(bucket)
+        .list(session.userId, { limit: 100 });
+      if (files && files.length > 0) {
+        await supabase.storage
+          .from(bucket)
+          .remove(files.map((f) => `${session.userId}/${f.name}`));
+      }
+    } catch {
+      // Swallow — storage failure must not block account deletion.
+    }
+  }
+
+  // Hard-delete the auth user. Cascades remove all linked rows.
+  const admin = createAdminClient();
+  const { error: delErr } = await admin.auth.admin.deleteUser(session.userId);
+  if (delErr) {
+    return { ok: false, error: "Suppression impossible. Contacte le support." };
+  }
+
+  // Clear local session cookies. scope=local skips the /auth/logout round-trip,
+  // which would 401 anyway since auth.users is gone.
+  await supabase.auth.signOut({ scope: "local" });
+
+  revalidatePath("/", "layout");
+  return { ok: true, redirectTo: "/" };
 }

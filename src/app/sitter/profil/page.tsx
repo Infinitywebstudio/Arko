@@ -119,7 +119,13 @@ export default async function SitterProfilePage() {
         >
           Informations
         </h2>
-        <SitterProfileForm initial={sitterProfile} />
+        <SitterProfileForm
+          initial={sitterProfile}
+          identity={{
+            full_name: session.profile.full_name,
+            phone: session.profile.phone,
+          }}
+        />
       </section>
     </div>
   );

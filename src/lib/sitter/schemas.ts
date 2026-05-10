@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+import { isValidZoneId } from "@/lib/zones";
+
 // ---------- Profile fields -----------------------------------
 
 const bioSchema = z
@@ -24,46 +26,31 @@ const experienceYearsSchema = z
   .nullable()
   .optional();
 
+// Zone IDs come from a curated TS constant (src/lib/zones.ts). We reject any value
+// not in that list — keeps DB rows aligned with the dropdown and prevents stale
+// or typo'd zones leaking in via crafted requests.
 const serviceZoneItemSchema = z
   .string()
   .trim()
-  .min(1, { message: "Quartier requis" })
-  .max(80, { message: "Maximum 80 caractères" });
+  .refine(isValidZoneId, { message: "Zone invalide" });
 
 const serviceZonesSchema = z
   .array(serviceZoneItemSchema)
-  .max(30, { message: "Maximum 30 quartiers" })
+  .max(30, { message: "Maximum 30 zones" })
+  .transform((arr) => Array.from(new Set(arr))) // de-duplicate
   .default([]);
 
-// HH:MM matcher (24h, optional seconds ignored).
+// HH:MM matcher (24h, optional seconds ignored). Used by availability slots only.
 const timeStringSchema = z
   .string()
   .regex(/^([01]\d|2[0-3]):[0-5]\d$/, { message: "Format attendu HH:MM" });
 
-const optionalTimeSchema = z
-  .union([timeStringSchema, z.literal("")])
-  .transform((v) => (v === "" ? null : v))
-  .nullable()
-  .optional();
-
-export const sitterProfileSchema = z
-  .object({
-    bio: bioSchema,
-    experience_years: experienceYearsSchema,
-    accepts_dangerous_breeds: z.boolean().default(false),
-    service_zones: serviceZonesSchema,
-    available_from: optionalTimeSchema,
-    available_until: optionalTimeSchema,
-  })
-  .superRefine((val, ctx) => {
-    if (val.available_from && val.available_until && val.available_until <= val.available_from) {
-      ctx.addIssue({
-        code: "custom",
-        path: ["available_until"],
-        message: "L'heure de fin doit être après l'heure de début",
-      });
-    }
-  });
+export const sitterProfileSchema = z.object({
+  bio: bioSchema,
+  experience_years: experienceYearsSchema,
+  accepts_dangerous_breeds: z.boolean().default(false),
+  service_zones: serviceZonesSchema,
+});
 
 export type SitterProfileInput = z.infer<typeof sitterProfileSchema>;
 

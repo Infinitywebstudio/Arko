@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
 import { requireRole } from "@/lib/auth/helpers";
+import { identitySchema } from "@/lib/auth/schemas";
 import { createClient } from "@/lib/supabase/server";
 import {
   AVATAR_MAX_BYTES,
@@ -55,8 +56,6 @@ export async function updateSitterProfileAction(
       formData.get("accepts_dangerous_breeds") === "on" ||
       formData.get("accepts_dangerous_breeds") === "true",
     service_zones: zones,
-    available_from: formData.get("available_from"),
-    available_until: formData.get("available_until"),
   };
 
   const parsed = sitterProfileSchema.safeParse(raw);
@@ -68,21 +67,48 @@ export async function updateSitterProfileAction(
     };
   }
 
+  const identityParsed = identitySchema.safeParse({
+    full_name: formData.get("full_name"),
+    phone: formData.get("phone") ?? "",
+  });
+  if (!identityParsed.success) {
+    return {
+      ok: false,
+      error: "Vérifie les informations saisies.",
+      fieldErrors: fieldErrorsFromZod(identityParsed.error),
+    };
+  }
+
   const supabase = await createClient();
-  const { error } = await supabase
+
+  // Two updates in sequence on the same DB. RLS on profiles enforces auth.uid() = id;
+  // the role-mutation trigger blocks any attempt to escalate. Failure of the second
+  // update leaves identity unchanged but sitter_profiles updated — acceptable: the
+  // user simply re-submits; both updates are idempotent.
+  const sitterUpdate = await supabase
     .from("sitter_profiles")
     .update({
       bio: parsed.data.bio ?? null,
       experience_years: parsed.data.experience_years ?? null,
       accepts_dangerous_breeds: parsed.data.accepts_dangerous_breeds,
       service_zones: parsed.data.service_zones,
-      available_from: parsed.data.available_from ?? null,
-      available_until: parsed.data.available_until ?? null,
     })
     .eq("id", session.userId);
 
-  if (error) {
+  if (sitterUpdate.error) {
     return { ok: false, error: "Impossible d'enregistrer ton profil." };
+  }
+
+  const profileUpdate = await supabase
+    .from("profiles")
+    .update({
+      full_name: identityParsed.data.full_name,
+      phone: identityParsed.data.phone ?? null,
+    })
+    .eq("id", session.userId);
+
+  if (profileUpdate.error) {
+    return { ok: false, error: "Impossible d'enregistrer ton identité." };
   }
 
   revalidatePath("/sitter/profil");

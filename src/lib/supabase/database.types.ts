@@ -12,31 +12,6 @@ export type Database = {
   __InternalSupabase: {
     PostgrestVersion: "14.5"
   }
-  graphql_public: {
-    Tables: {
-      [_ in never]: never
-    }
-    Views: {
-      [_ in never]: never
-    }
-    Functions: {
-      graphql: {
-        Args: {
-          extensions?: Json
-          operationName?: string
-          query?: string
-          variables?: Json
-        }
-        Returns: Json
-      }
-    }
-    Enums: {
-      [_ in never]: never
-    }
-    CompositeTypes: {
-      [_ in never]: never
-    }
-  }
   public: {
     Tables: {
       profiles: {
@@ -145,8 +120,6 @@ export type Database = {
       sitter_profiles: {
         Row: {
           accepts_dangerous_breeds: boolean
-          available_from: string | null
-          available_until: string | null
           bio: string | null
           created_at: string
           experience_years: number | null
@@ -156,8 +129,6 @@ export type Database = {
         }
         Insert: {
           accepts_dangerous_breeds?: boolean
-          available_from?: string | null
-          available_until?: string | null
           bio?: string | null
           created_at?: string
           experience_years?: number | null
@@ -167,8 +138,6 @@ export type Database = {
         }
         Update: {
           accepts_dangerous_breeds?: boolean
-          available_from?: string | null
-          available_until?: string | null
           bio?: string | null
           created_at?: string
           experience_years?: number | null
@@ -198,8 +167,6 @@ export type Database = {
       sitters_public: {
         Row: {
           accepts_dangerous_breeds: boolean | null
-          available_from: string | null
-          available_until: string | null
           avatar_url: string | null
           bio: string | null
           created_at: string | null
@@ -342,9 +309,6 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
-  graphql_public: {
-    Enums: {},
-  },
   public: {
     Enums: {
       sitter_badge_kind: ["id_check", "background_check", "first_aid"],

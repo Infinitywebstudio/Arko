@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 
 import { requireUser } from "@/lib/auth/helpers";
 import { signOutAction } from "@/lib/auth/actions";
@@ -12,7 +13,8 @@ export const metadata: Metadata = {
 export default async function ComptePage() {
   const session = await requireUser("/compte");
   const { profile, email } = session;
-  const isSitter = profile.role === "sitter";
+  // Sitters have a dedicated hub at /sitter — keep /compte as the client landing.
+  if (profile.role === "sitter") redirect("/sitter");
 
   return (
     <div
@@ -96,7 +98,7 @@ export default async function ComptePage() {
               marginBottom: "var(--space-5)",
             }}
           >
-            {isSitter ? "Compte dog-sitter" : "Compte client"}
+            Compte client
           </div>
           <h1
             style={{
@@ -129,24 +131,6 @@ export default async function ComptePage() {
             prochains jours.
           </p>
 
-          {isSitter && (
-            <div
-              style={{
-                display: "flex",
-                gap: 12,
-                flexWrap: "wrap",
-                marginBottom: "var(--space-8)",
-              }}
-            >
-              <Link href="/sitter/profil" className="btn btn-primary btn-sm">
-                Compléter mon profil sitter
-              </Link>
-              <Link href="/sitter/disponibilites" className="btn btn-outline btn-sm">
-                Mes disponibilités
-              </Link>
-            </div>
-          )}
-
           <div
             style={{
               display: "grid",
@@ -171,7 +155,7 @@ export default async function ComptePage() {
               </>
             )}
             <div style={{ color: "var(--ink-500)" }}>Rôle</div>
-            <div style={{ fontWeight: 600 }}>{isSitter ? "Dog-sitter" : "Client"}</div>
+            <div style={{ fontWeight: 600 }}>Client</div>
           </div>
         </div>
       </main>
