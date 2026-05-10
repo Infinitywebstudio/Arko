@@ -16,12 +16,16 @@ export type Database = {
     Tables: {
       bookings: {
         Row: {
+          client_full_name: string
           client_id: string
+          client_notes: string | null
+          client_phone: string | null
           created_at: string
           dangerous_breed: boolean
           duration_hours: number
           id: string
           late: boolean
+          meeting_zone_id: string | null
           platform_fee_cents: number
           price_cents: number
           refunded_at: string | null
@@ -36,12 +40,16 @@ export type Database = {
           urgent: boolean
         }
         Insert: {
+          client_full_name: string
           client_id: string
+          client_notes?: string | null
+          client_phone?: string | null
           created_at?: string
           dangerous_breed?: boolean
           duration_hours: number
           id?: string
           late?: boolean
+          meeting_zone_id?: string | null
           platform_fee_cents: number
           price_cents: number
           refunded_at?: string | null
@@ -56,12 +64,16 @@ export type Database = {
           urgent?: boolean
         }
         Update: {
+          client_full_name?: string
           client_id?: string
+          client_notes?: string | null
+          client_phone?: string | null
           created_at?: string
           dangerous_breed?: boolean
           duration_hours?: number
           id?: string
           late?: boolean
+          meeting_zone_id?: string | null
           platform_fee_cents?: number
           price_cents?: number
           refunded_at?: string | null

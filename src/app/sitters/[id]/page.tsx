@@ -255,11 +255,33 @@ export default async function SitterProfilePage({
         )}
       </section>
 
-      {/* CTA — booking flow comes later */}
+      {/* CTA — disabled for the sitter on their own profile (no booking yourself).
+          Hidden entirely if the sitter has no availability slots, since the
+          reservation page would be a dead end. */}
       <section>
-        <button type="button" disabled className="btn btn-primary btn-lg" style={{ opacity: 0.6, cursor: "not-allowed" }}>
-          Réserver — bientôt disponible
-        </button>
+        {isOwner ? (
+          <button
+            type="button"
+            disabled
+            className="btn btn-outline btn-lg"
+            style={{ opacity: 0.6, cursor: "not-allowed" }}
+          >
+            C&apos;est ton profil
+          </button>
+        ) : availability.length === 0 ? (
+          <button
+            type="button"
+            disabled
+            className="btn btn-primary btn-lg"
+            style={{ opacity: 0.6, cursor: "not-allowed" }}
+          >
+            Pas encore de créneau
+          </button>
+        ) : (
+          <Link href={`/sitters/${sitter.id}/reserver`} className="btn btn-primary btn-lg">
+            Réserver une garde
+          </Link>
+        )}
       </section>
     </article>
   );

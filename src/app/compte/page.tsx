@@ -131,6 +131,15 @@ export default async function ComptePage() {
             prochains jours.
           </p>
 
+          <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginBottom: "var(--space-8)" }}>
+            <Link href="/sitters" className="btn btn-primary btn-sm">
+              Trouver un sitter
+            </Link>
+            <Link href="/compte/bookings" className="btn btn-outline btn-sm">
+              Mes réservations
+            </Link>
+          </div>
+
           <div
             style={{
               display: "grid",
