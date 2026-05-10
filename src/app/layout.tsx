@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Instrument_Serif, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
-import DemoBanner from "@/components/DemoBanner";
 
 const instrumentSerif = Instrument_Serif({
   variable: "--font-display",
@@ -32,10 +31,7 @@ export default function RootLayout({
       lang="fr"
       className={`${instrumentSerif.variable} ${jetBrainsMono.variable}`}
     >
-      <body>
-        <DemoBanner />
-        {children}
-      </body>
+      <body>{children}</body>
     </html>
   );
 }
