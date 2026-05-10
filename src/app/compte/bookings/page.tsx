@@ -62,7 +62,7 @@ export default async function ClientBookingsPage() {
   const { data } = await supabase
     .from("bookings")
     .select(
-      "id, status, start_at, duration_hours, price_cents, dangerous_breed, urgent, late, meeting_zone_id, sitter_id, sitter:profiles!sitter_id (full_name, avatar_url, phone)",
+      "id, status, start_at, duration_hours, price_cents, dangerous_breed, urgent, late, meeting_zone_id, sitter_id, client_full_name, sitter:profiles!sitter_id (full_name, avatar_url, phone)",
     )
     // Hide pending_payment from the user-facing list — they're either still
     // in the Stripe Checkout flow or about to expire and get cleaned up.
