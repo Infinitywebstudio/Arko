@@ -234,3 +234,61 @@ img { max-width: 100%; display: block; }
   .home-sitters-grid { grid-template-columns: 1fr !important; }
   .home-footer-grid { grid-template-columns: 1fr !important; }
 }
+
+/* === BOTTOM NAV (mobile only) ===
+   Hidden on desktop. On mobile, fixed at the bottom of the viewport with a
+   safe-area inset so it survives the iPhone home indicator, and the body
+   gets a matching padding-bottom so content doesn't slip underneath. */
+.bottom-nav {
+  display: none;
+}
+@media (max-width: 767px) {
+  .bottom-nav {
+    display: flex;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 60;
+    background: white;
+    border-top: 1px solid var(--ink-200);
+    padding: 8px 4px calc(8px + env(safe-area-inset-bottom)) 4px;
+    box-shadow: 0 -2px 12px rgba(0, 0, 0, 0.04);
+    justify-content: space-around;
+    align-items: stretch;
+  }
+  body {
+    padding-bottom: calc(72px + env(safe-area-inset-bottom));
+  }
+}
+.bottom-nav-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 6px 4px;
+  border-radius: 10px;
+  text-decoration: none;
+  color: var(--ink-500);
+  transition: color var(--dur-fast) var(--ease-out),
+              background var(--dur-fast) var(--ease-out);
+  min-width: 0;
+}
+.bottom-nav-item:active {
+  background: var(--ink-100);
+}
+.bottom-nav-item.is-active {
+  color: var(--coral-600);
+}
+.bottom-nav-label {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}

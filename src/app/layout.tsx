@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Instrument_Serif, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
+import BottomNavRoot from "@/components/BottomNavRoot";
 
 const instrumentSerif = Instrument_Serif({
   variable: "--font-display",
@@ -31,7 +32,10 @@ export default function RootLayout({
       lang="fr"
       className={`${instrumentSerif.variable} ${jetBrainsMono.variable}`}
     >
-      <body>{children}</body>
+      <body>
+        {children}
+        <BottomNavRoot />
+      </body>
     </html>
   );
 }
