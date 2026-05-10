@@ -341,3 +341,166 @@ export async function cancelBookingAction(
   revalidatePath("/compte/bookings");
   return { ok: true };
 }
+
+// =============================================================
+// Sitter-side actions: accept / refuse / close
+// =============================================================
+// All three are gated by requireRole("sitter") + RLS "sitter updates own
+// booking" — only the booking's sitter can flip its state. The action layer
+// then enforces which transitions are legal (a sitter can't, for instance,
+// refuse a confirmed booking; the cancellation path is the client's).
+
+/**
+ * Sitter accepts a pending_acceptance booking. Flips it to `confirmed` and
+ * fires the client notification email with the sitter's contact info.
+ */
+export async function acceptBookingAction(
+  bookingId: string,
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  const session = await requireUser();
+  if (session.profile.role !== "sitter") {
+    return { ok: false, error: "Action réservée aux sitters." };
+  }
+
+  const supabase = await createClient();
+  // Atomic transition: only succeeds if the row is still pending_acceptance.
+  // Guards against duplicate-click and concurrent accept/refuse.
+  const { data: updated, error } = await supabase
+    .from("bookings")
+    .update({ status: "confirmed" })
+    .eq("id", bookingId)
+    .eq("sitter_id", session.userId)
+    .eq("status", "pending_acceptance")
+    .select("id")
+    .maybeSingle();
+  if (error) {
+    return { ok: false, error: "Impossible d'accepter la garde." };
+  }
+  if (!updated) {
+    return { ok: false, error: "Cette demande n'est plus en attente." };
+  }
+
+  // Best-effort client notification. Email failure must not flip the booking
+  // back — that would create an inconsistent state. We log and move on; the
+  // sitter still sees the row as confirmed and can phone the client directly.
+  const { sendClientBookingAcceptedNotification } = await import("@/lib/email/booking");
+  void sendClientBookingAcceptedNotification(bookingId);
+
+  revalidatePath("/sitter/demandes");
+  revalidatePath("/sitter");
+  return { ok: true };
+}
+
+/**
+ * Sitter refuses a pending_acceptance booking. Refunds Stripe automatically
+ * then flips the row to refused_by_sitter and notifies the client.
+ */
+export async function refuseBookingAction(
+  bookingId: string,
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  const session = await requireUser();
+  if (session.profile.role !== "sitter") {
+    return { ok: false, error: "Action réservée aux sitters." };
+  }
+
+  const supabase = await createClient();
+  const { data: booking, error: readErr } = await supabase
+    .from("bookings")
+    .select("id, status, stripe_payment_intent_id, refunded_at")
+    .eq("id", bookingId)
+    .eq("sitter_id", session.userId)
+    .maybeSingle();
+  if (readErr || !booking) {
+    return { ok: false, error: "Demande introuvable." };
+  }
+  if (booking.status !== "pending_acceptance") {
+    return { ok: false, error: "Cette demande n'est plus en attente." };
+  }
+
+  // Refund FIRST. If Stripe fails the booking stays pending_acceptance and
+  // the sitter can retry — better than a refused-but-not-refunded ghost.
+  if (booking.stripe_payment_intent_id && !booking.refunded_at) {
+    try {
+      await getStripe().refunds.create({
+        payment_intent: booking.stripe_payment_intent_id,
+      });
+    } catch (e) {
+      const message = e instanceof Error ? e.message : "Erreur Stripe inconnue.";
+      return { ok: false, error: `Remboursement impossible : ${message}` };
+    }
+  }
+
+  const { error: updErr } = await supabase
+    .from("bookings")
+    .update({
+      status: "refused_by_sitter",
+      refunded_at: new Date().toISOString(),
+    })
+    .eq("id", bookingId)
+    .eq("status", "pending_acceptance");
+  if (updErr) {
+    return { ok: false, error: "Mise à jour impossible. Contacte le support." };
+  }
+
+  const { sendClientBookingRefusedNotification } = await import("@/lib/email/booking");
+  void sendClientBookingRefusedNotification(bookingId);
+
+  revalidatePath("/sitter/demandes");
+  revalidatePath("/sitter");
+  return { ok: true };
+}
+
+/**
+ * Sitter closes a confirmed booking after the garde period has ended. Records
+ * an optional free-text comment (no rating, per MVP scope). Closure is
+ * allowed any time after start_at — we don't gate on end_at because the
+ * sitter is the ground-truth source on whether the garde actually wrapped up.
+ */
+export async function closeBookingAction(
+  bookingId: string,
+  comment: string | null,
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  const session = await requireUser();
+  if (session.profile.role !== "sitter") {
+    return { ok: false, error: "Action réservée aux sitters." };
+  }
+
+  const trimmedComment = (comment ?? "").trim();
+  if (trimmedComment.length > 1000) {
+    return { ok: false, error: "Commentaire trop long (1000 caractères max)." };
+  }
+
+  const supabase = await createClient();
+  const { data: booking, error: readErr } = await supabase
+    .from("bookings")
+    .select("id, status, start_at")
+    .eq("id", bookingId)
+    .eq("sitter_id", session.userId)
+    .maybeSingle();
+  if (readErr || !booking) {
+    return { ok: false, error: "Garde introuvable." };
+  }
+  if (booking.status !== "confirmed") {
+    return { ok: false, error: "Cette garde ne peut plus être clôturée." };
+  }
+  if (new Date(booking.start_at).getTime() > Date.now()) {
+    return { ok: false, error: "La garde n'a pas encore commencé." };
+  }
+
+  const { error } = await supabase
+    .from("bookings")
+    .update({
+      status: "completed",
+      sitter_closed_at: new Date().toISOString(),
+      sitter_comment: trimmedComment === "" ? null : trimmedComment,
+    })
+    .eq("id", bookingId)
+    .eq("status", "confirmed");
+  if (error) {
+    return { ok: false, error: "Mise à jour impossible." };
+  }
+
+  revalidatePath("/sitter/demandes");
+  revalidatePath("/sitter");
+  return { ok: true };
+}

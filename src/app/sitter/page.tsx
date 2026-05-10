@@ -3,6 +3,7 @@ import Link from "next/link";
 
 import { requireRole } from "@/lib/auth/helpers";
 import { getTodayAvailability } from "@/lib/sitter/helpers";
+import { createClient } from "@/lib/supabase/server";
 import { Arko, Icon, type IconName } from "@/components/mascot";
 
 export const metadata: Metadata = {
@@ -35,6 +36,16 @@ const tileLink: React.CSSProperties = {
 export default async function SitterHomePage() {
   const session = await requireRole("sitter");
   const todaySlots = await getTodayAvailability(session.userId);
+
+  // Pending demand count — drives a coral badge on the "Demandes" tile to
+  // signal that something needs the sitter's attention.
+  const supabase = await createClient();
+  const { count: pendingCount } = await supabase
+    .from("bookings")
+    .select("id", { count: "exact", head: true })
+    .eq("sitter_id", session.userId)
+    .eq("status", "pending_acceptance");
+  const pendingNum = pendingCount ?? 0;
 
   const firstName = session.profile.full_name.split(" ")[0] ?? session.profile.full_name;
   const todayLabel = DATE_FMT.format(new Date());
@@ -230,6 +241,13 @@ export default async function SitterHomePage() {
             gap: 12,
           }}
         >
+          <Tile
+            href="/sitter/demandes"
+            icon="bell"
+            label="Demandes"
+            hint={pendingNum > 0 ? `${pendingNum} en attente` : "Mes gardes"}
+            badge={pendingNum > 0 ? pendingNum : undefined}
+          />
           <Tile href="/sitter/profil" icon="user" label="Mon profil" hint="Bio, photo, expérience" />
           <Tile href="/sitter/disponibilites" icon="calendar" label="Disponibilités" hint="Mes créneaux hebdo" />
           <Tile href={`/sitters/${session.userId}`} icon="search" label="Profil public" hint="Voir ce que voient les clients" />
@@ -240,7 +258,19 @@ export default async function SitterHomePage() {
   );
 }
 
-function Tile({ href, icon, label, hint }: { href: string; icon: IconName; label: string; hint: string }) {
+function Tile({
+  href,
+  icon,
+  label,
+  hint,
+  badge,
+}: {
+  href: string;
+  icon: IconName;
+  label: string;
+  hint: string;
+  badge?: number;
+}) {
   return (
     <Link href={href} style={tileLink}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
@@ -253,9 +283,34 @@ function Tile({ href, icon, label, hint }: { href: string; icon: IconName; label
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
+            position: "relative",
           }}
         >
           <Icon name={icon} size={18} color="var(--coral-600)" />
+          {badge !== undefined && (
+            <span
+              style={{
+                position: "absolute",
+                top: -4,
+                right: -4,
+                minWidth: 18,
+                height: 18,
+                padding: "0 5px",
+                borderRadius: 9,
+                background: "var(--coral-500)",
+                color: "white",
+                fontFamily: "var(--font-mono)",
+                fontSize: 10,
+                fontWeight: 700,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                border: "2px solid white",
+              }}
+            >
+              {badge}
+            </span>
+          )}
         </div>
         <Icon name="arrow" size={14} color="var(--ink-400)" />
       </div>

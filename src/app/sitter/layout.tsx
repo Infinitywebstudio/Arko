@@ -72,6 +72,9 @@ export default async function SitterLayout({ children }: { children: React.React
             <Link href="/sitter" style={navLinkStyle}>
               Aujourd&apos;hui
             </Link>
+            <Link href="/sitter/demandes" style={navLinkStyle}>
+              Demandes
+            </Link>
             <Link href="/sitter/profil" style={navLinkStyle}>
               Mon profil
             </Link>
