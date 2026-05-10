@@ -14,6 +14,98 @@ export type Database = {
   }
   public: {
     Tables: {
+      bookings: {
+        Row: {
+          client_id: string
+          created_at: string
+          dangerous_breed: boolean
+          duration_hours: number
+          id: string
+          late: boolean
+          platform_fee_cents: number
+          price_cents: number
+          refunded_at: string | null
+          sitter_closed_at: string | null
+          sitter_comment: string | null
+          sitter_id: string
+          sitter_payout_cents: number
+          start_at: string
+          status: Database["public"]["Enums"]["booking_status"]
+          stripe_payment_intent_id: string | null
+          updated_at: string
+          urgent: boolean
+        }
+        Insert: {
+          client_id: string
+          created_at?: string
+          dangerous_breed?: boolean
+          duration_hours: number
+          id?: string
+          late?: boolean
+          platform_fee_cents: number
+          price_cents: number
+          refunded_at?: string | null
+          sitter_closed_at?: string | null
+          sitter_comment?: string | null
+          sitter_id: string
+          sitter_payout_cents: number
+          start_at: string
+          status?: Database["public"]["Enums"]["booking_status"]
+          stripe_payment_intent_id?: string | null
+          updated_at?: string
+          urgent?: boolean
+        }
+        Update: {
+          client_id?: string
+          created_at?: string
+          dangerous_breed?: boolean
+          duration_hours?: number
+          id?: string
+          late?: boolean
+          platform_fee_cents?: number
+          price_cents?: number
+          refunded_at?: string | null
+          sitter_closed_at?: string | null
+          sitter_comment?: string | null
+          sitter_id?: string
+          sitter_payout_cents?: number
+          start_at?: string
+          status?: Database["public"]["Enums"]["booking_status"]
+          stripe_payment_intent_id?: string | null
+          updated_at?: string
+          urgent?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bookings_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bookings_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "sitters_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bookings_sitter_id_fkey"
+            columns: ["sitter_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bookings_sitter_id_fkey"
+            columns: ["sitter_id"]
+            isOneToOne: false
+            referencedRelation: "sitters_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -182,6 +274,14 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
+      booking_status:
+        | "pending_payment"
+        | "pending_acceptance"
+        | "confirmed"
+        | "cancelled_by_client"
+        | "refused_by_sitter"
+        | "no_response"
+        | "completed"
       sitter_badge_kind: "id_check" | "background_check" | "first_aid"
       user_role: "client" | "sitter"
     }
@@ -311,6 +411,15 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      booking_status: [
+        "pending_payment",
+        "pending_acceptance",
+        "confirmed",
+        "cancelled_by_client",
+        "refused_by_sitter",
+        "no_response",
+        "completed",
+      ],
       sitter_badge_kind: ["id_check", "background_check", "first_aid"],
       user_role: ["client", "sitter"],
     },

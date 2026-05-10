@@ -96,3 +96,18 @@ export async function listSittersForHome(limit = 8): Promise<SitterPublicRow[]> 
   return data;
 }
 
+/**
+ * Full sitters listing for the dedicated `/sitters` page. No filters per MVP
+ * scope — the client browses a flat list. Volume is low at launch so we don't
+ * paginate yet; revisit when sitters > ~50 to add cursor pagination.
+ */
+export async function listAllSitters(): Promise<SitterPublicRow[]> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("sitters_public")
+    .select("*")
+    .order("created_at", { ascending: false });
+  if (error || !data) return [];
+  return data;
+}
+

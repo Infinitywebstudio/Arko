@@ -591,9 +591,9 @@ export function HomeSitters({ sitters }: { sitters: SitterPublic[] }) {
             <span style={{ fontStyle: "italic", color: "var(--coral-500)" }}>de confiance.</span>
           </h2>
         </div>
-        <a className="arrow-link">
+        <Link href="/sitters" className="arrow-link">
           Voir tous les sitters <Icon name="arrow" size={14} />
-        </a>
+        </Link>
       </div>
 
       <div

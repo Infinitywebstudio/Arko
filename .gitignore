@@ -42,6 +42,12 @@ yarn-error.log*
 # client/contract docs and design handoff bundle — local only, do NOT commit
 /ARKO-docs/
 
+# local dev/admin scripts (read service_role from .env.local) — keep out of repo
+/scripts/
+
+# raw assets shared by the client — local only, processed before commit
+/Arko-images/
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts
