@@ -2,11 +2,10 @@
 
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
-import { createServerClient } from "@supabase/ssr";
+import { createClient as createPlainClient } from "@supabase/supabase-js";
 import { z } from "zod";
 
 import { createAdminClient, createClient } from "@/lib/supabase/server";
-import type { Database } from "@/lib/supabase/database.types";
 import { requireUser } from "./helpers";
 import {
   deleteAccountSchema,
@@ -58,10 +57,10 @@ function getSiteUrl(): string {
  * with the user's untouched session.
  */
 async function verifyPassword(email: string, password: string): Promise<boolean> {
-  const verifier = createServerClient<Database>(
+  const verifier = createPlainClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    { cookies: { getAll: () => [], setAll: () => {} } },
+    { auth: { persistSession: false, autoRefreshToken: false } },
   );
   const { error } = await verifier.auth.signInWithPassword({ email, password });
   return !error;
@@ -365,19 +364,11 @@ export async function updatePasswordAction(formData: FormData): Promise<ActionRe
     };
   }
 
-  // 1. Verify the current password using an isolated anon client. No cookie
-  //    rewrites, no impact on the caller's session.
-  const { createClient: createPlainClient } = await import("@supabase/supabase-js");
-  const verify = createPlainClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    { auth: { persistSession: false, autoRefreshToken: false } },
-  );
-  const reauth = await verify.auth.signInWithPassword({
-    email: session.email,
-    password: parsed.data.current_password,
-  });
-  if (reauth.error) {
+  // 1. Verify the current password through an isolated client — see
+  //    verifyPassword's docstring for why we can't reuse the cookie-backed
+  //    client here.
+  const ok = await verifyPassword(session.email, parsed.data.current_password);
+  if (!ok) {
     return {
       ok: false,
       error: "Mot de passe actuel incorrect.",
@@ -385,8 +376,9 @@ export async function updatePasswordAction(formData: FormData): Promise<ActionRe
     };
   }
 
-  // 2. Update the password via the service-role admin client. Service role
-  //    bypasses RLS and doesn't depend on the user's session cookies.
+  // 2. Update the password via service_role admin. Bypasses RLS and doesn't
+  //    depend on the user's session cookies — robust on Vercel where the
+  //    cookie rewrite race surfaces.
   const admin = createAdminClient();
   const { error } = await admin.auth.admin.updateUserById(session.userId, {
     password: parsed.data.password,
@@ -429,19 +421,18 @@ export async function deleteAccountAction(formData: FormData): Promise<ActionRes
     };
   }
 
-  const supabase = await createClient();
-
-  const reauth = await supabase.auth.signInWithPassword({
-    email: session.email,
-    password: parsed.data.current_password,
-  });
-  if (reauth.error) {
+  // Verify the password through an isolated client so the caller's session
+  // cookies are not rewritten — same race condition as updatePasswordAction.
+  const ok = await verifyPassword(session.email, parsed.data.current_password);
+  if (!ok) {
     return {
       ok: false,
       error: "Mot de passe incorrect.",
       fieldErrors: { current_password: "Mot de passe incorrect" },
     };
   }
+
+  const supabase = await createClient();
 
   // Block deletion if the user has active bookings on either side. The
   // bookings table cascades on profile deletion, which would silently wipe

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Icon, type IconName } from "@/components/mascot";
 
 type Role = "client" | "sitter";
@@ -92,7 +92,55 @@ const SITTER_STEPS: Step[] = [
 
 export function HomeApproach() {
   const [role, setRole] = useState<Role>("client");
+  const [activeIdx, setActiveIdx] = useState(0);
+  const trackRef = useRef<HTMLDivElement | null>(null);
   const steps = role === "client" ? CLIENT_STEPS : SITTER_STEPS;
+
+  // Drive the mobile pagination dots from the actual scroll position.
+  // IntersectionObserver beats a scroll listener here — it fires exactly
+  // when a card's threshold crosses, no debouncing required.
+  useEffect(() => {
+    const root = trackRef.current;
+    if (!root) return;
+    const cards = Array.from(root.children) as HTMLElement[];
+    if (cards.length === 0) return;
+    const io = new IntersectionObserver(
+      (entries) => {
+        // Pick the card with the highest intersectionRatio currently.
+        // Multiple entries may fire on a single scroll — only act on the
+        // one that's most visible.
+        const best = entries
+          .filter((e) => e.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+        if (best) {
+          const idx = cards.indexOf(best.target as HTMLElement);
+          if (idx >= 0) setActiveIdx(idx);
+        }
+      },
+      { root, threshold: [0.55, 0.85] },
+    );
+    cards.forEach((c) => io.observe(c));
+    return () => io.disconnect();
+    // Re-bind when role changes — `steps` length is constant but the
+    // children identity changes, so observer targets must be refreshed.
+  }, [role]);
+
+  // Reset to the first card when switching roles so the dots don't claim
+  // an index past the end of the visible track.
+  useEffect(() => {
+    setActiveIdx(0);
+    trackRef.current?.scrollTo({ left: 0, behavior: "instant" as ScrollBehavior });
+  }, [role]);
+
+  const scrollToCard = (idx: number) => {
+    const root = trackRef.current;
+    if (!root) return;
+    const card = root.children[idx] as HTMLElement | undefined;
+    if (!card) return;
+    // `inline: "start"` aligns the card's leading edge to the scroll-padding,
+    // which is what our snap-points expect.
+    card.scrollIntoView({ behavior: "smooth", inline: "start", block: "nearest" });
+  };
 
   return (
     <section
@@ -174,8 +222,9 @@ export function HomeApproach() {
         </div>
       </div>
 
-      {/* Steps grid */}
+      {/* Steps grid (carrousel snap-scroll on mobile, see globals.css) */}
       <div
+        ref={trackRef}
         className="home-approach-grid"
         style={{
           display: "grid",
@@ -262,6 +311,45 @@ export function HomeApproach() {
             </p>
           </article>
         ))}
+      </div>
+
+      {/* Pagination dots — `display: none` by default, flipped to flex on
+          mobile via `.home-approach-dots` in globals.css. Click jumps the
+          carousel to that card; the active dot is driven by the observer. */}
+      <div
+        className="home-approach-dots"
+        role="tablist"
+        aria-label="Pagination des étapes"
+        style={{
+          display: "none",
+          justifyContent: "center",
+          gap: 8,
+          marginTop: 16,
+        }}
+      >
+        {steps.map((s, i) => {
+          const active = i === activeIdx;
+          return (
+            <button
+              key={s.n}
+              type="button"
+              role="tab"
+              aria-selected={active}
+              aria-label={`Étape ${i + 1} sur ${steps.length} : ${s.t}`}
+              onClick={() => scrollToCard(i)}
+              style={{
+                width: active ? 24 : 8,
+                height: 8,
+                borderRadius: 999,
+                background: active ? "var(--coral-500)" : "var(--ink-300)",
+                border: "none",
+                padding: 0,
+                cursor: "pointer",
+                transition: "width 220ms ease, background 220ms ease",
+              }}
+            />
+          );
+        })}
       </div>
     </section>
   );

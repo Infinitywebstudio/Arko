@@ -159,18 +159,15 @@ img { max-width: 100%; display: block; }
               box-shadow var(--dur-fast) var(--ease-out);
   white-space: nowrap;
 }
-.btn:hover { transform: translateY(-1px); }
-.btn:active { transform: translateY(0); }
+.btn:active { transform: translateY(1px); }
 
 .btn-primary {
   background: var(--coral-500);
   color: white;
   box-shadow: var(--shadow-coral);
 }
-.btn-primary:hover { background: var(--coral-600); }
 
 .btn-secondary { background: var(--ink-900); color: white; }
-.btn-secondary:hover { background: var(--ink-800); }
 
 .btn-outline {
   background: white;
@@ -178,10 +175,8 @@ img { max-width: 100%; display: block; }
   border: 1px solid var(--ink-300);
   box-shadow: var(--shadow-xs);
 }
-.btn-outline:hover { border-color: var(--ink-900); }
 
 .btn-ghost { background: transparent; color: var(--ink-900); }
-.btn-ghost:hover { background: var(--ink-100); }
 
 .btn-sm { height: 34px; padding: 0 var(--space-4); font-size: var(--text-xs); }
 .btn-lg { height: 54px; padding: 0 var(--space-6); font-size: var(--text-md); }
@@ -217,10 +212,8 @@ img { max-width: 100%; display: block; }
   transition: transform var(--dur-base) var(--ease-out),
               box-shadow var(--dur-base) var(--ease-out);
 }
-.card-hover:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
-}
+/* .card-hover is now a no-op marker — kept to avoid editing every call site.
+   Cards stay static on hover per design decision (2026-05-15). */
 
 /* === ARROW LINK === */
 .arrow-link {
@@ -240,15 +233,49 @@ img { max-width: 100%; display: block; }
   .home-trust-grid { grid-template-columns: 1fr !important; }
   .home-stats-grid { grid-template-columns: repeat(2, 1fr) !important; }
   .home-steps-grid { grid-template-columns: 1fr !important; }
-  .home-approach-grid { grid-template-columns: repeat(2, 1fr) !important; }
   .home-sitters-grid { grid-template-columns: repeat(2, 1fr) !important; }
   .home-footer-grid { grid-template-columns: 1fr 1fr !important; }
+  /* Mobile chrome swap: drop the desktop link row + the inline CTAs,
+     surface the hamburger trigger on the left + a person icon on the
+     right (quick path to /connexion). The drawer behind the hamburger
+     still carries the full CTAs. */
   .home-nav-links { display: none !important; }
+  .home-nav-ctas { display: none !important; }
+  .home-nav-burger { display: inline-flex !important; }
+  .home-nav-person { display: inline-flex !important; }
+
+  /* Approach steps become a horizontal snap-scroll carousel on mobile.
+     Padding bleeds to the section edges so the cards line up with the
+     section title above. The native scrollbar is hidden — pagination
+     dots rendered by HomeApproach take over as the visual affordance. */
+  .home-approach-grid {
+    display: flex !important;
+    grid-template-columns: none !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    scroll-snap-type: x mandatory !important;
+    scroll-padding-left: var(--space-8) !important;
+    margin-left: calc(-1 * var(--space-8)) !important;
+    margin-right: calc(-1 * var(--space-8)) !important;
+    padding: 4px var(--space-8) 8px var(--space-8) !important;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .home-approach-grid::-webkit-scrollbar { display: none; }
+  .home-approach-grid > * {
+    flex: 0 0 78vw !important;
+    max-width: 320px !important;
+    scroll-snap-align: start !important;
+  }
+  .home-approach-dots { display: flex !important; }
 }
 @media (max-width: 520px) {
-  .home-approach-grid { grid-template-columns: 1fr !important; }
   .home-sitters-grid { grid-template-columns: 1fr !important; }
   .home-footer-grid { grid-template-columns: 1fr !important; }
+  .home-approach-grid > * {
+    flex-basis: 84vw !important;
+    max-width: none !important;
+  }
 }
 
 /* === BOTTOM NAV (mobile only) ===
@@ -266,10 +293,16 @@ img { max-width: 100%; display: block; }
     left: 0;
     right: 0;
     z-index: 60;
-    background: white;
-    border-top: 1px solid var(--ink-200);
+    /* Liquid glass: translucent surface + heavy backdrop blur + saturation
+       boost. The saturate(180%) is what makes underlying photos read as
+       "frosted" rather than "milky". Fallback colour for browsers without
+       backdrop-filter: a still-readable cream tone. */
+    background: rgba(247, 244, 236, 0.72);
+    -webkit-backdrop-filter: blur(24px) saturate(180%);
+    backdrop-filter: blur(24px) saturate(180%);
+    border-top: 1px solid rgba(216, 213, 200, 0.5);
     padding: 8px 4px calc(8px + env(safe-area-inset-bottom)) 4px;
-    box-shadow: 0 -2px 12px rgba(0, 0, 0, 0.04);
+    box-shadow: 0 -8px 24px rgba(15, 19, 16, 0.06);
     justify-content: space-around;
     align-items: stretch;
   }

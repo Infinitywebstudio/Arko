@@ -615,12 +615,12 @@ export function HomeTrust() {
 
 export function HomeCTA() {
   return (
-    <section style={{ padding: "var(--space-20) var(--space-8)", maxWidth: 1280, margin: "0 auto" }}>
+    <section style={{ padding: "var(--space-20) 1rem", maxWidth: 1280, margin: "0 auto" }}>
       <div
         style={{
           background: "var(--coral-500)",
           borderRadius: 32,
-          padding: "var(--space-16) var(--space-12)",
+          padding: "var(--space-16) var(--space-8)",
           position: "relative",
           overflow: "hidden",
           color: "white",
