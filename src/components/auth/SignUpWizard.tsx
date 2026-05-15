@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 
 import { signUpAction } from "@/lib/auth/actions";
 import { Icon } from "@/components/mascot";
+import PhoneInput from "@/components/ui/PhoneInput";
 
 type Role = "client" | "sitter";
 type Step = 1 | 2 | 3 | 4;
@@ -461,14 +462,11 @@ export default function SignUpWizard() {
             <label htmlFor="phone" style={labelStyle}>
               Téléphone <span style={{ color: "var(--ink-500)" }}>(optionnel)</span>
             </label>
-            <input
+            <PhoneInput
               id="phone"
-              type="tel"
-              autoComplete="tel"
               value={data.phone}
-              onChange={(e) => set("phone", e.target.value)}
-              placeholder="+33 6 12 34 56 78"
-              style={inputStyle(!!fieldErrors.phone)}
+              onChange={(v) => set("phone", v)}
+              hasError={!!fieldErrors.phone}
               disabled={isPending}
             />
             {fieldErrors.phone && <FieldError>{fieldErrors.phone}</FieldError>}

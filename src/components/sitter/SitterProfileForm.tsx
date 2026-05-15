@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 
 import { updateSitterProfileAction } from "@/lib/sitter/actions";
 import { ZONES, isValidZoneId } from "@/lib/zones";
+import PhoneInput from "@/components/ui/PhoneInput";
 import type { Database } from "@/lib/supabase/database.types";
 
 type SitterProfile = Database["public"]["Tables"]["sitter_profiles"]["Row"];
@@ -121,14 +122,11 @@ export default function SitterProfileForm({ initial, identity }: Props) {
           <label htmlFor="phone" style={labelStyle}>
             Téléphone
           </label>
-          <input
+          <PhoneInput
             id="phone"
-            type="tel"
             value={phone}
-            onChange={(e) => setPhone(e.target.value)}
-            autoComplete="tel"
-            placeholder="+33 6 12 34 56 78"
-            style={inputStyle(!!fieldErrors.phone)}
+            onChange={setPhone}
+            hasError={!!fieldErrors.phone}
             disabled={isPending}
           />
           {fieldErrors.phone && <FieldError>{fieldErrors.phone}</FieldError>}

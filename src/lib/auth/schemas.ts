@@ -14,13 +14,16 @@ const passwordSchema = z
   .min(8, { message: "Minimum 8 caractères" })
   .max(128, { message: "Maximum 128 caractères" });
 
-// Permissive international phone shape: optional `+`, then 6–15 digits.
-// Spaces, dots, dashes are stripped before validation.
+// E.164 international phone shape: leading +, then 7–17 digits.
+// The UI's PhoneInput always emits the + prefix; this rule enforces it on
+// the server too. Spaces, dots, dashes are stripped before validation so
+// human-typed numbers still pass when they reach the server through a
+// non-UI path (CLI scripts, raw API calls).
 const phoneSchema = z
   .string()
   .trim()
   .transform((v) => v.replace(/[\s.\-()]/g, ""))
-  .refine((v) => v === "" || /^\+?\d{6,15}$/.test(v), {
+  .refine((v) => v === "" || /^\+[1-9]\d{6,16}$/.test(v), {
     message: "Numéro de téléphone invalide",
   })
   .transform((v) => (v === "" ? null : v));
