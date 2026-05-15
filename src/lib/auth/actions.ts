@@ -9,6 +9,7 @@ import { requireUser } from "./helpers";
 import {
   deleteAccountSchema,
   forgotPasswordSchema,
+  identitySchema,
   resetPasswordSchema,
   signInSchema,
   signUpSchema,
@@ -203,6 +204,65 @@ export async function resetPasswordAction(
 }
 
 // =============================================================
+// Update identity — full_name + phone on public.profiles
+// =============================================================
+//
+// Role-agnostic: both clients and sitters use this. The DB-level trigger
+// (`prevent_user_role_change`) and RLS (`auth.uid() = id`) make it impossible
+// for a user to escalate to a different role or overwrite someone else's
+// profile here — even though we don't pass `role` we still re-assert the
+// UPDATE is scoped to the current user's id.
+//
+// We revalidate every surface where the identity is rendered so the new
+// values show up without a hard refresh:
+//   * /compte                  — landing card displays name/phone
+//   * /compte/parametres       — form's `initial` props come from the session
+//   * /sitter/profil           — same form re-uses identity
+//   * /sitters/[id]            — public sitter page shows the name
+//
+// Note on snapshots: bookings already created keep their `client_full_name`
+// and `client_phone` snapshots. That's intentional — the sitter has the
+// number the client used at booking time, not whatever it becomes later.
+export async function updateIdentityAction(
+  formData: FormData,
+): Promise<ActionResult> {
+  const session = await requireUser();
+
+  const parsed = identitySchema.safeParse({
+    full_name: formData.get("full_name"),
+    phone: formData.get("phone") ?? "",
+  });
+  if (!parsed.success) {
+    return {
+      ok: false,
+      error: "Vérifie les informations saisies.",
+      fieldErrors: fieldErrorsFromZod(parsed.error),
+    };
+  }
+
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("profiles")
+    .update({
+      full_name: parsed.data.full_name,
+      phone: parsed.data.phone ?? null,
+    })
+    .eq("id", session.userId);
+
+  if (error) {
+    return { ok: false, error: "Impossible d'enregistrer tes informations." };
+  }
+
+  revalidatePath("/compte");
+  revalidatePath("/compte/parametres");
+  if (session.profile.role === "sitter") {
+    revalidatePath("/sitter/profil");
+    revalidatePath(`/sitters/${session.userId}`);
+  }
+  return { ok: true };
+}
+
+// =============================================================
 // Update email — sends a confirmation email to the new address
 // =============================================================
 //
@@ -325,6 +385,33 @@ export async function deleteAccountAction(formData: FormData): Promise<ActionRes
       ok: false,
       error: "Mot de passe incorrect.",
       fieldErrors: { current_password: "Mot de passe incorrect" },
+    };
+  }
+
+  // Block deletion if the user has active bookings on either side. The
+  // bookings table cascades on profile deletion, which would silently wipe
+  // a confirmed garde from the counterparty's history without triggering
+  // a refund. Forcing the user to cancel first keeps the financial flow
+  // intact (cancel/refuse actions handle the Stripe refund + email).
+  const nowIso = new Date().toISOString();
+  const userField = session.profile.role === "sitter" ? "sitter_id" : "client_id";
+  const { count: activeCount, error: countErr } = await supabase
+    .from("bookings")
+    .select("id", { count: "exact", head: true })
+    .eq(userField, session.userId)
+    .in("status", ["pending_acceptance", "confirmed"])
+    .gt("start_at", nowIso);
+
+  if (countErr) {
+    return { ok: false, error: "Vérification des réservations impossible. Réessaye." };
+  }
+  if ((activeCount ?? 0) > 0) {
+    const plural = (activeCount ?? 0) > 1;
+    return {
+      ok: false,
+      error: plural
+        ? `Tu as ${activeCount} réservations à venir. Annule-les avant de supprimer ton compte.`
+        : "Tu as une réservation à venir. Annule-la avant de supprimer ton compte.",
     };
   }
 

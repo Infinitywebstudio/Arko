@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 
-import { requireRole } from "@/lib/auth/helpers";
-import EmailForm from "@/components/account/EmailForm";
-import PasswordForm from "@/components/account/PasswordForm";
+import { requireUser } from "@/lib/auth/helpers";
 import DeleteAccountForm from "@/components/account/DeleteAccountForm";
+import EmailForm from "@/components/account/EmailForm";
+import IdentityForm from "@/components/account/IdentityForm";
+import PasswordForm from "@/components/account/PasswordForm";
 
 export const metadata: Metadata = {
   title: "Paramètres du compte · ARKO",
@@ -37,8 +38,10 @@ const sectionHelpStyle: React.CSSProperties = {
   margin: 0,
 };
 
-export default async function SitterAccountSettingsPage() {
-  const session = await requireRole("sitter");
+export default async function ClientAccountSettingsPage() {
+  // The /compte layout has already gated the route to authenticated clients,
+  // so requireUser here is purely to surface the session — no extra redirect.
+  const session = await requireUser();
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-8)" }}>
@@ -65,9 +68,24 @@ export default async function SitterAccountSettingsPage() {
             margin: 0,
           }}
         >
-          Email, mot de passe et suppression du compte.
+          Tes informations, email, mot de passe et suppression du compte.
         </p>
       </div>
+
+      <section style={sectionStyle}>
+        <div>
+          <h2 style={sectionLabelStyle}>Mes informations</h2>
+          <p style={{ ...sectionHelpStyle, marginTop: 6 }}>
+            Nom et téléphone — affichés à ton sitter une fois la garde acceptée.
+          </p>
+        </div>
+        <IdentityForm
+          initial={{
+            full_name: session.profile.full_name,
+            phone: session.profile.phone,
+          }}
+        />
+      </section>
 
       <section style={sectionStyle}>
         <div>
@@ -104,7 +122,7 @@ export default async function SitterAccountSettingsPage() {
             La suppression du compte est immédiate et irréversible.
           </p>
         </div>
-        <DeleteAccountForm role="sitter" />
+        <DeleteAccountForm role="client" />
       </section>
     </div>
   );

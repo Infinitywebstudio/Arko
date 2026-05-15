@@ -1,5 +1,6 @@
 import "server-only";
 
+import { cache } from "react";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import type { Database } from "@/lib/supabase/database.types";
@@ -18,8 +19,12 @@ export type AuthSession = {
  * Calls supabase.auth.getUser() (verified, not just decoded) — never trust
  * supabase.auth.getSession() server-side because it does not revalidate
  * the JWT against the auth server.
+ *
+ * Wrapped in React.cache so concurrent callers during a single render pass
+ * (layout + page + child components) share one auth-server roundtrip and one
+ * profiles read. Per the Next.js DAL guidance.
  */
-export async function getCurrentUser(): Promise<AuthSession | null> {
+export const getCurrentUser = cache(async (): Promise<AuthSession | null> => {
   const supabase = await createClient();
 
   const {
@@ -40,7 +45,7 @@ export async function getCurrentUser(): Promise<AuthSession | null> {
     email: user.email ?? "",
     profile,
   };
-}
+});
 
 /**
  * Resolves to the current user, or redirects to /connexion otherwise.

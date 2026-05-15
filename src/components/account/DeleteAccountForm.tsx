@@ -29,7 +29,20 @@ const inputStyle = (hasError: boolean): React.CSSProperties => ({
   outline: "none",
 });
 
-export default function DeleteAccountForm() {
+type Role = "client" | "sitter";
+
+const WARNING_BY_ROLE: Record<Role, string> = {
+  client:
+    "La suppression est définitive : profil, historique de réservations et compte d'accès seront effacés. Les réservations encore actives doivent être annulées avant.",
+  sitter:
+    "La suppression est définitive : profil, disponibilités, photos et compte d'accès seront effacés. Les gardes encore actives doivent être traitées avant.",
+};
+
+type Props = {
+  role: Role;
+};
+
+export default function DeleteAccountForm({ role }: Props) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [password, setPassword] = useState("");
@@ -71,8 +84,7 @@ export default function DeleteAccountForm() {
             margin: 0,
           }}
         >
-          La suppression est définitive : profil, disponibilités, photos et compte d&apos;accès
-          seront effacés.
+          {WARNING_BY_ROLE[role]}
         </p>
         <div>
           <button

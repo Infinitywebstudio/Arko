@@ -6,7 +6,6 @@ import { createClient } from "@/lib/supabase/server";
 import { Arko, Icon } from "@/components/mascot";
 import { formatEuros } from "@/lib/booking/pricing";
 import { zoneLabel } from "@/lib/zones";
-import { signOutAction } from "@/lib/auth/actions";
 import { telLink, whatsappLink } from "@/lib/contact";
 import CancelBookingButton from "@/components/booking/CancelBookingButton";
 import type { Database } from "@/lib/supabase/database.types";
@@ -79,99 +78,54 @@ export default async function ClientBookingsPage() {
   const past = bookings.filter((b) => !upcoming.includes(b));
 
   return (
-    <div style={{ minHeight: "100vh", background: "var(--peach-50)" }}>
-      <header style={{ borderBottom: "1px solid var(--ink-200)", background: "var(--ink-50)" }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-8)" }}>
+      <header>
         <div
           style={{
-            maxWidth: 1280,
-            margin: "0 auto",
-            padding: "16px 24px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
+            fontFamily: "var(--font-mono)",
+            fontSize: 11,
+            color: "var(--coral-600)",
+            letterSpacing: "0.12em",
+            textTransform: "uppercase",
+            fontWeight: 600,
+            marginBottom: "var(--space-3)",
           }}
         >
-          <Link href="/" style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <Arko size={32} mood="alert" collar="#FF5A5F" />
-            <span
-              style={{
-                fontFamily: "var(--font-display)",
-                fontSize: 26,
-                fontStyle: "italic",
-                color: "var(--coral-500)",
-                lineHeight: 1,
-              }}
-            >
-              arko
-            </span>
-          </Link>
-          <nav style={{ display: "flex", alignItems: "center", gap: 16 }}>
-            <Link
-              href="/compte"
-              style={{ fontFamily: "var(--font-mono)", fontSize: 13, color: "var(--ink-700)" }}
-            >
-              Mon compte
-            </Link>
-            <form action={signOutAction}>
-              <button type="submit" className="btn btn-ghost btn-sm">
-                <Icon name="arrow" size={14} /> Déconnexion
-              </button>
-            </form>
-          </nav>
+          Bonjour, {session.profile.full_name.split(" ")[0]}
         </div>
+        <h1
+          style={{
+            fontFamily: "var(--font-display)",
+            fontWeight: 400,
+            fontSize: "clamp(36px, 5vw, 56px)",
+            letterSpacing: "-0.02em",
+            lineHeight: 1.05,
+            margin: 0,
+          }}
+        >
+          Mes <span style={{ fontStyle: "italic", color: "var(--coral-500)" }}>réservations</span>
+        </h1>
       </header>
 
-      <main style={{ maxWidth: 880, margin: "0 auto", padding: "var(--space-12) var(--space-6)" }}>
-        <header style={{ marginBottom: "var(--space-8)" }}>
-          <div
-            style={{
-              fontFamily: "var(--font-mono)",
-              fontSize: 11,
-              color: "var(--coral-600)",
-              letterSpacing: "0.12em",
-              textTransform: "uppercase",
-              fontWeight: 600,
-              marginBottom: "var(--space-3)",
-            }}
-          >
-            Bonjour, {session.profile.full_name.split(" ")[0]}
-          </div>
-          <h1
-            style={{
-              fontFamily: "var(--font-display)",
-              fontWeight: 400,
-              fontSize: "clamp(36px, 5vw, 56px)",
-              letterSpacing: "-0.02em",
-              lineHeight: 1.05,
-              margin: 0,
-            }}
-          >
-            Mes <span style={{ fontStyle: "italic", color: "var(--coral-500)" }}>réservations</span>
-          </h1>
-        </header>
+      <Section title="À venir" empty="Aucune réservation à venir.">
+        {upcoming.map((b) => (
+          <BookingCard key={b.id} booking={b} cancellable />
+        ))}
+      </Section>
 
-        <Section title="À venir" empty="Aucune réservation à venir.">
-          {upcoming.map((b) => (
-            <BookingCard key={b.id} booking={b} cancellable />
+      {past.length > 0 && (
+        <Section title="Historique" empty="">
+          {past.map((b) => (
+            <BookingCard key={b.id} booking={b} cancellable={false} />
           ))}
         </Section>
+      )}
 
-        {past.length > 0 && (
-          <div style={{ marginTop: "var(--space-10)" }}>
-            <Section title="Historique" empty="">
-              {past.map((b) => (
-                <BookingCard key={b.id} booking={b} cancellable={false} />
-              ))}
-            </Section>
-          </div>
-        )}
-
-        <div style={{ marginTop: "var(--space-10)", textAlign: "center" }}>
-          <Link href="/sitters" className="btn btn-primary">
-            Réserver une nouvelle garde <Icon name="arrow" size={14} color="white" />
-          </Link>
-        </div>
-      </main>
+      <div style={{ marginTop: "var(--space-4)", textAlign: "center" }}>
+        <Link href="/sitters" className="btn btn-primary">
+          Réserver une nouvelle garde <Icon name="arrow" size={14} color="white" />
+        </Link>
+      </div>
     </div>
   );
 }
