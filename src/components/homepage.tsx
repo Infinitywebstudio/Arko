@@ -5,142 +5,93 @@ import type { Database } from "@/lib/supabase/database.types";
 
 type SitterPublic = Database["public"]["Views"]["sitters_public"]["Row"];
 
-export function HomeNav() {
-  return (
-    <nav
-      style={{
-        position: "sticky",
-        top: 0,
-        zIndex: 50,
-        background: "rgba(250, 247, 245, 0.85)",
-        backdropFilter: "blur(20px)",
-        WebkitBackdropFilter: "blur(20px)",
-        borderBottom: "1px solid var(--ink-200)",
-      }}
-    >
-      <div
-        style={{
-          maxWidth: 1280,
-          margin: "0 auto",
-          padding: "16px 32px",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-        }}
-      >
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <Arko size={36} mood="alert" collar="#FF5A5F" />
-          <div
-            style={{
-              fontFamily: "var(--font-display)",
-              fontSize: 30,
-              fontStyle: "italic",
-              color: "var(--coral-500)",
-              lineHeight: 1,
-            }}
-          >
-            arko
-          </div>
-        </div>
-        <div
-          className="home-nav-links"
-          style={{
-            display: "flex",
-            gap: 32,
-            fontFamily: "var(--font-mono)",
-            fontSize: 13,
-            color: "var(--ink-700)",
-            fontWeight: 500,
-          }}
-        >
-          <a>Trouver un sitter</a>
-          <a>Comment ça marche</a>
-          <a>Devenir sitter</a>
-          <a>Aide</a>
-        </div>
-        <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
-          <Link href="/connexion" className="btn btn-ghost btn-sm">
-            Connexion
-          </Link>
-          <Link href="/inscription" className="btn btn-primary btn-sm btn-pill">
-            S&apos;inscrire
-          </Link>
-        </div>
-      </div>
-    </nav>
-  );
-}
+// HomeNav is a client component (scroll-driven transparency) — re-exported
+// from a sibling file. The page imports it from "@/components/homepage" so
+// this barrel keeps the public API stable.
+export { HomeNav } from "./HomeNav";
+
+// Hero photo. Swap this URL or drop a file at /public/hero-dog.jpg and
+// point HERO_PHOTO_SRC to "/hero-dog.jpg" to use a local asset.
+const HERO_PHOTO_SRC =
+  "https://images.unsplash.com/photo-1587300003388-59208cc962cb?auto=format&fit=crop&w=2400&q=80";
 
 export function HomeHero() {
   return (
     <section
       style={{
-        padding: "var(--space-16) var(--space-8) var(--space-20)",
-        maxWidth: 1280,
-        margin: "0 auto",
+        position: "relative",
+        width: "100%",
+        minHeight: "min(92vh, 900px)",
+        overflow: "hidden",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "flex-start",
+        color: "white",
       }}
     >
-      <div
-        className="home-hero-grid"
+      {/* Background photo — absolute behind everything */}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={HERO_PHOTO_SRC}
+        alt=""
+        aria-hidden="true"
         style={{
-          display: "grid",
-          gridTemplateColumns: "1.1fr 1fr",
-          gap: "var(--space-12)",
-          alignItems: "center",
+          position: "absolute",
+          inset: 0,
+          width: "100%",
+          height: "100%",
+          objectFit: "cover",
+          objectPosition: "center 40%",
+        }}
+      />
+      {/* Dark gradient overlay — left side darker for text legibility, right
+          side softer to keep the photo visible. */}
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          background:
+            "linear-gradient(95deg, rgba(15,19,16,0.88) 0%, rgba(31,61,44,0.72) 40%, rgba(31,61,44,0.25) 100%)",
+        }}
+      />
+
+      {/* Foreground content */}
+      <div
+        style={{
+          position: "relative",
+          zIndex: 1,
+          maxWidth: 1280,
+          width: "100%",
+          margin: "0 auto",
+          padding:
+            "var(--space-20) var(--space-8) var(--space-16) var(--space-8)",
         }}
       >
-        <div>
-          <div
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: 8,
-              padding: "6px 14px",
-              background: "var(--coral-50)",
-              color: "var(--coral-700)",
-              borderRadius: 999,
-              fontFamily: "var(--font-mono)",
-              fontSize: 11,
-              fontWeight: 600,
-              letterSpacing: "0.06em",
-              textTransform: "uppercase",
-              marginBottom: "var(--space-6)",
-            }}
-          >
-            <span
-              style={{
-                width: 6,
-                height: 6,
-                background: "var(--coral-500)",
-                borderRadius: 999,
-              }}
-            />
-            Nouveau · Disponible à Paris
-          </div>
+        <div style={{ maxWidth: 680 }}>
           <h1
             style={{
               fontFamily: "var(--font-display)",
-              fontSize: "clamp(64px, 8vw, 112px)",
-              lineHeight: 0.92,
-              letterSpacing: "-0.03em",
+              fontSize: "clamp(40px, 6vw, 88px)",
+              lineHeight: 0.95,
+              letterSpacing: "-0.02em",
               margin: 0,
-              color: "var(--ink-900)",
+              color: "white",
+              textTransform: "uppercase",
               fontWeight: 400,
             }}
           >
-            Visitez la ville.
-            <br />
-            <span style={{ fontStyle: "italic", color: "var(--coral-500)" }}>Arko</span> garde
+            <span style={{ color: "var(--peach-100)" }}>Arko</span> garde
             <br />
             votre chien.
           </h1>
+
           <p
             style={{
               fontFamily: "var(--font-mono)",
-              fontSize: 16,
-              color: "var(--ink-600)",
+              fontSize: "clamp(14px, 1.4vw, 17px)",
+              color: "rgba(255,255,255,0.85)",
               marginTop: "var(--space-6)",
-              maxWidth: 480,
+              maxWidth: 540,
               lineHeight: 1.6,
             }}
           >
@@ -151,185 +102,55 @@ export function HomeHero() {
           <div
             style={{
               marginTop: "var(--space-8)",
-              background: "white",
-              border: "1px solid var(--ink-200)",
-              borderRadius: 999,
-              padding: 8,
               display: "flex",
-              alignItems: "center",
-              boxShadow: "var(--shadow-md)",
-              maxWidth: 580,
+              gap: 12,
+              flexWrap: "wrap",
             }}
           >
-            <div style={{ flex: 1.3, padding: "10px 24px", borderRight: "1px solid var(--ink-200)" }}>
-              <div
-                style={{
-                  fontFamily: "var(--font-mono)",
-                  fontSize: 10,
-                  textTransform: "uppercase",
-                  letterSpacing: "0.08em",
-                  color: "var(--ink-500)",
-                  fontWeight: 600,
-                }}
-              >
-                Où
-              </div>
-              <div style={{ fontSize: 14, fontWeight: 600, marginTop: 2 }}>Musée d&apos;Orsay, Paris</div>
-            </div>
-            <div style={{ flex: 1, padding: "10px 24px", borderRight: "1px solid var(--ink-200)" }}>
-              <div
-                style={{
-                  fontFamily: "var(--font-mono)",
-                  fontSize: 10,
-                  textTransform: "uppercase",
-                  letterSpacing: "0.08em",
-                  color: "var(--ink-500)",
-                  fontWeight: 600,
-                }}
-              >
-                Durée
-              </div>
-              <div style={{ fontSize: 14, fontWeight: 600, marginTop: 2 }}>2 heures</div>
-            </div>
-            <div style={{ flex: 1, padding: "10px 24px" }}>
-              <div
-                style={{
-                  fontFamily: "var(--font-mono)",
-                  fontSize: 10,
-                  textTransform: "uppercase",
-                  letterSpacing: "0.08em",
-                  color: "var(--ink-500)",
-                  fontWeight: 600,
-                }}
-              >
-                Quand
-              </div>
-              <div style={{ fontSize: 14, fontWeight: 600, marginTop: 2 }}>Maintenant</div>
-            </div>
-            <button
-              className="btn btn-primary btn-pill"
-              style={{ width: 56, height: 56, padding: 0, flexShrink: 0 }}
-              aria-label="Rechercher"
+            <Link
+              href="/sitters"
+              className="btn btn-primary btn-lg"
+              style={{
+                background: "white",
+                color: "var(--coral-600)",
+                boxShadow: "0 12px 32px rgba(0,0,0,0.18)",
+              }}
             >
-              <Icon name="search" size={20} color="white" />
-            </button>
+              Trouver un sitter <Icon name="arrow" size={16} color="var(--coral-600)" />
+            </Link>
+            <a
+              href="#how"
+              className="btn btn-lg"
+              style={{
+                background: "transparent",
+                color: "white",
+                border: "1.5px solid rgba(255,255,255,0.4)",
+              }}
+            >
+              Comment ça marche
+            </a>
           </div>
 
           <div
             style={{
-              marginTop: "var(--space-6)",
+              marginTop: "var(--space-8)",
               display: "flex",
               gap: "var(--space-6)",
               flexWrap: "wrap",
               fontFamily: "var(--font-mono)",
               fontSize: 12,
-              color: "var(--ink-600)",
+              color: "rgba(255,255,255,0.7)",
             }}
           >
             <span style={{ display: "flex", alignItems: "center", gap: 6 }}>
-              <Icon name="shield" size={14} color="var(--success-500)" /> Assurance incluse
+              <Icon name="shield" size={14} color="rgba(255,255,255,0.7)" /> Assurance incluse
             </span>
             <span style={{ display: "flex", alignItems: "center", gap: 6 }}>
-              <Icon name="check" size={14} color="var(--success-500)" /> Sitters vérifiés
+              <Icon name="check" size={14} color="rgba(255,255,255,0.7)" /> Sitters vérifiés
             </span>
             <span style={{ display: "flex", alignItems: "center", gap: 6 }}>
-              <Icon name="lock" size={14} color="var(--success-500)" /> Paiement Stripe
+              <Icon name="lock" size={14} color="rgba(255,255,255,0.7)" /> Paiement Stripe
             </span>
-          </div>
-        </div>
-
-        <div
-          style={{
-            position: "relative",
-            aspectRatio: "1",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          <div
-            style={{
-              position: "absolute",
-              inset: 0,
-              background:
-                "radial-gradient(circle at 50% 50%, var(--peach-200) 0%, var(--peach-100) 50%, transparent 80%)",
-              borderRadius: "50%",
-            }}
-          />
-          <div
-            style={{
-              position: "relative",
-              width: "85%",
-              aspectRatio: "1",
-              background: "linear-gradient(160deg, #FFE5D9 0%, #FFCABF 100%)",
-              borderRadius: "50%",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              boxShadow: "0 40px 80px rgba(255, 90, 95, 0.2)",
-            }}
-          >
-            <Arko size={320} mood="happy" />
-          </div>
-
-          <div
-            style={{
-              position: "absolute",
-              top: "8%",
-              right: "0%",
-              background: "white",
-              padding: "12px 16px",
-              borderRadius: 16,
-              boxShadow: "var(--shadow-lg)",
-              fontFamily: "var(--font-mono)",
-              fontSize: 12,
-              fontWeight: 600,
-              transform: "rotate(4deg)",
-              display: "flex",
-              alignItems: "center",
-              gap: 8,
-            }}
-          >
-            <span style={{ width: 8, height: 8, background: "var(--success-500)", borderRadius: 999 }} />
-            3 sitters dispo · 4 min
-          </div>
-          <div
-            style={{
-              position: "absolute",
-              bottom: "12%",
-              left: "-2%",
-              background: "var(--ink-900)",
-              color: "white",
-              padding: "12px 16px",
-              borderRadius: 16,
-              fontFamily: "var(--font-mono)",
-              fontSize: 12,
-              fontWeight: 600,
-              transform: "rotate(-3deg)",
-              display: "flex",
-              alignItems: "center",
-              gap: 8,
-            }}
-          >
-            <span style={{ color: "var(--coral-300)" }}>★</span> 4.9 · 2 400+ avis
-          </div>
-          <div
-            style={{
-              position: "absolute",
-              top: "45%",
-              right: "-4%",
-              background: "var(--coral-500)",
-              color: "white",
-              padding: "10px 14px",
-              borderRadius: 14,
-              fontFamily: "var(--font-mono)",
-              fontSize: 11,
-              fontWeight: 600,
-              transform: "rotate(6deg)",
-              boxShadow: "var(--shadow-coral)",
-            }}
-          >
-            Réservé en 47s
           </div>
         </div>
       </div>
@@ -362,7 +183,6 @@ export function HomeStats() {
               style={{
                 fontFamily: "var(--font-display)",
                 fontSize: 60,
-                fontStyle: "italic",
                 color: "var(--coral-300)",
                 letterSpacing: "-0.02em",
                 lineHeight: 1.1,
@@ -402,7 +222,7 @@ export function HomeHowItWorks() {
     {
       n: "02",
       t: "Réservez en 1 min",
-      d: "Sélectionnez la durée et options. Le paiement est sécurisé par Stripe, débité après la garde.",
+      d: "Sélectionnez la durée et les options. Le paiement est sécurisé par Stripe, débité après la garde.",
       mood: "happy",
     },
     {
@@ -431,7 +251,7 @@ export function HomeHowItWorks() {
         <h2
           style={{
             fontFamily: "var(--font-display)",
-            fontSize: "clamp(44px, 6vw, 72px)",
+            fontSize: "clamp(28px, 3.5vw, 48px)",
             letterSpacing: "-0.02em",
             lineHeight: 1,
             margin: 0,
@@ -440,7 +260,7 @@ export function HomeHowItWorks() {
         >
           Trois étapes,
           <br />
-          <span style={{ fontStyle: "italic", color: "var(--coral-500)" }}>zéro stress.</span>
+          <span style={{ color: "var(--coral-500)" }}>zéro stress.</span>
         </h2>
       </div>
 
@@ -463,18 +283,6 @@ export function HomeHowItWorks() {
               overflow: "hidden",
             }}
           >
-            <div
-              style={{
-                position: "absolute",
-                top: -20,
-                right: -20,
-                width: 140,
-                height: 140,
-                background: "var(--peach-100)",
-                borderRadius: "50%",
-                opacity: 0.6,
-              }}
-            />
             <div style={{ position: "relative" }}>
               <div
                 style={{
@@ -495,7 +303,6 @@ export function HomeHowItWorks() {
                 >
                   {s.n}
                 </div>
-                <Arko size={64} mood={s.mood} />
               </div>
               <h3
                 style={{
@@ -536,7 +343,7 @@ const HOME_CARD_PRICE_EUR = 32;
 
 // Visual rotation for the Arko mascot fallback when a sitter has no avatar.
 const FALLBACK_MOODS: ArkoMood[] = ["happy", "alert", "waggy", "happy"];
-const FALLBACK_COLLARS = ["#FF5A5F", "#1B2A49", "#2E7D5B", "#F4A261"];
+const FALLBACK_COLLARS = ["#2D5A3F", "#1B2A49", "#2E7D5B", "#F4A261"];
 
 function displayName(full: string | null): string {
   if (!full) return "Sitter";
@@ -579,7 +386,7 @@ export function HomeSitters({ sitters }: { sitters: SitterPublic[] }) {
           <h2
             style={{
               fontFamily: "var(--font-display)",
-              fontSize: "clamp(40px, 5vw, 60px)",
+              fontSize: "clamp(28px, 3.5vw, 44px)",
               letterSpacing: "-0.02em",
               lineHeight: 1,
               margin: 0,
@@ -588,7 +395,7 @@ export function HomeSitters({ sitters }: { sitters: SitterPublic[] }) {
           >
             Des dog-sitters
             <br />
-            <span style={{ fontStyle: "italic", color: "var(--coral-500)" }}>de confiance.</span>
+            <span style={{ color: "var(--coral-500)" }}>de confiance.</span>
           </h2>
         </div>
         <Link href="/sitters" className="arrow-link">
@@ -624,7 +431,18 @@ export function HomeSitters({ sitters }: { sitters: SitterPublic[] }) {
                   position: "relative",
                 }}
               >
-                {!s.avatar_url && <Arko size={130} mood={mood} collar={collar} />}
+                {!s.avatar_url && (
+                  <div
+                    style={{
+                      fontFamily: "var(--font-brand), system-ui, sans-serif",
+                      fontSize: 56,
+                      color: collar,
+                      opacity: 0.6,
+                    }}
+                  >
+                    {s.full_name?.[0]?.toUpperCase() ?? "·"}
+                  </div>
+                )}
               </div>
               <div style={{ padding: "var(--space-5)", display: "flex", flexDirection: "column", flex: 1 }}>
                 <div style={{ fontWeight: 600, fontSize: 16 }}>{displayName(s.full_name)}</div>
@@ -716,55 +534,20 @@ export function HomeTrust() {
         }}
       >
         <div style={{ position: "relative", display: "flex", alignItems: "center", justifyContent: "center" }}>
-          <div
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/trust-dog.jpg"
+            alt="Chien souriant avec son maître en ville"
             style={{
-              background: "white",
-              borderRadius: 28,
-              padding: "var(--space-8)",
-              boxShadow: "var(--shadow-lg)",
-              maxWidth: 360,
               width: "100%",
+              maxWidth: 520,
+              aspectRatio: "4 / 5",
+              objectFit: "cover",
+              borderRadius: 28,
+              boxShadow: "var(--shadow-lg)",
+              display: "block",
             }}
-          >
-            <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: "var(--space-5)" }}>
-              <div
-                style={{
-                  width: 56,
-                  height: 56,
-                  borderRadius: 28,
-                  background: "var(--peach-200)",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                <Arko size={48} mood="happy" />
-              </div>
-              <div>
-                <div style={{ fontWeight: 600, fontSize: 15 }}>Marie &amp; Loulou</div>
-                <div style={{ fontFamily: "var(--font-mono)", fontSize: 11, color: "var(--ink-500)" }}>
-                  Touriste · Madrid
-                </div>
-              </div>
-            </div>
-            <div
-              style={{
-                fontFamily: "var(--font-display)",
-                fontSize: 22,
-                fontStyle: "italic",
-                lineHeight: 1.3,
-                color: "var(--ink-800)",
-                letterSpacing: "-0.01em",
-              }}
-            >
-              &ldquo;Visiter le Louvre avec un chien était impossible. Avec Arko, c&apos;est devenu simple.
-              Camille était parfaite.&rdquo;
-            </div>
-            <div style={{ marginTop: "var(--space-5)", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-              <div style={{ color: "var(--coral-500)", fontSize: 14 }}>★ ★ ★ ★ ★</div>
-              <div style={{ fontFamily: "var(--font-mono)", fontSize: 11, color: "var(--ink-500)" }}>il y a 2 jours</div>
-            </div>
-          </div>
+          />
         </div>
 
         <div>
@@ -784,7 +567,7 @@ export function HomeTrust() {
           <h2
             style={{
               fontFamily: "var(--font-display)",
-              fontSize: "clamp(40px, 5vw, 60px)",
+              fontSize: "clamp(28px, 3.5vw, 44px)",
               letterSpacing: "-0.02em",
               lineHeight: 1,
               margin: 0,
@@ -794,7 +577,7 @@ export function HomeTrust() {
           >
             Votre chien
             <br />
-            <span style={{ fontStyle: "italic", color: "var(--coral-500)" }}>en sécurité</span>, toujours.
+            <span style={{ color: "var(--coral-500)" }}>en sécurité</span>, toujours.
           </h2>
 
           <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-4)", marginTop: "var(--space-8)" }}>
@@ -851,20 +634,17 @@ export function HomeCTA() {
           <Paw size={220} color="white" />
         </div>
         <div style={{ position: "relative" }}>
-          <div style={{ display: "flex", justifyContent: "center", marginBottom: "var(--space-6)" }}>
-            <Arko size={100} mood="waggy" collar="#FFFFFF" fur="#FFE5D9" />
-          </div>
           <h2
             style={{
               fontFamily: "var(--font-display)",
-              fontSize: "clamp(48px, 7vw, 88px)",
+              fontSize: "clamp(32px, 4.5vw, 56px)",
               letterSpacing: "-0.03em",
               lineHeight: 0.95,
               margin: 0,
               fontWeight: 400,
             }}
           >
-            Prêt à <span style={{ fontStyle: "italic" }}>partir ?</span>
+            Prêt à <span style={{  }}>partir ?</span>
           </h2>
           <p
             style={{
@@ -923,17 +703,16 @@ export function HomeFooter() {
         >
           <div>
             <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: "var(--space-4)" }}>
-              <Arko size={36} mood="alert" collar="#FF5A5F" />
               <div
                 style={{
-                  fontFamily: "var(--font-display)",
-                  fontSize: 30,
-                  fontStyle: "italic",
-                  color: "var(--coral-300)",
+                  fontFamily: "var(--font-brand), system-ui, sans-serif",
+                  fontSize: 28,
+                  letterSpacing: "0.02em",
+                  color: "var(--peach-100)",
                   lineHeight: 1,
                 }}
               >
-                arko
+                ARKO
               </div>
             </div>
             <p style={{ fontFamily: "var(--font-mono)", fontSize: 12, lineHeight: 1.6, maxWidth: 280, margin: 0 }}>

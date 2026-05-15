@@ -47,14 +47,14 @@ export default async function SitterAccountSettingsPage() {
           style={{
             fontFamily: "var(--font-display)",
             fontWeight: 400,
-            fontSize: "clamp(36px, 4vw, 48px)",
+            fontSize: "clamp(24px, 3vw, 36px)",
             letterSpacing: "-0.02em",
             lineHeight: 1.05,
             margin: 0,
             marginBottom: 8,
           }}
         >
-          <span style={{ fontStyle: "italic", color: "var(--coral-500)" }}>Paramètres</span> du compte
+          <span style={{ color: "var(--coral-500)" }}>Paramètres</span> du compte
         </h1>
         <p
           style={{

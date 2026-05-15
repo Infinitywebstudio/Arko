@@ -70,13 +70,13 @@ export default async function SitterDemandesPage() {
           style={{
             fontFamily: "var(--font-display)",
             fontWeight: 400,
-            fontSize: "clamp(36px, 4vw, 48px)",
+            fontSize: "clamp(24px, 3vw, 36px)",
             letterSpacing: "-0.02em",
             lineHeight: 1.05,
             margin: 0,
           }}
         >
-          Mes <span style={{ fontStyle: "italic", color: "var(--coral-500)" }}>gardes</span>
+          Mes <span style={{ color: "var(--coral-500)" }}>gardes</span>
         </h1>
       </header>
 
@@ -267,7 +267,6 @@ function HistoryRow({ booking, now }: { booking: Booking; now: number }) {
             style={{
               fontFamily: "var(--font-display)",
               fontSize: 12,
-              fontStyle: "italic",
               color: "var(--ink-600)",
               marginTop: 6,
             }}
@@ -283,7 +282,6 @@ function HistoryRow({ booking, now }: { booking: Booking; now: number }) {
             style={{
               fontFamily: "var(--font-display)",
               fontSize: 12,
-              fontStyle: "italic",
               color: "var(--coral-700)",
               marginTop: 4,
             }}

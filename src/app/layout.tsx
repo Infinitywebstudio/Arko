@@ -1,15 +1,14 @@
 import type { Metadata } from "next";
-import { Instrument_Serif, JetBrains_Mono } from "next/font/google";
+import { JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import BottomNavRoot from "@/components/BottomNavRoot";
 
-const instrumentSerif = Instrument_Serif({
-  variable: "--font-display",
-  subsets: ["latin"],
-  weight: "400",
-  style: ["normal", "italic"],
-  display: "swap",
-});
+// Archivo Black (the brand wordmark) is loaded via @import in globals.css.
+// next/font helpers emit a broken `unicode-range: U+??` for the basic-Latin
+// subset on this font (Next 16 + Turbopack issue), which makes the browser
+// fall through to the local Arial fallback. The direct @import bypasses the
+// subsetting step and the font renders correctly. --font-display is aliased
+// to --font-brand in globals.css so all H1/H2 inherit the wordmark face.
 
 const jetBrainsMono = JetBrains_Mono({
   variable: "--font-mono",
@@ -30,7 +29,7 @@ export default function RootLayout({
   return (
     <html
       lang="fr"
-      className={`${instrumentSerif.variable} ${jetBrainsMono.variable}`}
+      className={`${jetBrainsMono.variable}`}
     >
       <body>
         {children}

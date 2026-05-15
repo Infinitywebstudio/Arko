@@ -29,17 +29,16 @@ export default function SittersLayout({ children }: { children: React.ReactNode 
           }}
         >
           <Link href="/" style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <Arko size={32} mood="alert" collar="#FF5A5F" />
             <span
               style={{
-                fontFamily: "var(--font-display)",
-                fontSize: 26,
-                fontStyle: "italic",
-                color: "var(--coral-500)",
+                fontFamily: "var(--font-brand), system-ui, sans-serif",
+                fontSize: 22,
+                letterSpacing: "0.02em",
+                color: "var(--coral-600)",
                 lineHeight: 1,
               }}
             >
-              arko
+              ARKO
             </span>
           </Link>
           <div style={{ display: "flex", gap: 10, alignItems: "center" }}>

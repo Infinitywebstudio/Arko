@@ -11,7 +11,7 @@ export const metadata: Metadata = {
   description: "Parcours tous les dog-sitters ARKO disponibles dans Arles.",
 };
 
-const FALLBACK_COLLARS = ["#FF5A5F", "#1B2A49", "#2E7D5B", "#F4A261"];
+const FALLBACK_COLLARS = ["#2D5A3F", "#1B2A49", "#2E7D5B", "#F4A261"];
 const FALLBACK_MOODS: ArkoMood[] = ["happy", "waggy", "alert", "sleepy"];
 const ENTRY_PRICE = formatEuros(calculatePrice({ duration: 1 }).price_cents);
 
@@ -45,7 +45,7 @@ export default async function SittersListPage() {
           style={{
             fontFamily: "var(--font-display)",
             fontWeight: 400,
-            fontSize: "clamp(48px, 6vw, 80px)",
+            fontSize: "clamp(32px, 4vw, 52px)",
             letterSpacing: "-0.02em",
             lineHeight: 1.02,
             margin: 0,
@@ -53,7 +53,7 @@ export default async function SittersListPage() {
           }}
         >
           Trouve ton{" "}
-          <span style={{ fontStyle: "italic", color: "var(--coral-500)" }}>sitter</span>
+          <span style={{ color: "var(--coral-500)" }}>sitter</span>
         </h1>
         <p
           style={{

@@ -1,3 +1,4 @@
+@import url("https://fonts.googleapis.com/css2?family=Archivo+Black&display=swap");
 @import "tailwindcss";
 
 /* =============================================
@@ -6,36 +7,49 @@
    ============================================= */
 
 :root {
-  /* === COLORS === */
-  --coral-50:  #FFF5F3;
-  --coral-100: #FFE5DF;
-  --coral-200: #FFCABF;
-  --coral-300: #FFA894;
-  --coral-400: #FF8566;
-  --coral-500: #FF5A5F;
-  --coral-600: #E8424A;
-  --coral-700: #C42F38;
-  --coral-800: #8F1F27;
-  --coral-900: #5C1217;
+  /* Brand wordmark font, loaded via the @import above. Declared at the root
+     so inline `var(--font-brand)` works site-wide without a host className.
+     --font-display is aliased to --font-brand so every H1/H2 that already
+     used `var(--font-display)` picks up the new heavy wordmark identity
+     without per-file edits. Instrument Serif (the previous display value)
+     is no longer loaded. */
+  --font-brand: "Archivo Black", system-ui, sans-serif;
+  --font-display: var(--font-brand);
 
-  --peach-50:  #FFF9F5;
-  --peach-100: #FFF0E5;
-  --peach-200: #FFE5D9;
-  --peach-300: #FFCBA8;
-  --peach-400: #FFA876;
-  --peach-500: #FF9472;
+  /* === COLORS ===
+     Brand palette: deep green + cream beige (client direction, 2026-05-15).
+     Token names kept (--coral-*, --peach-*) so the existing component code
+     picks up the rebrand with zero refactor. Rename to --brand-* / --surface-*
+     can happen post-validation. */
+  --coral-50:  #EAF1EC;
+  --coral-100: #D4E0D6;
+  --coral-200: #A8C1AC;
+  --coral-300: #7BA083;
+  --coral-400: #4E7E5A;
+  --coral-500: #2D5A3F;
+  --coral-600: #1F3D2C;
+  --coral-700: #162B1F;
+  --coral-800: #0D1B14;
+  --coral-900: #08110C;
+
+  --peach-50:  #FAF6EA;
+  --peach-100: #F4ECD8;
+  --peach-200: #EFE6CE;
+  --peach-300: #E5D9BC;
+  --peach-400: #D9C9A0;
+  --peach-500: #C9B582;
 
   --ink-0:   #FFFFFF;
-  --ink-50:  #FAF7F5;
-  --ink-100: #F2EDE9;
-  --ink-200: #E6DFD9;
-  --ink-300: #D4CAC2;
-  --ink-400: #A89D95;
-  --ink-500: #7A706A;
-  --ink-600: #55504B;
-  --ink-700: #3A3631;
-  --ink-800: #24211F;
-  --ink-900: #141312;
+  --ink-50:  #F7F4EC;
+  --ink-100: #EDEAE0;
+  --ink-200: #D8D5C8;
+  --ink-300: #B8B5A8;
+  --ink-400: #8A8B7E;
+  --ink-500: #5F6259;
+  --ink-600: #424540;
+  --ink-700: #2E322E;
+  --ink-800: #1B1F1B;
+  --ink-900: #0F1310;
 
   --success-50:  #ECFDF5;
   --success-500: #10B981;
@@ -95,7 +109,7 @@
   --shadow-md: 0 6px 16px rgba(20, 19, 18, 0.08), 0 2px 4px rgba(20, 19, 18, 0.04);
   --shadow-lg: 0 16px 40px rgba(20, 19, 18, 0.12), 0 4px 8px rgba(20, 19, 18, 0.06);
   --shadow-xl: 0 28px 60px rgba(20, 19, 18, 0.16), 0 8px 16px rgba(20, 19, 18, 0.08);
-  --shadow-coral: 0 12px 32px rgba(255, 90, 95, 0.24), 0 4px 8px rgba(255, 90, 95, 0.12);
+  --shadow-coral: 0 12px 32px rgba(45, 90, 63, 0.22), 0 4px 8px rgba(45, 90, 63, 0.12);
   --shadow-inset: inset 0 1px 2px rgba(20, 19, 18, 0.06);
 
   /* === MOTION === */
@@ -226,11 +240,13 @@ img { max-width: 100%; display: block; }
   .home-trust-grid { grid-template-columns: 1fr !important; }
   .home-stats-grid { grid-template-columns: repeat(2, 1fr) !important; }
   .home-steps-grid { grid-template-columns: 1fr !important; }
+  .home-approach-grid { grid-template-columns: repeat(2, 1fr) !important; }
   .home-sitters-grid { grid-template-columns: repeat(2, 1fr) !important; }
   .home-footer-grid { grid-template-columns: 1fr 1fr !important; }
   .home-nav-links { display: none !important; }
 }
 @media (max-width: 520px) {
+  .home-approach-grid { grid-template-columns: 1fr !important; }
   .home-sitters-grid { grid-template-columns: 1fr !important; }
   .home-footer-grid { grid-template-columns: 1fr !important; }
 }

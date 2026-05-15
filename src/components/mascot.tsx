@@ -13,49 +13,128 @@ type ArkoProps = {
 export function Arko({
   size = 80,
   mood = "happy",
-  collar = "#FF5A5F",
-  fur = "#F4C896",
+  collar = "#2D5A3F",
+  fur = "#1F2C24",
   ...rest
 }: ArkoProps) {
-  const eyeY = mood === "sleepy" ? 48 : 46;
-  const eyeHeight = mood === "sleepy" ? 2 : 5;
+  // Side-profile silhouette of a shepherd-style dog, head facing left to
+  // echo the brand logo (vertical version). The mood adjusts ear angle and
+  // eye openness; the muzzle is fixed (the logo dog is stoic on purpose).
+  // Ear pivot is at its base (38, 24) so rotation looks like the ear
+  // hinging on the skull, not flying off.
+  const earRotate = mood === "alert" ? -8 : mood === "sleepy" ? 18 : -2;
+  const eyeOpen = mood !== "sleepy";
   const tongue = mood === "happy" || mood === "waggy";
-  const earRotate = mood === "alert" ? -10 : 0;
+  const stroke = "#0F1310";
   return (
     <svg width={size} height={size} viewBox="0 0 100 100" fill="none" {...rest}>
-      <g transform={`rotate(${earRotate} 28 30)`}>
-        <path d="M18 22 Q14 38 24 44 Q32 38 30 22 Z" fill={fur} stroke="#24211F" strokeWidth="2.5" strokeLinejoin="round" />
-        <path d="M22 26 Q20 34 26 38" stroke="#C98F5A" strokeWidth="2" strokeLinecap="round" fill="none" />
-      </g>
-      <g transform={`rotate(${-earRotate} 72 30)`}>
-        <path d="M82 22 Q86 38 76 44 Q68 38 70 22 Z" fill={fur} stroke="#24211F" strokeWidth="2.5" strokeLinejoin="round" />
-        <path d="M78 26 Q80 34 74 38" stroke="#C98F5A" strokeWidth="2" strokeLinecap="round" fill="none" />
+      {/* Neck ruff / chest tuft — sits behind the head silhouette for depth */}
+      <path
+        d="M68 82 Q60 90 50 89 Q42 88 38 82 L42 78 Q50 82 58 80 Z"
+        fill={fur}
+        stroke={stroke}
+        strokeWidth="2"
+        strokeLinejoin="round"
+        opacity="0.9"
+      />
+
+      {/* Head silhouette: forehead → ear → top → back of neck → chest →
+          throat → underchin → nose tip → top of muzzle → back to forehead.
+          Sharp jaw and pointed muzzle match the brand-logo profile. */}
+      <g transform={`rotate(${earRotate} 38 24)`}>
+        <path
+          d="M30 30
+             L 38 8
+             L 50 22
+             C 60 24, 74 32, 82 48
+             C 84 64, 78 78, 70 84
+             L 50 86
+             C 40 82, 32 74, 28 68
+             C 22 64, 16 60, 10 58
+             L 4 56
+             C 6 51, 12 49, 22 48
+             C 26 44, 28 38, 30 30
+             Z"
+          fill={fur}
+          stroke={stroke}
+          strokeWidth="2.5"
+          strokeLinejoin="round"
+        />
+        {/* Inner ear — slightly lighter to give the silhouette dimension */}
+        <path
+          d="M36 12 L 41 22 L 46 20 Z"
+          fill="#7A5E3A"
+          opacity="0.75"
+        />
       </g>
 
-      <ellipse cx="50" cy="54" rx="30" ry="28" fill={fur} stroke="#24211F" strokeWidth="2.5" />
-      <ellipse cx="50" cy="66" rx="16" ry="12" fill="#FFF0E5" stroke="#24211F" strokeWidth="2" />
-
-      <ellipse cx="40" cy={eyeY} rx="3" ry={eyeHeight} fill="#24211F" />
-      <ellipse cx="60" cy={eyeY} rx="3" ry={eyeHeight} fill="#24211F" />
-      {mood !== "sleepy" && (
+      {/* Eye — single visible eye on the profile side. White highlight only
+          when awake; sleepy mood collapses it to a stitched-line. */}
+      {eyeOpen ? (
         <>
-          <circle cx="41" cy={eyeY - 1} r="1" fill="white" />
-          <circle cx="61" cy={eyeY - 1} r="1" fill="white" />
+          <ellipse cx="32" cy="50" rx="2.2" ry="2.8" fill="#FFFFFF" />
+          <ellipse cx="32" cy="50" rx="1.3" ry="1.8" fill={stroke} />
         </>
+      ) : (
+        <path
+          d="M29 50 Q32 52 35 50"
+          stroke="#FFFFFF"
+          strokeWidth="1.4"
+          strokeLinecap="round"
+          fill="none"
+        />
       )}
 
-      <ellipse cx="50" cy="62" rx="4" ry="3" fill="#24211F" />
+      {/* Nose — solid dark, with a tiny highlight to read as a snout tip */}
+      <ellipse cx="7" cy="55" rx="2.6" ry="2" fill={stroke} />
+      <circle cx="6.2" cy="54.2" r="0.6" fill="#FFFFFF" opacity="0.6" />
 
-      <path d="M50 66 Q46 72 42 70" stroke="#24211F" strokeWidth="2" strokeLinecap="round" fill="none" />
-      <path d="M50 66 Q54 72 58 70" stroke="#24211F" strokeWidth="2" strokeLinecap="round" fill="none" />
-      {tongue && (
-        <path d="M48 70 Q50 76 52 70 Z" fill={collar} stroke="#24211F" strokeWidth="1.5" strokeLinejoin="round" />
+      {/* Mouth — short line under the snout, opens slightly on happy/waggy */}
+      {tongue ? (
+        <>
+          <path
+            d="M9 58 Q14 60 20 59"
+            stroke={stroke}
+            strokeWidth="1.4"
+            strokeLinecap="round"
+            fill="none"
+          />
+          <path
+            d="M11 60 Q14 64 17 61 Z"
+            fill={collar || "#C26A52"}
+            stroke={stroke}
+            strokeWidth="1"
+            strokeLinejoin="round"
+          />
+        </>
+      ) : (
+        <path
+          d="M9 58 L 18 58"
+          stroke={stroke}
+          strokeWidth="1.4"
+          strokeLinecap="round"
+          fill="none"
+        />
       )}
 
+      {/* Collar — curves under the neck/chest. Tag hangs at the front. */}
       {collar && (
         <g>
-          <path d="M28 78 Q50 86 72 78" stroke={collar} strokeWidth="5" strokeLinecap="round" fill="none" />
-          <circle cx="50" cy="84" r="3.5" fill={collar} stroke="#24211F" strokeWidth="1.5" />
+          <path
+            d="M28 78 Q48 92 70 84"
+            stroke={collar}
+            strokeWidth="4.5"
+            strokeLinecap="round"
+            fill="none"
+          />
+          <circle
+            cx="32"
+            cy="82"
+            r="3"
+            fill={collar}
+            stroke={stroke}
+            strokeWidth="1.2"
+          />
         </g>
       )}
     </svg>

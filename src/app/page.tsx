@@ -1,13 +1,12 @@
 import {
   HomeNav,
   HomeHero,
-  HomeStats,
-  HomeHowItWorks,
   HomeSitters,
   HomeTrust,
   HomeCTA,
   HomeFooter,
 } from "@/components/homepage";
+import { HomeApproach } from "@/components/HomeApproach";
 import { listSittersForHome } from "@/lib/sitter/helpers";
 
 export default async function Home() {
@@ -16,8 +15,7 @@ export default async function Home() {
     <>
       <HomeNav />
       <HomeHero />
-      <HomeStats />
-      <HomeHowItWorks />
+      <HomeApproach />
       <HomeSitters sitters={sitters} />
       <HomeTrust />
       <HomeCTA />

@@ -160,14 +160,14 @@ export async function sendSitterBookingNotification(bookingId: string): Promise<
         <tr><td style="padding: 6px 0; color: #666;">Quand</td><td style="padding: 6px 0; font-weight: 600;">${dateLabel}</td></tr>
         <tr><td style="padding: 6px 0; color: #666;">Lieu</td><td style="padding: 6px 0; font-weight: 600;">${meetingLabel}</td></tr>
         ${optionsLabel ? `<tr><td style="padding: 6px 0; color: #666;">Options</td><td style="padding: 6px 0;">${optionsLabel}</td></tr>` : ""}
-        <tr><td style="padding: 6px 0; color: #666;">Tu reçois</td><td style="padding: 6px 0; font-weight: 700; color: #FF5A5F;">${formatEuros(booking.sitter_payout_cents)}</td></tr>
+        <tr><td style="padding: 6px 0; color: #666;">Tu reçois</td><td style="padding: 6px 0; font-weight: 700; color: #2D5A3F;">${formatEuros(booking.sitter_payout_cents)}</td></tr>
       </table>
       <h3 style="font-size: 14px; margin-top: 24px;">Client</h3>
       <p style="margin: 4px 0;">${booking.client_full_name}${booking.client_phone ? ` &middot; ${booking.client_phone}` : ""}</p>
       ${contactButtonsHtml}
       ${booking.client_notes ? `<p style="margin: 8px 0; padding: 12px; background: #FFF5F3; border-radius: 8px; font-style: italic;">"${booking.client_notes}"</p>` : ""}
       <p style="margin-top: 28px;">
-        <a href="${dashboardUrl}" style="display: inline-block; background: #FF5A5F; color: white; padding: 12px 20px; border-radius: 999px; text-decoration: none; font-weight: 600;">Voir et répondre</a>
+        <a href="${dashboardUrl}" style="display: inline-block; background: #2D5A3F; color: white; padding: 12px 20px; border-radius: 999px; text-decoration: none; font-weight: 600;">Voir et répondre</a>
       </p>
       <p style="font-size: 11px; color: #999; margin-top: 24px;">ARKO — dog-sitting court terme</p>
     </div>
@@ -373,7 +373,7 @@ async function sendClientCancellationNotification(
       <h2 style="font-size: 20px; margin: 0 0 16px;">${reasonText}</h2>
       <p style="line-height: 1.6;">Le paiement de <strong>${refundAmount}</strong> a été automatiquement remboursé sur ta carte. Le retour des fonds peut prendre 5 à 10 jours selon ta banque.</p>
       <p style="margin-top: 24px;">
-        <a href="${sittersUrl}" style="display: inline-block; background: #FF5A5F; color: white; padding: 12px 20px; border-radius: 999px; text-decoration: none; font-weight: 600;">Voir d'autres sitters</a>
+        <a href="${sittersUrl}" style="display: inline-block; background: #2D5A3F; color: white; padding: 12px 20px; border-radius: 999px; text-decoration: none; font-weight: 600;">Voir d'autres sitters</a>
       </p>
       <p style="font-size: 11px; color: #999; margin-top: 24px;">ARKO — dog-sitting court terme</p>
     </div>

@@ -174,7 +174,6 @@ export default function ActiveCard({ booking }: { booking: SitterBookingView }) 
                 borderRadius: 10,
                 fontFamily: "var(--font-display)",
                 fontSize: 13,
-                fontStyle: "italic",
                 color: "var(--ink-700)",
                 lineHeight: 1.5,
               }}

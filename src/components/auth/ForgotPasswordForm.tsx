@@ -51,7 +51,7 @@ export default function ForgotPasswordForm() {
             marginBottom: 12,
           }}
         >
-          Lien <span style={{ fontStyle: "italic", color: "var(--coral-500)" }}>envoyé</span>
+          Lien <span style={{ color: "var(--coral-500)" }}>envoyé</span>
         </h1>
         <p
           style={{
@@ -99,7 +99,7 @@ export default function ForgotPasswordForm() {
           }}
         >
           Mot de passe{" "}
-          <span style={{ fontStyle: "italic", color: "var(--coral-500)" }}>oublié</span> ?
+          <span style={{ color: "var(--coral-500)" }}>oublié</span> ?
         </h1>
         <p
           style={{

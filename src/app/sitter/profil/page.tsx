@@ -38,14 +38,14 @@ export default async function SitterProfilePage() {
           style={{
             fontFamily: "var(--font-display)",
             fontWeight: 400,
-            fontSize: "clamp(36px, 4vw, 48px)",
+            fontSize: "clamp(24px, 3vw, 36px)",
             letterSpacing: "-0.02em",
             lineHeight: 1.05,
             margin: 0,
             marginBottom: 8,
           }}
         >
-          Mon <span style={{ fontStyle: "italic", color: "var(--coral-500)" }}>profil</span>
+          Mon <span style={{ color: "var(--coral-500)" }}>profil</span>
         </h1>
         <p
           style={{

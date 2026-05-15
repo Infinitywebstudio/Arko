@@ -48,14 +48,14 @@ export default async function ComptePage() {
           style={{
             fontFamily: "var(--font-display)",
             fontWeight: 400,
-            fontSize: "clamp(40px, 5vw, 60px)",
+            fontSize: "clamp(28px, 3.5vw, 44px)",
             letterSpacing: "-0.02em",
             lineHeight: 1.05,
             margin: 0,
           }}
         >
           Mon{" "}
-          <span style={{ fontStyle: "italic", color: "var(--coral-500)" }}>compte</span>
+          <span style={{ color: "var(--coral-500)" }}>compte</span>
         </h1>
         <p
           style={{

@@ -230,13 +230,13 @@ export default function ReservationForm({ sitter, slots, clientName }: Props) {
             style={{
               fontFamily: "var(--font-display)",
               fontWeight: 400,
-              fontSize: "clamp(28px, 4vw, 36px)",
+              fontSize: "clamp(22px, 3vw, 28px)",
               letterSpacing: "-0.02em",
               lineHeight: 1.1,
               margin: 0,
             }}
           >
-            avec <span style={{ fontStyle: "italic", color: "var(--coral-500)" }}>{sitter.full_name}</span>
+            avec <span style={{ color: "var(--coral-500)" }}>{sitter.full_name}</span>
           </h1>
         </div>
       </header>

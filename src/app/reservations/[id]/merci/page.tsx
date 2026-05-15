@@ -111,7 +111,7 @@ export default async function ReservationThankYouPage({
           style={{
             fontFamily: "var(--font-display)",
             fontWeight: 400,
-            fontSize: "clamp(32px, 4vw, 44px)",
+            fontSize: "clamp(24px, 3vw, 34px)",
             letterSpacing: "-0.02em",
             lineHeight: 1.1,
             margin: 0,
@@ -120,11 +120,11 @@ export default async function ReservationThankYouPage({
         >
           {stillPending ? (
             <>
-              On <span style={{ fontStyle: "italic", color: "var(--coral-500)" }}>finalise</span>
+              On <span style={{ color: "var(--coral-500)" }}>finalise</span>
             </>
           ) : (
             <>
-              <span style={{ fontStyle: "italic", color: "var(--coral-500)" }}>Merci</span> !
+              <span style={{ color: "var(--coral-500)" }}>Merci</span> !
             </>
           )}
         </h1>

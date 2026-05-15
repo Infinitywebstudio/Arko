@@ -101,7 +101,7 @@ export default function RequestCard({ booking }: { booking: SitterBookingView })
             flexShrink: 0,
           }}
         >
-          <Arko size={40} mood="alert" collar="#FF5A5F" />
+          <Arko size={40} mood="alert" collar="#2D5A3F" />
         </div>
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ fontWeight: 600, fontSize: 15 }}>{booking.client_full_name}</div>
@@ -136,7 +136,6 @@ export default function RequestCard({ booking }: { booking: SitterBookingView })
               color: "var(--coral-500)",
               letterSpacing: "-0.02em",
               lineHeight: 1,
-              fontStyle: "italic",
             }}
           >
             {formatEuros(booking.sitter_payout_cents)}
@@ -184,7 +183,6 @@ export default function RequestCard({ booking }: { booking: SitterBookingView })
             borderRadius: 10,
             fontFamily: "var(--font-display)",
             fontSize: 13,
-            fontStyle: "italic",
             color: "var(--ink-800)",
             lineHeight: 1.5,
           }}

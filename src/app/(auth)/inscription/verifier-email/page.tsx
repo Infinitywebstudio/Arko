@@ -34,7 +34,7 @@ export default function VerifyEmailPage() {
         }}
       >
         Vérifie ton{" "}
-        <span style={{ fontStyle: "italic", color: "var(--coral-500)" }}>email</span>
+        <span style={{ color: "var(--coral-500)" }}>email</span>
       </h1>
       <p
         style={{

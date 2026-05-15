@@ -81,7 +81,6 @@ export default function ClientCommentForm({ bookingId, initial }: Props) {
             borderRadius: 10,
             fontFamily: "var(--font-display)",
             fontSize: 14,
-            fontStyle: "italic",
             color: "var(--ink-800)",
             lineHeight: 1.5,
           }}

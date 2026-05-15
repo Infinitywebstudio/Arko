@@ -61,7 +61,7 @@ export default function ResetPasswordForm() {
           }}
         >
           Nouveau{" "}
-          <span style={{ fontStyle: "italic", color: "var(--coral-500)" }}>mot de passe</span>
+          <span style={{ color: "var(--coral-500)" }}>mot de passe</span>
         </h1>
         <p
           style={{

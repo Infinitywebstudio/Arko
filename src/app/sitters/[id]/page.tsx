@@ -127,7 +127,7 @@ export default async function SitterProfilePage({
             style={{
               fontFamily: "var(--font-display)",
               fontWeight: 400,
-              fontSize: "clamp(40px, 5vw, 60px)",
+              fontSize: "clamp(28px, 3.5vw, 44px)",
               letterSpacing: "-0.02em",
               lineHeight: 1.05,
               margin: 0,

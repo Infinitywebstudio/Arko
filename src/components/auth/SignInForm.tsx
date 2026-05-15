@@ -94,7 +94,7 @@ export default function SignInForm() {
           }}
         >
           Bon{" "}
-          <span style={{ fontStyle: "italic", color: "var(--coral-500)" }}>retour</span>
+          <span style={{ color: "var(--coral-500)" }}>retour</span>
         </h1>
         <p
           style={{

@@ -98,13 +98,13 @@ export default async function ClientBookingsPage() {
           style={{
             fontFamily: "var(--font-display)",
             fontWeight: 400,
-            fontSize: "clamp(36px, 5vw, 56px)",
+            fontSize: "clamp(26px, 3.5vw, 40px)",
             letterSpacing: "-0.02em",
             lineHeight: 1.05,
             margin: 0,
           }}
         >
-          Mes <span style={{ fontStyle: "italic", color: "var(--coral-500)" }}>réservations</span>
+          Mes <span style={{ color: "var(--coral-500)" }}>réservations</span>
         </h1>
       </header>
 
@@ -379,7 +379,6 @@ function BookingCard({ booking, cancellable }: { booking: Booking; cancellable: 
                   borderRadius: 10,
                   fontFamily: "var(--font-display)",
                   fontSize: 14,
-                  fontStyle: "italic",
                   color: "var(--ink-800)",
                   lineHeight: 1.5,
                 }}

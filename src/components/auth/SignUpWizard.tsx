@@ -274,7 +274,7 @@ export default function SignUpWizard() {
           <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
             <h1 style={titleStyle}>
               Bienvenue sur{" "}
-              <span style={{ fontStyle: "italic", color: "var(--coral-500)" }}>arko</span>
+              <span style={{ fontFamily: "var(--font-brand), system-ui, sans-serif", letterSpacing: "0.02em", color: "var(--coral-600)" }}>ARKO</span>
             </h1>
             <p style={subtitleStyle}>Comment veux-tu utiliser la plateforme ?</p>
           </div>
