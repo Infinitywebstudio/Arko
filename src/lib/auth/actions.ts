@@ -49,10 +49,19 @@ function translateAuthError(message: string): string {
     return "Email pas encore vérifié. Consulte ta boîte de réception.";
   if (m.includes("user already registered") || m.includes("already been registered"))
     return "Un compte existe déjà avec cet email.";
-  if (m.includes("rate limit"))
+  if (m.includes("rate limit") || m.includes("for security purposes"))
     return "Trop de tentatives. Réessaye dans quelques minutes.";
-  if (m.includes("password should be at least"))
+  if (m.includes("password should be at least") || m.includes("password should contain"))
     return "Mot de passe trop court (8 caractères minimum).";
+  if (m.includes("should be different from the old password") || m.includes("same_password") || m.includes("same password"))
+    return "Le nouveau mot de passe doit être différent de l'ancien.";
+  if (m.includes("weak password") || m.includes("password is too weak"))
+    return "Mot de passe trop faible. Ajoute des chiffres ou des symboles.";
+  if (m.includes("session_not_found") || m.includes("jwt expired"))
+    return "Session expirée. Reconnecte-toi.";
+  // Server log the original so we can extend the translation map on the
+  // next surprise. Never reaches the client.
+  console.warn("[auth] untranslated error:", message);
   return "Une erreur est survenue. Réessaye dans un instant.";
 }
 
