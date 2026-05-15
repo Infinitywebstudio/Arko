@@ -16,6 +16,8 @@ export type Database = {
     Tables: {
       bookings: {
         Row: {
+          client_closed_at: string | null
+          client_comment: string | null
           client_full_name: string
           client_id: string
           client_notes: string | null
@@ -40,6 +42,8 @@ export type Database = {
           urgent: boolean
         }
         Insert: {
+          client_closed_at?: string | null
+          client_comment?: string | null
           client_full_name: string
           client_id: string
           client_notes?: string | null
@@ -64,6 +68,8 @@ export type Database = {
           urgent?: boolean
         }
         Update: {
+          client_closed_at?: string | null
+          client_comment?: string | null
           client_full_name?: string
           client_id?: string
           client_notes?: string | null

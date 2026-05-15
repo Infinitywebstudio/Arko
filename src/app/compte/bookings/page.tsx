@@ -8,6 +8,7 @@ import { formatEuros } from "@/lib/booking/pricing";
 import { zoneLabel } from "@/lib/zones";
 import { telLink, whatsappLink } from "@/lib/contact";
 import CancelBookingButton from "@/components/booking/CancelBookingButton";
+import ClientCommentForm from "@/components/booking/ClientCommentForm";
 import type { Database } from "@/lib/supabase/database.types";
 
 const PARIS_TZ = "Europe/Paris";
@@ -61,7 +62,7 @@ export default async function ClientBookingsPage() {
   const { data } = await supabase
     .from("bookings")
     .select(
-      "id, status, start_at, duration_hours, price_cents, dangerous_breed, urgent, late, meeting_zone_id, sitter_id, client_full_name, sitter:profiles!sitter_id (full_name, avatar_url, phone)",
+      "id, status, start_at, duration_hours, price_cents, dangerous_breed, urgent, late, meeting_zone_id, sitter_id, client_full_name, client_comment, sitter_comment, sitter:profiles!sitter_id (full_name, avatar_url, phone)",
     )
     // Hide pending_payment from the user-facing list — they're either still
     // in the Stripe Checkout flow or about to expire and get cleaned up.
@@ -345,6 +346,50 @@ function BookingCard({ booking, cancellable }: { booking: Booking; cancellable: 
             {booking.sitter?.phone}
           </span>
         </div>
+      )}
+
+      {booking.status === "completed" && (
+        <>
+          {booking.sitter_comment && (
+            <div
+              style={{
+                paddingTop: 10,
+                borderTop: "1px dashed var(--ink-200)",
+                display: "flex",
+                flexDirection: "column",
+                gap: 6,
+              }}
+            >
+              <div
+                style={{
+                  fontFamily: "var(--font-mono)",
+                  fontSize: 11,
+                  fontWeight: 600,
+                  letterSpacing: "0.06em",
+                  textTransform: "uppercase",
+                  color: "var(--ink-500)",
+                }}
+              >
+                Le mot de {sitterName.split(" ")[0]}
+              </div>
+              <div
+                style={{
+                  padding: "10px 12px",
+                  background: "var(--peach-50)",
+                  borderRadius: 10,
+                  fontFamily: "var(--font-display)",
+                  fontSize: 14,
+                  fontStyle: "italic",
+                  color: "var(--ink-800)",
+                  lineHeight: 1.5,
+                }}
+              >
+                &ldquo;{booking.sitter_comment}&rdquo;
+              </div>
+            </div>
+          )}
+          <ClientCommentForm bookingId={booking.id} initial={booking.client_comment} />
+        </>
       )}
     </div>
   );

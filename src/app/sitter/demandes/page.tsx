@@ -36,7 +36,7 @@ export default async function SitterDemandesPage() {
   const { data } = await supabase
     .from("bookings")
     .select(
-      "id, status, start_at, duration_hours, price_cents, sitter_payout_cents, dangerous_breed, urgent, late, meeting_zone_id, client_id, client_full_name, client_phone, client_notes, sitter_comment, sitter_closed_at",
+      "id, status, start_at, duration_hours, price_cents, sitter_payout_cents, dangerous_breed, urgent, late, meeting_zone_id, client_id, client_full_name, client_phone, client_notes, sitter_comment, sitter_closed_at, client_comment, client_closed_at",
     )
     .eq("sitter_id", session.userId)
     .neq("status", "pending_payment")
@@ -272,7 +272,26 @@ function HistoryRow({ booking, now }: { booking: Booking; now: number }) {
               marginTop: 6,
             }}
           >
+            <span style={{ fontFamily: "var(--font-mono)", fontStyle: "normal", fontSize: 10, color: "var(--ink-500)", marginRight: 4 }}>
+              Toi :
+            </span>
             &ldquo;{booking.sitter_comment}&rdquo;
+          </div>
+        )}
+        {booking.client_comment && (
+          <div
+            style={{
+              fontFamily: "var(--font-display)",
+              fontSize: 12,
+              fontStyle: "italic",
+              color: "var(--coral-700)",
+              marginTop: 4,
+            }}
+          >
+            <span style={{ fontFamily: "var(--font-mono)", fontStyle: "normal", fontSize: 10, color: "var(--ink-500)", marginRight: 4 }}>
+              {booking.client_full_name.split(" ")[0]} :
+            </span>
+            &ldquo;{booking.client_comment}&rdquo;
           </div>
         )}
       </div>

@@ -363,6 +363,69 @@ export async function cancelBookingAction(
   return { ok: true };
 }
 
+/**
+ * Client submits (or edits) the free-text comment on a completed booking.
+ * Mirrors the sitter close-out comment: optional, max 1000 chars, no rating.
+ * The booking must already be `completed` (either the sitter closed it or the
+ * cron auto-closed it after H+48); RLS + the column-escalation trigger on
+ * the table enforce this even if the action were bypassed.
+ *
+ * `client_closed_at` is set on the first submission and left untouched on
+ * subsequent edits — gives admin a "time-to-first-comment" signal without
+ * resetting on every keystroke save.
+ */
+export async function submitClientCommentAction(
+  bookingId: string,
+  comment: string,
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  const session = await requireUser();
+  if (session.profile.role !== "client") {
+    return { ok: false, error: "Action réservée aux clients." };
+  }
+
+  const trimmed = comment.trim();
+  if (trimmed.length > 1000) {
+    return { ok: false, error: "Commentaire trop long (1000 caractères max)." };
+  }
+
+  const supabase = await createClient();
+  const { data: booking, error: readErr } = await supabase
+    .from("bookings")
+    .select("id, status, client_closed_at")
+    .eq("id", bookingId)
+    .eq("client_id", session.userId)
+    .maybeSingle();
+  if (readErr || !booking) {
+    return { ok: false, error: "Réservation introuvable." };
+  }
+  if (booking.status !== "completed") {
+    return { ok: false, error: "Le commentaire est disponible une fois la garde clôturée." };
+  }
+
+  const patch: {
+    client_comment: string | null;
+    client_closed_at?: string;
+  } = {
+    client_comment: trimmed === "" ? null : trimmed,
+  };
+  // First-submission timestamp; subsequent edits leave it untouched.
+  if (booking.client_closed_at === null) {
+    patch.client_closed_at = new Date().toISOString();
+  }
+
+  const { error } = await supabase
+    .from("bookings")
+    .update(patch)
+    .eq("id", bookingId)
+    .eq("status", "completed");
+  if (error) {
+    return { ok: false, error: "Mise à jour impossible." };
+  }
+
+  revalidatePath("/compte/bookings");
+  return { ok: true };
+}
+
 // =============================================================
 // Sitter-side actions: accept / refuse / close
 // =============================================================
