@@ -2,9 +2,11 @@
 
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
+import { createServerClient } from "@supabase/ssr";
 import { z } from "zod";
 
 import { createAdminClient, createClient } from "@/lib/supabase/server";
+import type { Database } from "@/lib/supabase/database.types";
 import { requireUser } from "./helpers";
 import {
   deleteAccountSchema,
@@ -41,6 +43,30 @@ function getSiteUrl(): string {
  * Anything we don't recognise falls back to a generic message — never
  * leak raw provider errors to the user.
  */
+/**
+ * Verify a (email, password) pair without touching the caller's session.
+ *
+ * The caller's session lives in cookies on the cookie-backed client. Calling
+ * `supabase.auth.signInWithPassword` on that client rotates the access /
+ * refresh tokens and rewrites the cookies — fine on its own, but anything
+ * the action does *after* (e.g. `auth.updateUser`) then fails with
+ * "Auth session missing!" because the in-flight cookie writes are not
+ * yet readable by subsequent SDK calls in the same action.
+ *
+ * Workaround: spin up an isolated client with no-op cookie I/O, run the
+ * password check there, and let the real cookie-backed client continue
+ * with the user's untouched session.
+ */
+async function verifyPassword(email: string, password: string): Promise<boolean> {
+  const verifier = createServerClient<Database>(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    { cookies: { getAll: () => [], setAll: () => {} } },
+  );
+  const { error } = await verifier.auth.signInWithPassword({ email, password });
+  return !error;
+}
+
 function translateAuthError(message: string): string {
   const m = message.toLowerCase();
   if (m.includes("invalid login credentials"))
@@ -312,6 +338,17 @@ export async function updateEmailAction(formData: FormData): Promise<ActionResul
 // Defence in depth: even though the user is authenticated, we re-verify
 // the current password before changing it. Stops a hijacked session from
 // silently rotating credentials.
+//
+// Implementation note (do not "simplify"): we use two isolated Supabase
+// clients here instead of the request-scoped one.
+//   1. A throwaway anon client for `signInWithPassword` — verifies the
+//      current password without touching the request's cookies, so the
+//      caller's session token isn't rotated mid-action.
+//   2. The service-role admin client for the actual password update via
+//      `auth.admin.updateUserById`, which doesn't need the user's session.
+// Calling `signInWithPassword` + `updateUser` on the same SSR-scoped
+// client races the cookie rewrite and fails with "Auth session missing!"
+// on Vercel (observed live on 2026-05-15).
 export async function updatePasswordAction(formData: FormData): Promise<ActionResult> {
   const session = await requireUser();
 
@@ -328,11 +365,15 @@ export async function updatePasswordAction(formData: FormData): Promise<ActionRe
     };
   }
 
-  const supabase = await createClient();
-
-  // Re-authenticate. signInWithPassword refreshes the session cookies for the
-  // same user — safe to call here.
-  const reauth = await supabase.auth.signInWithPassword({
+  // 1. Verify the current password using an isolated anon client. No cookie
+  //    rewrites, no impact on the caller's session.
+  const { createClient: createPlainClient } = await import("@supabase/supabase-js");
+  const verify = createPlainClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    { auth: { persistSession: false, autoRefreshToken: false } },
+  );
+  const reauth = await verify.auth.signInWithPassword({
     email: session.email,
     password: parsed.data.current_password,
   });
@@ -344,7 +385,12 @@ export async function updatePasswordAction(formData: FormData): Promise<ActionRe
     };
   }
 
-  const { error } = await supabase.auth.updateUser({ password: parsed.data.password });
+  // 2. Update the password via the service-role admin client. Service role
+  //    bypasses RLS and doesn't depend on the user's session cookies.
+  const admin = createAdminClient();
+  const { error } = await admin.auth.admin.updateUserById(session.userId, {
+    password: parsed.data.password,
+  });
   if (error) {
     return { ok: false, error: translateAuthError(error.message) };
   }
