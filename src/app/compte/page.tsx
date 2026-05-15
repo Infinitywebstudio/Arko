@@ -134,18 +134,20 @@ export default async function ComptePage() {
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "auto 1fr",
+            gridTemplateColumns: "auto minmax(0, 1fr)",
             gap: "12px 24px",
             fontFamily: "var(--font-mono)",
             fontSize: 13,
           }}
         >
           <div style={{ color: "var(--ink-500)" }}>Nom</div>
-          <div style={{ fontWeight: 600 }}>{profile.full_name}</div>
+          <div style={{ fontWeight: 600, minWidth: 0, overflowWrap: "anywhere" }}>
+            {profile.full_name}
+          </div>
           <div style={{ color: "var(--ink-500)" }}>Email</div>
-          <div style={{ fontWeight: 600 }}>{email}</div>
+          <div style={{ fontWeight: 600, minWidth: 0, overflowWrap: "anywhere" }}>{email}</div>
           <div style={{ color: "var(--ink-500)" }}>Téléphone</div>
-          <div style={{ fontWeight: 600 }}>
+          <div style={{ fontWeight: 600, minWidth: 0, overflowWrap: "anywhere" }}>
             {profile.phone ?? (
               <Link href="/compte/parametres" style={{ color: "var(--coral-600)" }}>
                 À renseigner →

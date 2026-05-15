@@ -10,10 +10,11 @@ export default function SittersLayout({ children }: { children: React.ReactNode 
           position: "sticky",
           top: 0,
           zIndex: 50,
-          background: "rgba(250, 247, 245, 0.85)",
-          backdropFilter: "blur(20px)",
-          WebkitBackdropFilter: "blur(20px)",
-          borderBottom: "1px solid var(--ink-200)",
+          background: "rgba(247, 244, 236, 0.72)",
+          backdropFilter: "blur(24px) saturate(180%)",
+          WebkitBackdropFilter: "blur(24px) saturate(180%)",
+          borderBottom: "1px solid rgba(216, 213, 200, 0.5)",
+          boxShadow: "0 8px 24px rgba(15, 19, 16, 0.04)",
         }}
       >
         <div

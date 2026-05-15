@@ -48,7 +48,10 @@ export default function AvailabilityEditor({ initial }: Props) {
     })),
   );
   const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
+  // Inline button-text feedback replaces a separate success banner. The
+  // flag flips to true on save and auto-reverts after SAVED_FEEDBACK_MS so
+  // the button text returns to its initial label.
+  const [justSaved, setJustSaved] = useState(false);
   const [isPending, startTransition] = useTransition();
 
   const slotsForDay = (weekday: number) => slots.filter((s) => s.weekday === weekday);
@@ -59,23 +62,23 @@ export default function AvailabilityEditor({ initial }: Props) {
       ...s,
       { key: nextKey(), weekday, start_time: "09:00", end_time: "12:00" },
     ]);
-    setSuccess(null);
+    setJustSaved(false);
   };
 
   const removeSlot = (key: string) => {
     setSlots((s) => s.filter((slot) => slot.key !== key));
-    setSuccess(null);
+    setJustSaved(false);
   };
 
   const updateSlot = (key: string, patch: Partial<Pick<Slot, "start_time" | "end_time">>) => {
     setSlots((s) => s.map((slot) => (slot.key === key ? { ...slot, ...patch } : slot)));
-    setSuccess(null);
+    setJustSaved(false);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-    setSuccess(null);
+    setJustSaved(false);
 
     // Client-side guard for clearer messages; server re-validates with Zod.
     for (const s of slots) {
@@ -96,7 +99,10 @@ export default function AvailabilityEditor({ initial }: Props) {
     startTransition(async () => {
       const result = await replaceAvailabilityAction(fd);
       if (result.ok) {
-        setSuccess("Planning enregistré.");
+        setJustSaved(true);
+        // Revert the button label after the user has had time to read it.
+        // No banner anywhere — the button text *is* the feedback.
+        setTimeout(() => setJustSaved(false), 2000);
       } else {
         setError(result.error);
       }
@@ -232,26 +238,9 @@ export default function AvailabilityEditor({ initial }: Props) {
         </div>
       )}
 
-      {success && (
-        <div
-          style={{
-            background: "var(--success-50)",
-            color: "var(--success-700)",
-            border: "1px solid var(--success-500)",
-            padding: "10px 14px",
-            borderRadius: 12,
-            fontFamily: "var(--font-mono)",
-            fontSize: 12,
-          }}
-          role="status"
-        >
-          {success}
-        </div>
-      )}
-
       <div>
         <button type="submit" className="btn btn-primary" disabled={isPending}>
-          {isPending ? "Enregistrement…" : "Enregistrer le planning"}
+          {isPending ? "Enregistrement…" : justSaved ? "Enregistré ✓" : "Enregistrer le planning"}
         </button>
       </div>
     </form>

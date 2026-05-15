@@ -1,96 +1,28 @@
-import Link from "next/link";
-
 import { requireRole } from "@/lib/auth/helpers";
-import { signOutAction } from "@/lib/auth/actions";
-import { Arko, Icon } from "@/components/mascot";
-
-const navStyle: React.CSSProperties = {
-  display: "flex",
-  gap: 24,
-  fontFamily: "var(--font-mono)",
-  fontSize: 13,
-  color: "var(--ink-700)",
-  fontWeight: 500,
-};
-
-const navLinkStyle: React.CSSProperties = {
-  padding: "6px 12px",
-  borderRadius: 999,
-  transition: "background 0.15s",
-};
+import { DashboardHeader } from "@/components/account/DashboardHeader";
 
 export default async function SitterLayout({ children }: { children: React.ReactNode }) {
   // Gate the entire route group: sitters only.
-  await requireRole("sitter");
+  const session = await requireRole("sitter");
 
   return (
     <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: "var(--ink-50)" }}>
-      <header style={{ borderBottom: "1px solid var(--ink-200)", background: "white" }}>
-        <div
-          style={{
-            maxWidth: 1280,
-            margin: "0 auto",
-            padding: "16px 24px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            gap: 24,
-            flexWrap: "wrap",
-          }}
-        >
-          <Link href="/" style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <span
-              style={{
-                fontFamily: "var(--font-brand), system-ui, sans-serif",
-                fontSize: 22,
-                letterSpacing: "0.02em",
-                color: "var(--coral-600)",
-                lineHeight: 1,
-              }}
-            >
-              ARKO
-            </span>
-            <span
-              style={{
-                fontFamily: "var(--font-mono)",
-                fontSize: 11,
-                fontWeight: 600,
-                letterSpacing: "0.06em",
-                textTransform: "uppercase",
-                color: "var(--coral-700)",
-                background: "var(--coral-50)",
-                padding: "3px 8px",
-                borderRadius: 999,
-                marginLeft: 4,
-              }}
-            >
-              Sitter
-            </span>
-          </Link>
-          <nav style={navStyle}>
-            <Link href="/sitter" style={navLinkStyle}>
-              Aujourd&apos;hui
-            </Link>
-            <Link href="/sitter/demandes" style={navLinkStyle}>
-              Demandes
-            </Link>
-            <Link href="/sitter/profil" style={navLinkStyle}>
-              Mon profil
-            </Link>
-            <Link href="/sitter/disponibilites" style={navLinkStyle}>
-              Disponibilités
-            </Link>
-            <Link href="/sitter/parametres" style={navLinkStyle}>
-              Paramètres
-            </Link>
-          </nav>
-          <form action={signOutAction}>
-            <button type="submit" className="btn btn-ghost btn-sm">
-              <Icon name="arrow" size={14} /> Déconnexion
-            </button>
-          </form>
-        </div>
-      </header>
+      <DashboardHeader
+        roleLabel="Sitter"
+        homeHref="/sitter"
+        navLinks={[
+          { href: "/sitter", label: "Aujourd'hui" },
+          { href: "/sitter/demandes", label: "Demandes" },
+          { href: "/sitter/profil", label: "Mon profil" },
+          { href: "/sitter/disponibilites", label: "Disponibilités" },
+          { href: "/sitter/parametres", label: "Paramètres" },
+        ]}
+        settingsHref="/sitter/parametres"
+        profileHref="/sitter/profil"
+        fullName={session.profile.full_name}
+        email={session.email}
+        avatarUrl={session.profile.avatar_url}
+      />
       <main style={{ flex: 1, maxWidth: 960, width: "100%", margin: "0 auto", padding: "var(--space-10) var(--space-6)" }}>
         {children}
       </main>

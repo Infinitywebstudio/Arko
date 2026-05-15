@@ -101,8 +101,17 @@ export default function SitterProfileForm({ initial, identity }: Props) {
 
   return (
     <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "var(--space-5)" }}>
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
-        <div>
+      {/* auto-fit minmax: the row stays 2-up when there's room (~440px+ inner
+          width) and collapses to 1 column on narrow mobiles so PhoneInput
+          (~200px min) and "Nom complet" don't overflow / get clipped. */}
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+          gap: 16,
+        }}
+      >
+        <div style={{ minWidth: 0 }}>
           <label htmlFor="full_name" style={labelStyle}>
             Nom complet
           </label>
@@ -118,7 +127,7 @@ export default function SitterProfileForm({ initial, identity }: Props) {
           />
           {fieldErrors.full_name && <FieldError>{fieldErrors.full_name}</FieldError>}
         </div>
-        <div>
+        <div style={{ minWidth: 0 }}>
           <label htmlFor="phone" style={labelStyle}>
             Téléphone
           </label>
@@ -161,8 +170,14 @@ export default function SitterProfileForm({ initial, identity }: Props) {
         {fieldErrors.bio && <FieldError>{fieldErrors.bio}</FieldError>}
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
-        <div>
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+          gap: 16,
+        }}
+      >
+        <div style={{ minWidth: 0 }}>
           <label htmlFor="experience_years" style={labelStyle}>
             Années d&apos;expérience
           </label>
@@ -179,7 +194,7 @@ export default function SitterProfileForm({ initial, identity }: Props) {
           {fieldErrors.experience_years && <FieldError>{fieldErrors.experience_years}</FieldError>}
         </div>
 
-        <div>
+        <div style={{ minWidth: 0 }}>
           <label style={labelStyle}>Chiens dits dangereux (cat. 1 et 2)</label>
           <label
             style={{

@@ -244,6 +244,13 @@ img { max-width: 100%; display: block; }
   .home-nav-burger { display: inline-flex !important; }
   .home-nav-person { display: inline-flex !important; }
 
+  /* Dashboard header (/compte, /sitter): same swap — hide the desktop
+     link row + user dropdown, expose the hamburger that opens the
+     mobile drawer. The drawer carries the user block + nav + logout. */
+  .dash-nav-links { display: none !important; }
+  .dash-nav-user { display: none !important; }
+  .dash-nav-burger { display: inline-flex !important; }
+
   /* Approach steps become a horizontal snap-scroll carousel on mobile.
      Padding bleeds to the section edges so the cards line up with the
      section title above. The native scrollbar is hidden — pagination

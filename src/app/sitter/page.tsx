@@ -4,7 +4,7 @@ import Link from "next/link";
 import { requireRole } from "@/lib/auth/helpers";
 import { getTodayAvailability } from "@/lib/sitter/helpers";
 import { createClient } from "@/lib/supabase/server";
-import { Arko, Icon, type IconName } from "@/components/mascot";
+import { Icon, type IconName } from "@/components/mascot";
 
 export const metadata: Metadata = {
   title: "Aujourd'hui · ARKO Sitter",
@@ -92,20 +92,6 @@ export default async function SitterHomePage() {
           >
             {todayLabel}
           </div>
-        </div>
-        <div
-          style={{
-            width: 64,
-            height: 64,
-            borderRadius: 32,
-            background: "var(--peach-200)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            flexShrink: 0,
-          }}
-        >
-          <Arko size={52} mood="waggy" />
         </div>
       </header>
 
