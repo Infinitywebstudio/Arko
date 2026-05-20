@@ -77,7 +77,7 @@ function timeToMinutes(t: string): number {
 /**
  * Create a booking and a Stripe Checkout session for it. On success returns a
  * redirect URL pointing at Stripe's hosted page. The booking row stays at
- * `pending_payment` until the Stripe webhook flips it to `pending_acceptance`.
+ * `pending_payment` until the Stripe webhook flips it to `confirmed`.
  */
 export async function createBookingAction(
   formData: FormData,
@@ -211,17 +211,19 @@ export async function createBookingAction(
     (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000");
 
   // ---------- Demo mode: skip Stripe entirely -------------
-  // Flip the booking straight to pending_acceptance (the state the webhook
-  // would set after a successful payment) and route the user to the merci
-  // page. The sitter notification email helper also short-circuits in demo
-  // so the chain produces console output, not real sends.
+  // Flip the booking straight to confirmed (the state the webhook would set
+  // after a successful payment) and route the user to the merci page. The
+  // notification email helpers also short-circuit in demo so the chain
+  // produces console output, not real sends.
   if (isDemoMode()) {
     await supabase
       .from("bookings")
-      .update({ status: "pending_acceptance" })
+      .update({ status: "confirmed" })
       .eq("id", booking.id);
-    const { sendSitterBookingNotification } = await import("@/lib/email/booking");
+    const { sendSitterBookingNotification, sendClientBookingConfirmedNotification } =
+      await import("@/lib/email/booking");
     void sendSitterBookingNotification(booking.id);
+    void sendClientBookingConfirmedNotification(booking.id);
     return { ok: true, redirectTo: `${siteUrl}/reservations/${booking.id}/merci` };
   }
 
@@ -292,10 +294,10 @@ export async function createBookingAction(
 }
 
 /**
- * Cancel a booking the client owns. Only `pending_acceptance` and `confirmed`
- * are user-cancellable: `pending_payment` is hidden from the user-facing list
- * and expires on its own via Stripe's session timeout, which avoids a race
- * where a user clicks "cancel" while a payment lands.
+ * Cancel a booking the client owns. Only `confirmed` is user-cancellable:
+ * `pending_payment` is hidden from the user-facing list and expires on its own
+ * via Stripe's session timeout, which avoids a race where a user clicks
+ * "cancel" while a payment lands.
  *
  * Per MVP scope: cancellation is free up to `start_at`. We refund 100% via the
  * stored payment intent and stamp `refunded_at` for traceability. RLS already
@@ -323,8 +325,7 @@ export async function cancelBookingAction(
     return { ok: false, error: "La garde a déjà commencé." };
   }
 
-  const cancellable: typeof booking.status[] = ["pending_acceptance", "confirmed"];
-  if (!cancellable.includes(booking.status)) {
+  if (booking.status !== "confirmed") {
     return { ok: false, error: "Cette réservation ne peut plus être annulée." };
   }
 
@@ -427,59 +428,19 @@ export async function submitClientCommentAction(
 }
 
 // =============================================================
-// Sitter-side actions: accept / refuse / close
+// Sitter-side actions: cancel / close
 // =============================================================
-// All three are gated by requireRole("sitter") + RLS "sitter updates own
-// booking" - only the booking's sitter can flip its state. The action layer
-// then enforces which transitions are legal (a sitter can't, for instance,
-// refuse a confirmed booking; the cancellation path is the client's).
+// Both are gated by requireRole("sitter") + RLS "sitter updates own booking" -
+// only the booking's sitter can flip its state. The action layer then enforces
+// which transitions are legal. There is no accept/refuse step anymore: payment
+// confirms the booking outright (see the Stripe webhook).
 
 /**
- * Sitter accepts a pending_acceptance booking. Flips it to `confirmed` and
- * fires the client notification email with the sitter's contact info.
+ * Sitter cancels a confirmed booking before it starts. Refunds Stripe
+ * automatically then flips the row to `cancelled_by_sitter` and notifies the
+ * client so they can rebook. Allowed any time up to `start_at`.
  */
-export async function acceptBookingAction(
-  bookingId: string,
-): Promise<{ ok: true } | { ok: false; error: string }> {
-  const session = await requireUser();
-  if (session.profile.role !== "sitter") {
-    return { ok: false, error: "Action réservée aux sitters." };
-  }
-
-  const supabase = await createClient();
-  // Atomic transition: only succeeds if the row is still pending_acceptance.
-  // Guards against duplicate-click and concurrent accept/refuse.
-  const { data: updated, error } = await supabase
-    .from("bookings")
-    .update({ status: "confirmed" })
-    .eq("id", bookingId)
-    .eq("sitter_id", session.userId)
-    .eq("status", "pending_acceptance")
-    .select("id")
-    .maybeSingle();
-  if (error) {
-    return { ok: false, error: "Impossible d'accepter la garde." };
-  }
-  if (!updated) {
-    return { ok: false, error: "Cette demande n'est plus en attente." };
-  }
-
-  // Best-effort client notification. Email failure must not flip the booking
-  // back - that would create an inconsistent state. We log and move on; the
-  // sitter still sees the row as confirmed and can phone the client directly.
-  const { sendClientBookingAcceptedNotification } = await import("@/lib/email/booking");
-  void sendClientBookingAcceptedNotification(bookingId);
-
-  revalidatePath("/sitter/demandes");
-  revalidatePath("/sitter");
-  return { ok: true };
-}
-
-/**
- * Sitter refuses a pending_acceptance booking. Refunds Stripe automatically
- * then flips the row to refused_by_sitter and notifies the client.
- */
-export async function refuseBookingAction(
+export async function cancelBookingBySitterAction(
   bookingId: string,
 ): Promise<{ ok: true } | { ok: false; error: string }> {
   const session = await requireUser();
@@ -490,19 +451,22 @@ export async function refuseBookingAction(
   const supabase = await createClient();
   const { data: booking, error: readErr } = await supabase
     .from("bookings")
-    .select("id, status, stripe_payment_intent_id, refunded_at")
+    .select("id, status, start_at, stripe_payment_intent_id, refunded_at")
     .eq("id", bookingId)
     .eq("sitter_id", session.userId)
     .maybeSingle();
   if (readErr || !booking) {
-    return { ok: false, error: "Demande introuvable." };
+    return { ok: false, error: "Garde introuvable." };
   }
-  if (booking.status !== "pending_acceptance") {
-    return { ok: false, error: "Cette demande n'est plus en attente." };
+  if (booking.status !== "confirmed") {
+    return { ok: false, error: "Cette garde ne peut plus être annulée." };
+  }
+  if (new Date(booking.start_at).getTime() <= Date.now()) {
+    return { ok: false, error: "La garde a déjà commencé." };
   }
 
-  // Refund FIRST. If Stripe fails the booking stays pending_acceptance and
-  // the sitter can retry - better than a refused-but-not-refunded ghost.
+  // Refund FIRST. If Stripe fails the booking stays confirmed and the sitter
+  // can retry - better than a cancelled-but-not-refunded ghost.
   if (
     booking.stripe_payment_intent_id &&
     !booking.refunded_at &&
@@ -521,17 +485,17 @@ export async function refuseBookingAction(
   const { error: updErr } = await supabase
     .from("bookings")
     .update({
-      status: "refused_by_sitter",
+      status: "cancelled_by_sitter",
       refunded_at: new Date().toISOString(),
     })
     .eq("id", bookingId)
-    .eq("status", "pending_acceptance");
+    .eq("status", "confirmed");
   if (updErr) {
     return { ok: false, error: "Mise à jour impossible. Contacte le support." };
   }
 
-  const { sendClientBookingRefusedNotification } = await import("@/lib/email/booking");
-  void sendClientBookingRefusedNotification(bookingId);
+  const { sendClientBookingCancelledBySitterNotification } = await import("@/lib/email/booking");
+  void sendClientBookingCancelledBySitterNotification(bookingId);
 
   revalidatePath("/sitter/demandes");
   revalidatePath("/sitter");

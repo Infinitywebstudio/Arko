@@ -438,14 +438,14 @@ export async function deleteAccountAction(formData: FormData): Promise<ActionRes
   // bookings table cascades on profile deletion, which would silently wipe
   // a confirmed garde from the counterparty's history without triggering
   // a refund. Forcing the user to cancel first keeps the financial flow
-  // intact (cancel/refuse actions handle the Stripe refund + email).
+  // intact (the cancel actions handle the Stripe refund + email).
   const nowIso = new Date().toISOString();
   const userField = session.profile.role === "sitter" ? "sitter_id" : "client_id";
   const { count: activeCount, error: countErr } = await supabase
     .from("bookings")
     .select("id", { count: "exact", head: true })
     .eq(userField, session.userId)
-    .in("status", ["pending_acceptance", "confirmed"])
+    .eq("status", "confirmed")
     .gt("start_at", nowIso);
 
   if (countErr) {

@@ -5,7 +5,6 @@ import { requireRole } from "@/lib/auth/helpers";
 import { createClient } from "@/lib/supabase/server";
 import { Arko } from "@/components/mascot";
 import { formatEuros } from "@/lib/booking/pricing";
-import RequestCard from "@/components/booking/sitter/RequestCard";
 import ActiveCard from "@/components/booking/sitter/ActiveCard";
 import type { Database } from "@/lib/supabase/database.types";
 
@@ -31,8 +30,8 @@ export default async function SitterDemandesPage() {
   const session = await requireRole("sitter");
   const supabase = await createClient();
 
-  // All non-pending_payment bookings for this sitter, oldest first so that
-  // the "en attente de ta réponse" block surfaces what they need to act on.
+  // All non-pending_payment bookings for this sitter, oldest first so the
+  // active gardes surface above the history.
   const { data } = await supabase
     .from("bookings")
     .select(
@@ -45,11 +44,8 @@ export default async function SitterDemandesPage() {
   const bookings = (data ?? []) as Booking[];
   const now = Date.now();
 
-  const pending = bookings.filter((b) => b.status === "pending_acceptance");
   const confirmed = bookings.filter((b) => b.status === "confirmed");
-  const past = bookings.filter(
-    (b) => !["pending_acceptance", "confirmed"].includes(b.status),
-  );
+  const past = bookings.filter((b) => b.status !== "confirmed");
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-8)" }}>
@@ -80,25 +76,16 @@ export default async function SitterDemandesPage() {
         </h1>
       </header>
 
-      {/* Pending acceptance - the actionable bucket comes first */}
+      {/* Confirmed - upcoming + active gardes with live countdown, cancel + close */}
       <Section
-        title="En attente de ta réponse"
-        count={pending.length}
-        empty="Aucune demande pour l'instant."
+        title="Gardes confirmées"
+        count={confirmed.length}
+        empty="Aucune garde confirmée pour l'instant."
       >
-        {pending.map((b) => (
-          <RequestCard key={b.id} booking={serialize(b)} />
+        {confirmed.map((b) => (
+          <ActiveCard key={b.id} booking={serialize(b)} />
         ))}
       </Section>
-
-      {/* Confirmed - upcoming + active gardes with live countdown + close */}
-      {confirmed.length > 0 && (
-        <Section title="Gardes confirmées" count={confirmed.length} empty="">
-          {confirmed.map((b) => (
-            <ActiveCard key={b.id} booking={serialize(b)} />
-          ))}
-        </Section>
-      )}
 
       {/* History */}
       {past.length > 0 && (
@@ -210,9 +197,11 @@ function serialize(b: Booking) {
 
 const STATUS_LABEL_PAST: Record<string, string> = {
   cancelled_by_client: "Annulée par le client",
+  cancelled_by_sitter: "Tu as annulé - remboursée",
+  completed: "Terminée",
+  // Legacy statuses kept for historical rows created before direct confirmation.
   refused_by_sitter: "Tu as refusé",
   no_response: "Sans réponse - remboursée",
-  completed: "Terminée",
 };
 
 function HistoryRow({ booking, now }: { booking: Booking; now: number }) {

@@ -17,7 +17,6 @@ type Props = {
     full_name: string;
     avatar_url: string | null;
     accepts_dangerous_breeds: boolean;
-    service_zones: string[];
   };
   slots: Slot[];
   clientName: string;
@@ -155,7 +154,8 @@ export default function ReservationForm({ sitter, slots, clientName }: Props) {
   }
 
   const dangerousAvailable = sitter.accepts_dangerous_breeds;
-  const zoneOptions = ZONES.filter((z) => sitter.service_zones.includes(z.id));
+  // Sitters now cover every zone, so the pickup dropdown offers the full list.
+  const zoneOptions = ZONES;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();

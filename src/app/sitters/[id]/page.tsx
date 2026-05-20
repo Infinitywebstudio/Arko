@@ -9,7 +9,6 @@ import {
   getSitterPublic,
 } from "@/lib/sitter/helpers";
 import { Arko, Icon } from "@/components/mascot";
-import { zoneLabel } from "@/lib/zones";
 import type { Database } from "@/lib/supabase/database.types";
 
 type BadgeKind = Database["public"]["Enums"]["sitter_badge_kind"];
@@ -192,21 +191,6 @@ export default async function SitterProfilePage({
           {sitter.accepts_dangerous_breeds ? "Accepté" : "Non accepté"}
         </InfoCard>
       </section>
-
-      {/* Service zones */}
-      {sitter.service_zones && sitter.service_zones.length > 0 && (
-        <section>
-          <SectionHeading>Zones d&apos;intervention</SectionHeading>
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-            {sitter.service_zones.map((zone) => (
-              <span key={zone} className="badge badge-ink-soft" style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
-                <Icon name="pin" size={12} color="var(--ink-700)" />
-                {zoneLabel(zone)}
-              </span>
-            ))}
-          </div>
-        </section>
-      )}
 
       {/* Availability */}
       <section>

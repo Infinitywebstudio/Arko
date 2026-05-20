@@ -36,26 +36,12 @@ export async function updateSitterProfileAction(
 ): Promise<ActionResult> {
   const session = await requireRole("sitter");
 
-  // Service zones can be sent as repeated fields or a comma-separated string.
-  const rawZones = formData.getAll("service_zones");
-  let zones: string[] = [];
-  if (rawZones.length > 1) {
-    zones = rawZones.map(String).map((z) => z.trim()).filter(Boolean);
-  } else if (rawZones.length === 1) {
-    const single = String(rawZones[0]);
-    zones = single
-      .split(",")
-      .map((z) => z.trim())
-      .filter(Boolean);
-  }
-
   const raw = {
     bio: formData.get("bio"),
     experience_years: formData.get("experience_years"),
     accepts_dangerous_breeds:
       formData.get("accepts_dangerous_breeds") === "on" ||
       formData.get("accepts_dangerous_breeds") === "true",
-    service_zones: zones,
   };
 
   const parsed = sitterProfileSchema.safeParse(raw);
@@ -91,7 +77,6 @@ export async function updateSitterProfileAction(
       bio: parsed.data.bio ?? null,
       experience_years: parsed.data.experience_years ?? null,
       accepts_dangerous_breeds: parsed.data.accepts_dangerous_breeds,
-      service_zones: parsed.data.service_zones,
     })
     .eq("id", session.userId);
 

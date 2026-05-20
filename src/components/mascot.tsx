@@ -13,7 +13,7 @@ type ArkoProps = {
 export function Arko({
   size = 80,
   mood = "happy",
-  collar = "#2D5A3F",
+  collar = "#3C582E",
   fur = "#1F2C24",
   ...rest
 }: ArkoProps) {

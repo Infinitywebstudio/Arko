@@ -37,14 +37,15 @@ export default async function SitterHomePage() {
   const session = await requireRole("sitter");
   const todaySlots = await getTodayAvailability(session.userId);
 
-  // Pending demand count - drives a coral badge on the "Demandes" tile to
-  // signal that something needs the sitter's attention.
+  // Upcoming confirmed gardes - drives a coral badge on the "Demandes" tile so
+  // the sitter sees at a glance how many gardes are locked in ahead.
   const supabase = await createClient();
   const { count: pendingCount } = await supabase
     .from("bookings")
     .select("id", { count: "exact", head: true })
     .eq("sitter_id", session.userId)
-    .eq("status", "pending_acceptance");
+    .eq("status", "confirmed")
+    .gt("start_at", new Date().toISOString());
   const pendingNum = pendingCount ?? 0;
 
   const firstName = session.profile.full_name.split(" ")[0] ?? session.profile.full_name;
@@ -230,13 +231,13 @@ export default async function SitterHomePage() {
           <Tile
             href="/sitter/demandes"
             icon="bell"
-            label="Demandes"
-            hint={pendingNum > 0 ? `${pendingNum} en attente` : "Mes gardes"}
+            label="Mes gardes"
+            hint={pendingNum > 0 ? `${pendingNum} à venir` : "Aucune à venir"}
             badge={pendingNum > 0 ? pendingNum : undefined}
           />
           <Tile href="/sitter/profil" icon="user" label="Mon profil" hint="Bio, photo, expérience" />
           <Tile href="/sitter/disponibilites" icon="calendar" label="Disponibilités" hint="Mes créneaux hebdo" />
-          <Tile href={`/sitters/${session.userId}`} icon="search" label="Profil public" hint="Voir ce que voient les clients" />
+          <Tile icon="search" label="Profil public" hint="Voir ce que voient les clients" disabled />
           <Tile href="/sitter/parametres" icon="lock" label="Paramètres" hint="Email, mot de passe, compte" />
         </div>
       </section>
@@ -250,29 +251,31 @@ function Tile({
   label,
   hint,
   badge,
+  disabled,
 }: {
-  href: string;
+  href?: string;
   icon: IconName;
   label: string;
   hint: string;
   badge?: number;
+  disabled?: boolean;
 }) {
-  return (
-    <Link href={href} style={tileLink}>
+  const content = (
+    <>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
         <div
           style={{
             width: 36,
             height: 36,
             borderRadius: 18,
-            background: "var(--coral-50)",
+            background: disabled ? "var(--ink-100)" : "var(--coral-50)",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
             position: "relative",
           }}
         >
-          <Icon name={icon} size={18} color="var(--coral-600)" />
+          <Icon name={icon} size={18} color={disabled ? "var(--ink-400)" : "var(--coral-600)"} />
           {badge !== undefined && (
             <span
               style={{
@@ -298,7 +301,25 @@ function Tile({
             </span>
           )}
         </div>
-        <Icon name="arrow" size={14} color="var(--ink-400)" />
+        {disabled ? (
+          <span
+            style={{
+              fontFamily: "var(--font-mono)",
+              fontSize: 9,
+              fontWeight: 700,
+              letterSpacing: "0.06em",
+              textTransform: "uppercase",
+              color: "var(--ink-400)",
+              background: "var(--ink-100)",
+              padding: "2px 8px",
+              borderRadius: 8,
+            }}
+          >
+            Bientôt
+          </span>
+        ) : (
+          <Icon name="arrow" size={14} color="var(--ink-400)" />
+        )}
       </div>
       <div>
         <div
@@ -313,10 +334,31 @@ function Tile({
         >
           {label}
         </div>
-        <div style={{ fontSize: 13, fontWeight: 600, color: "var(--ink-900)", marginTop: 4 }}>
+        <div
+          style={{
+            fontSize: 13,
+            fontWeight: 600,
+            color: disabled ? "var(--ink-400)" : "var(--ink-900)",
+            marginTop: 4,
+          }}
+        >
           {hint}
         </div>
       </div>
+    </>
+  );
+
+  if (disabled) {
+    return (
+      <div style={{ ...tileLink, opacity: 0.6, cursor: "not-allowed" }} aria-disabled>
+        {content}
+      </div>
+    );
+  }
+
+  return (
+    <Link href={href!} style={tileLink}>
+      {content}
     </Link>
   );
 }

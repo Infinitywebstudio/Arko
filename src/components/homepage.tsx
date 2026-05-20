@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { Arko, Paw, Icon, type ArkoMood } from "./mascot";
-import { zoneLabel } from "@/lib/zones";
 import type { Database } from "@/lib/supabase/database.types";
 
 type SitterPublic = Database["public"]["Views"]["sitters_public"]["Row"];
@@ -118,8 +117,8 @@ export function HomeHero() {
             >
               Trouver un sitter <Icon name="arrow" size={16} color="var(--coral-600)" />
             </Link>
-            <a
-              href="#how"
+            <Link
+              href="/comment-ca-marche"
               className="btn btn-lg"
               style={{
                 background: "transparent",
@@ -128,7 +127,7 @@ export function HomeHero() {
               }}
             >
               Comment ça marche
-            </a>
+            </Link>
           </div>
 
           <div
@@ -407,7 +406,6 @@ export function HomeSitters({ sitters }: { sitters: SitterPublic[] }) {
         {sitters.slice(0, 4).map((s, i) => {
           const collar = FALLBACK_COLLARS[i % FALLBACK_COLLARS.length]!;
           const mood = FALLBACK_MOODS[i % FALLBACK_MOODS.length]!;
-          const area = s.service_zones && s.service_zones[0] ? zoneLabel(s.service_zones[0]) : "Arles";
           const sitterId = s.id ?? "";
           return (
             <Link
@@ -443,24 +441,21 @@ export function HomeSitters({ sitters }: { sitters: SitterPublic[] }) {
               </div>
               <div style={{ padding: "var(--space-5)", display: "flex", flexDirection: "column", flex: 1 }}>
                 <div style={{ fontWeight: 600, fontSize: 16 }}>{displayName(s.full_name)}</div>
-                <div
-                  style={{
-                    fontFamily: "var(--font-mono)",
-                    fontSize: 12,
-                    color: "var(--ink-500)",
-                    marginTop: 4,
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 4,
-                  }}
-                >
-                  <Icon name="pin" size={12} /> {area}
-                  {s.experience_years !== null && s.experience_years !== undefined && (
-                    <span style={{ marginLeft: 8 }}>
-                      · {s.experience_years === 0 ? "Débutant" : `${s.experience_years} an${s.experience_years > 1 ? "s" : ""} d'exp.`}
-                    </span>
-                  )}
-                </div>
+                {s.experience_years !== null && s.experience_years !== undefined && (
+                  <div
+                    style={{
+                      fontFamily: "var(--font-mono)",
+                      fontSize: 12,
+                      color: "var(--ink-500)",
+                      marginTop: 4,
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 4,
+                    }}
+                  >
+                    {s.experience_years === 0 ? "Débutant" : `${s.experience_years} an${s.experience_years > 1 ? "s" : ""} d'exp.`}
+                  </div>
+                )}
                 <div
                   style={{
                     marginTop: "auto",
@@ -675,10 +670,24 @@ export function HomeCTA() {
 }
 
 export function HomeFooter() {
-  const cols: { t: string; l: string[] }[] = [
-    { t: "Produit", l: ["Trouver un sitter", "Devenir sitter", "Tarifs", "Villes disponibles"] },
-    { t: "Société", l: ["À propos", "Blog", "Presse", "Recrutement"] },
-    { t: "Aide", l: ["Centre d'aide", "Contact", "CGU", "Confidentialité"] },
+  const cols: { t: string; l: { label: string; href?: string }[] }[] = [
+    {
+      t: "Produit",
+      l: [
+        { label: "Trouver un sitter" },
+        { label: "Devenir sitter" },
+        { label: "Tarifs" },
+        { label: "Villes disponibles" },
+      ],
+    },
+    {
+      t: "Aide",
+      l: [{ label: "Centre d'aide" }, { label: "CGU" }, { label: "Confidentialité" }],
+    },
+    {
+      t: "Contact",
+      l: [{ label: "support@arko.life", href: "mailto:support@arko.life" }],
+    },
   ];
   return (
     <footer
@@ -733,8 +742,8 @@ export function HomeFooter() {
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-2)" }}>
                 {c.l.map((item) => (
-                  <a key={item} style={{ fontFamily: "var(--font-mono)", fontSize: 13 }}>
-                    {item}
+                  <a key={item.label} href={item.href} style={{ fontFamily: "var(--font-mono)", fontSize: 13 }}>
+                    {item.label}
                   </a>
                 ))}
               </div>

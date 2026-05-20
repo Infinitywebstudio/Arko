@@ -134,7 +134,9 @@ export function HomeNav() {
             }}
           >
             <a>Trouver un sitter</a>
-            <a>Comment ça marche</a>
+            <Link href="/comment-ca-marche" style={{ color: "inherit", textDecoration: "none" }}>
+              Comment ça marche
+            </Link>
             <a>Devenir sitter</a>
             <a>Aide</a>
           </div>
@@ -301,7 +303,7 @@ export function HomeNav() {
           }}
         >
           <DrawerLink href="/sitters" label="Trouver un sitter" onNavigate={() => setOpen(false)} />
-          <DrawerLink href="/#how" label="Comment ça marche" onNavigate={() => setOpen(false)} />
+          <DrawerLink href="/comment-ca-marche" label="Comment ça marche" onNavigate={() => setOpen(false)} />
           <DrawerLink href="/inscription?role=sitter" label="Devenir sitter" onNavigate={() => setOpen(false)} />
           <DrawerLink href="/aide" label="Aide" onNavigate={() => setOpen(false)} />
         </nav>

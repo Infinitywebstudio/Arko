@@ -3,7 +3,6 @@
 import { useState, useTransition } from "react";
 
 import { updateSitterProfileAction } from "@/lib/sitter/actions";
-import { ZONES, isValidZoneId } from "@/lib/zones";
 import PhoneInput from "@/components/ui/PhoneInput";
 import type { Database } from "@/lib/supabase/database.types";
 
@@ -59,12 +58,6 @@ export default function SitterProfileForm({ initial, identity }: Props) {
     initial.experience_years === null ? "" : String(initial.experience_years),
   );
   const [acceptsDangerous, setAcceptsDangerous] = useState(initial.accepts_dangerous_breeds);
-  // Filter out IDs that no longer exist in the curated list - happens when a zone
-  // is removed from src/lib/zones.ts after sitters have already saved profiles.
-  // Without this filter, the old slugs would make the validator reject the form.
-  const [selectedZones, setSelectedZones] = useState<Set<string>>(
-    () => new Set((initial.service_zones ?? []).filter(isValidZoneId)),
-  );
 
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
@@ -83,10 +76,6 @@ export default function SitterProfileForm({ initial, identity }: Props) {
     fd.append("bio", bio);
     fd.append("experience_years", years);
     fd.append("accepts_dangerous_breeds", acceptsDangerous ? "true" : "false");
-    // Send each zone as a repeated field - the action's getAll("service_zones") handles this.
-    for (const id of selectedZones) {
-      fd.append("service_zones", id);
-    }
 
     startTransition(async () => {
       const result = await updateSitterProfileAction(fd);
@@ -221,68 +210,6 @@ export default function SitterProfileForm({ initial, identity }: Props) {
             J&apos;accepte de garder ce type de chien
           </label>
         </div>
-      </div>
-
-      <div>
-        <label style={labelStyle}>Zones d&apos;intervention</label>
-        <div
-          role="group"
-          aria-label="Zones d'intervention"
-          style={{
-            display: "flex",
-            flexWrap: "wrap",
-            gap: 8,
-            padding: 12,
-            background: "white",
-            border: `1px solid ${fieldErrors.service_zones ? "var(--danger-500)" : "var(--ink-300)"}`,
-            borderRadius: 12,
-          }}
-        >
-          {ZONES.map((z) => {
-            const on = selectedZones.has(z.id);
-            return (
-              <button
-                type="button"
-                key={z.id}
-                aria-pressed={on}
-                disabled={isPending}
-                onClick={() => {
-                  setSelectedZones((prev) => {
-                    const next = new Set(prev);
-                    if (next.has(z.id)) next.delete(z.id);
-                    else next.add(z.id);
-                    return next;
-                  });
-                }}
-                style={{
-                  padding: "8px 12px",
-                  borderRadius: 999,
-                  fontFamily: "var(--font-mono)",
-                  fontSize: 12,
-                  fontWeight: 600,
-                  background: on ? "var(--coral-500)" : "white",
-                  color: on ? "white" : "var(--ink-700)",
-                  border: `1px solid ${on ? "var(--coral-500)" : "var(--ink-300)"}`,
-                  cursor: isPending ? "not-allowed" : "pointer",
-                  transition: "all 0.12s",
-                }}
-              >
-                {z.label}
-              </button>
-            );
-          })}
-        </div>
-        <div
-          style={{
-            fontFamily: "var(--font-mono)",
-            fontSize: 11,
-            color: "var(--ink-500)",
-            marginTop: 4,
-          }}
-        >
-          {selectedZones.size} sélectionnée{selectedZones.size > 1 ? "s" : ""} - clique pour ajouter ou retirer
-        </div>
-        {fieldErrors.service_zones && <FieldError>{fieldErrors.service_zones}</FieldError>}
       </div>
 
       {error && (

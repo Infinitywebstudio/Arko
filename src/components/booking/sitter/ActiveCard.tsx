@@ -2,14 +2,28 @@
 
 import { useEffect, useMemo, useState, useTransition } from "react";
 
-import { closeBookingAction } from "@/lib/booking/actions";
+import { closeBookingAction, cancelBookingBySitterAction } from "@/lib/booking/actions";
 import { formatEuros } from "@/lib/booking/pricing";
 import { telLink, whatsappLink } from "@/lib/contact";
 import { zoneLabel } from "@/lib/zones";
 import { Arko, Icon } from "@/components/mascot";
-import type { SitterBookingView } from "./RequestCard";
 
 const PARIS_TZ = "Europe/Paris";
+
+export type SitterBookingView = {
+  id: string;
+  status: string;
+  start_at: string;
+  duration_hours: number;
+  sitter_payout_cents: number;
+  dangerous_breed: boolean;
+  urgent: boolean;
+  late: boolean;
+  meeting_zone_id: string | null;
+  client_full_name: string;
+  client_phone: string | null;
+  client_notes: string | null;
+};
 
 const formatDateTime = (iso: string) =>
   new Intl.DateTimeFormat("fr-FR", {
@@ -60,6 +74,8 @@ export default function ActiveCard({ booking }: { booking: SitterBookingView }) 
   const [showClose, setShowClose] = useState(false);
   const [comment, setComment] = useState("");
   const [pending, startTransition] = useTransition();
+  const [confirmCancel, setConfirmCancel] = useState(false);
+  const [cancelPending, startCancel] = useTransition();
 
   const handleClose = () => {
     setError(null);
@@ -68,6 +84,14 @@ export default function ActiveCard({ booking }: { booking: SitterBookingView }) 
       if (!result.ok) {
         setError(result.error);
       }
+    });
+  };
+
+  const handleCancel = () => {
+    setError(null);
+    startCancel(async () => {
+      const result = await cancelBookingBySitterAction(booking.id);
+      if (!result.ok) setError(result.error);
     });
   };
 
@@ -315,13 +339,77 @@ export default function ActiveCard({ booking }: { booking: SitterBookingView }) 
       {phase === "before" && (
         <div
           style={{
-            fontFamily: "var(--font-mono)",
-            fontSize: 11,
-            color: "var(--ink-500)",
-            paddingTop: 4,
+            paddingTop: 8,
+            borderTop: "1px dashed var(--ink-200)",
+            display: "flex",
+            flexDirection: "column",
+            gap: 8,
           }}
         >
-          La clôture sera disponible une fois la garde commencée.
+          <div
+            style={{
+              fontFamily: "var(--font-mono)",
+              fontSize: 11,
+              color: "var(--ink-500)",
+            }}
+          >
+            La clôture sera disponible une fois la garde commencée.
+          </div>
+
+          {error && (
+            <div
+              style={{
+                background: "var(--danger-50)",
+                color: "var(--danger-700)",
+                border: "1px solid var(--danger-500)",
+                padding: "8px 12px",
+                borderRadius: 10,
+                fontFamily: "var(--font-mono)",
+                fontSize: 11,
+              }}
+              role="alert"
+            >
+              {error}
+            </div>
+          )}
+
+          {!confirmCancel ? (
+            <button
+              type="button"
+              className="btn btn-ghost btn-sm"
+              onClick={() => setConfirmCancel(true)}
+              disabled={cancelPending}
+              style={{ color: "var(--ink-600)", alignSelf: "flex-start" }}
+            >
+              Annuler la garde
+            </button>
+          ) : (
+            <div style={{ display: "flex", gap: 8 }}>
+              <button
+                type="button"
+                className="btn btn-ghost btn-sm"
+                onClick={() => setConfirmCancel(false)}
+                disabled={cancelPending}
+                style={{ flex: 1 }}
+              >
+                Garder
+              </button>
+              <button
+                type="button"
+                onClick={handleCancel}
+                disabled={cancelPending}
+                className="btn btn-sm"
+                style={{
+                  flex: 2,
+                  background: "var(--danger-500)",
+                  color: "white",
+                  borderColor: "var(--danger-500)",
+                }}
+              >
+                {cancelPending ? "Annulation…" : "Confirmer l'annulation (remboursement client)"}
+              </button>
+            </div>
+          )}
         </div>
       )}
     </div>

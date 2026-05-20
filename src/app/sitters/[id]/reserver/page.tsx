@@ -28,12 +28,10 @@ export default async function ReservationPage({
 
   const slots = await getSitterAvailability(sitter.id);
 
-  // The sitter's service_zones is an array of zone IDs (slugs from src/lib/zones.ts).
-  // We pass the raw IDs and resolve labels client-side.
   const supabase = await createClient();
   const { data: sitterProfile } = await supabase
     .from("sitter_profiles")
-    .select("accepts_dangerous_breeds, service_zones")
+    .select("accepts_dangerous_breeds")
     .eq("id", sitter.id)
     .maybeSingle();
 
@@ -51,7 +49,6 @@ export default async function ReservationPage({
           full_name: sitter.full_name ?? "Sitter",
           avatar_url: sitter.avatar_url,
           accepts_dangerous_breeds: sitterProfile?.accepts_dangerous_breeds ?? false,
-          service_zones: sitterProfile?.service_zones ?? [],
         }}
         slots={slots.map((s) => ({
           weekday: s.weekday,

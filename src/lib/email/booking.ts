@@ -128,7 +128,8 @@ export async function sendSitterBookingNotification(bookingId: string): Promise<
   ].filter((l) => l !== null);
 
   const lines = [
-    `${booking.client_full_name} a réservé une garde de ${booking.duration_hours}h.`,
+    `${booking.client_full_name} a réservé et payé une garde de ${booking.duration_hours}h.`,
+    `Elle est confirmée - tu n'as rien à valider.`,
     ``,
     `Quand : ${dateLabel}`,
     `Lieu : ${meetingLabel}`,
@@ -138,7 +139,7 @@ export async function sendSitterBookingNotification(bookingId: string): Promise<
     ...contactLines,
     booking.client_notes ? `Note du client : ${booking.client_notes}` : null,
     ``,
-    `Connecte-toi à ARKO pour accepter ou refuser :`,
+    `Empêché ? Tu peux annuler depuis ARKO (le client est remboursé) :`,
     dashboardUrl,
   ]
     .filter((l) => l !== null)
@@ -154,21 +155,22 @@ export async function sendSitterBookingNotification(bookingId: string): Promise<
 
   const html = `
     <div style="font-family: -apple-system, system-ui, sans-serif; max-width: 560px; margin: 0 auto; color: #1a1a1a;">
-      <h2 style="font-size: 20px; margin-bottom: 16px;">Nouvelle garde ARKO</h2>
-      <p style="line-height: 1.6;"><strong>${booking.client_full_name}</strong> a réservé une garde de <strong>${booking.duration_hours}h</strong>.</p>
+      <h2 style="font-size: 20px; margin-bottom: 8px;">Nouvelle garde confirmée 🎉</h2>
+      <p style="line-height: 1.6;"><strong>${booking.client_full_name}</strong> a réservé et payé une garde de <strong>${booking.duration_hours}h</strong>. Elle est confirmée - tu n'as rien à valider.</p>
       <table style="width: 100%; border-collapse: collapse; font-size: 14px; margin: 16px 0;">
         <tr><td style="padding: 6px 0; color: #666;">Quand</td><td style="padding: 6px 0; font-weight: 600;">${dateLabel}</td></tr>
         <tr><td style="padding: 6px 0; color: #666;">Lieu</td><td style="padding: 6px 0; font-weight: 600;">${meetingLabel}</td></tr>
         ${optionsLabel ? `<tr><td style="padding: 6px 0; color: #666;">Options</td><td style="padding: 6px 0;">${optionsLabel}</td></tr>` : ""}
-        <tr><td style="padding: 6px 0; color: #666;">Tu reçois</td><td style="padding: 6px 0; font-weight: 700; color: #2D5A3F;">${formatEuros(booking.sitter_payout_cents)}</td></tr>
+        <tr><td style="padding: 6px 0; color: #666;">Tu reçois</td><td style="padding: 6px 0; font-weight: 700; color: #3C582E;">${formatEuros(booking.sitter_payout_cents)}</td></tr>
       </table>
       <h3 style="font-size: 14px; margin-top: 24px;">Client</h3>
       <p style="margin: 4px 0;">${booking.client_full_name}${booking.client_phone ? ` &middot; ${booking.client_phone}` : ""}</p>
       ${contactButtonsHtml}
       ${booking.client_notes ? `<p style="margin: 8px 0; padding: 12px; background: #FFF5F3; border-radius: 8px; font-style: italic;">"${booking.client_notes}"</p>` : ""}
       <p style="margin-top: 28px;">
-        <a href="${dashboardUrl}" style="display: inline-block; background: #2D5A3F; color: white; padding: 12px 20px; border-radius: 999px; text-decoration: none; font-weight: 600;">Voir et répondre</a>
+        <a href="${dashboardUrl}" style="display: inline-block; background: #3C582E; color: white; padding: 12px 20px; border-radius: 999px; text-decoration: none; font-weight: 600;">Voir la garde</a>
       </p>
+      <p style="font-size: 12px; color: #888; margin-top: 16px;">Empêché ? Tu peux annuler depuis ARKO avant le début de la garde - le client est alors remboursé automatiquement.</p>
       <p style="font-size: 11px; color: #999; margin-top: 24px;">ARKO - dog-sitting court terme</p>
     </div>
   `;
@@ -184,11 +186,11 @@ export async function sendSitterBookingNotification(bookingId: string): Promise<
 }
 
 /**
- * Notify the client that their sitter accepted the booking. Includes the
- * sitter's name + phone + click-to-contact buttons. Wired in by the sitter's
- * accept action in Phase 4.
+ * Notify the client that their booking is confirmed. Sent straight after a
+ * successful payment (the Stripe webhook), since there is no sitter-acceptance
+ * step anymore. Includes the sitter's name + phone + click-to-contact buttons.
  */
-export async function sendClientBookingAcceptedNotification(
+export async function sendClientBookingConfirmedNotification(
   bookingId: string,
 ): Promise<void> {
   const admin = createAdminClient();
@@ -201,14 +203,14 @@ export async function sendClientBookingAcceptedNotification(
     .eq("id", bookingId)
     .single();
   if (!booking) {
-    console.error("[email/booking accepted] booking not found", bookingId);
+    console.error("[email/booking confirmed] booking not found", bookingId);
     return;
   }
 
   const { data: clientUser } = await admin.auth.admin.getUserById(booking.client_id);
   const clientEmail = clientUser?.user?.email;
   if (!clientEmail) {
-    console.error("[email/booking accepted] client email not found", booking.client_id);
+    console.error("[email/booking confirmed] client email not found", booking.client_id);
     return;
   }
 
@@ -231,10 +233,10 @@ export async function sendClientBookingAcceptedNotification(
     `Bonjour ${sitterName}, c'est pour la garde de ${dateLabel} via ARKO.`,
   );
 
-  const subject = `ARKO - ${sitterName} a accepté ta garde du ${dateLabel}`;
+  const subject = `ARKO - Ta garde du ${dateLabel} est confirmée`;
 
   const text = [
-    `Bonne nouvelle ! ${sitterName} a accepté ta réservation.`,
+    `C'est confirmé ! Ta garde avec ${sitterName} est réservée.`,
     ``,
     `Quand : ${dateLabel}`,
     `Durée : ${booking.duration_hours}h`,
@@ -261,7 +263,7 @@ export async function sendClientBookingAcceptedNotification(
   const html = `
     <div style="font-family: -apple-system, system-ui, sans-serif; max-width: 560px; margin: 0 auto; color: #1a1a1a;">
       <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #2E7D5B; letter-spacing: 0.12em; text-transform: uppercase; font-weight: 600; margin-bottom: 8px;">Réservation confirmée</div>
-      <h2 style="font-size: 22px; margin: 0 0 16px;"><strong>${sitterName}</strong> a accepté ta garde 🎉</h2>
+      <h2 style="font-size: 22px; margin: 0 0 16px;">Ta garde avec <strong>${sitterName}</strong> est confirmée 🎉</h2>
       <table style="width: 100%; border-collapse: collapse; font-size: 14px; margin: 16px 0;">
         <tr><td style="padding: 6px 0; color: #666;">Quand</td><td style="padding: 6px 0; font-weight: 600;">${dateLabel}</td></tr>
         <tr><td style="padding: 6px 0; color: #666;">Durée</td><td style="padding: 6px 0; font-weight: 600;">${booking.duration_hours}h</td></tr>
@@ -279,38 +281,26 @@ export async function sendClientBookingAcceptedNotification(
     subject,
     text,
     html,
-    context: "booking accepted",
+    context: "booking confirmed",
     bookingId,
   });
 }
 
 /**
- * Notify the client that their sitter declined the booking - payment refunded
- * automatically. Wired in by the sitter's refuse action in Phase 4.
+ * Notify the client that their sitter cancelled the confirmed booking - payment
+ * refunded automatically. Wired in by the sitter's cancel action.
  */
-export async function sendClientBookingRefusedNotification(
+export async function sendClientBookingCancelledBySitterNotification(
   bookingId: string,
 ): Promise<void> {
   await sendClientCancellationNotification(bookingId, {
-    reason: "refused",
-  });
-}
-
-/**
- * Notify the client that the sitter never responded by the start time, so we
- * auto-refunded. Wired in by the no-response cron in Phase 5.
- */
-export async function sendClientBookingNoResponseNotification(
-  bookingId: string,
-): Promise<void> {
-  await sendClientCancellationNotification(bookingId, {
-    reason: "no_response",
+    reason: "cancelled_by_sitter",
   });
 }
 
 async function sendClientCancellationNotification(
   bookingId: string,
-  opts: { reason: "refused" | "no_response" },
+  opts: { reason: "cancelled_by_sitter" },
 ): Promise<void> {
   const admin = createAdminClient();
 
@@ -341,13 +331,8 @@ async function sendClientCancellationNotification(
   const dateLabel = formatDateTime(booking.start_at);
   const refundAmount = formatEuros(booking.price_cents);
 
-  const reasonText = opts.reason === "refused"
-    ? `${sitterName} n'est pas disponible pour la garde du ${dateLabel}.`
-    : `${sitterName} n'a pas répondu à temps pour la garde du ${dateLabel}.`;
-
-  const subject = opts.reason === "refused"
-    ? `ARKO - Réservation non confirmée - remboursée`
-    : `ARKO - Réservation expirée - remboursée`;
+  const reasonText = `${sitterName} a dû annuler la garde du ${dateLabel}.`;
+  const subject = `ARKO - Garde annulée - remboursée`;
 
   const siteUrl =
     process.env.NEXT_PUBLIC_SITE_URL ??
@@ -369,11 +354,11 @@ async function sendClientCancellationNotification(
 
   const html = `
     <div style="font-family: -apple-system, system-ui, sans-serif; max-width: 560px; margin: 0 auto; color: #1a1a1a;">
-      <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #888; letter-spacing: 0.12em; text-transform: uppercase; font-weight: 600; margin-bottom: 8px;">${opts.reason === "refused" ? "Réservation refusée" : "Réservation expirée"}</div>
+      <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #888; letter-spacing: 0.12em; text-transform: uppercase; font-weight: 600; margin-bottom: 8px;">Garde annulée</div>
       <h2 style="font-size: 20px; margin: 0 0 16px;">${reasonText}</h2>
       <p style="line-height: 1.6;">Le paiement de <strong>${refundAmount}</strong> a été automatiquement remboursé sur ta carte. Le retour des fonds peut prendre 5 à 10 jours selon ta banque.</p>
       <p style="margin-top: 24px;">
-        <a href="${sittersUrl}" style="display: inline-block; background: #2D5A3F; color: white; padding: 12px 20px; border-radius: 999px; text-decoration: none; font-weight: 600;">Voir d'autres sitters</a>
+        <a href="${sittersUrl}" style="display: inline-block; background: #3C582E; color: white; padding: 12px 20px; border-radius: 999px; text-decoration: none; font-weight: 600;">Voir d'autres sitters</a>
       </p>
       <p style="font-size: 11px; color: #999; margin-top: 24px;">ARKO - dog-sitting court terme</p>
     </div>

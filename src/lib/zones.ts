@@ -1,13 +1,15 @@
 /**
- * Static list of service zones a sitter can declare. The client (Louis) curates
- * this list - it does not live in the DB to keep it type-safe and free of admin
- * tooling for the MVP. Adding/removing a zone is a code deploy.
+ * Static list of meeting points used at booking time (bookings.meeting_zone_id).
+ * The client (Louis) curates this list - it does not live in the DB to keep it
+ * type-safe and free of admin tooling for the MVP. Adding/removing a zone is a
+ * code deploy.
  *
- * `id` is the persisted value (stored in sitter_profiles.service_zones text[]).
- * `label` is what we display. Treat `id` as immutable once a zone is in
- * production - renaming would orphan existing rows.
+ * `id` is the persisted value (stored in bookings.meeting_zone_id). `label` is
+ * what we display. Treat `id` as immutable once a zone is in production -
+ * renaming would orphan existing rows.
  *
- * MVP scope: Arles (city of the launch market).
+ * MVP scope: Arles (city of the launch market). Sitters cover every zone, so
+ * this list is no longer scoped per-sitter.
  */
 export type Zone = {
   id: string;

@@ -57,8 +57,8 @@ export default async function ReservationThankYouPage({
     .join(" · ");
 
   // The webhook may not have fired yet when Stripe redirects back - show a
-  // softer message in that case so the user isn't told "confirmed" until
-  // pending_acceptance lands.
+  // softer message in that case so the user isn't told "confirmed" until the
+  // booking actually flips to confirmed.
   const stillPending = booking.status === "pending_payment";
 
   return (
@@ -141,7 +141,7 @@ export default async function ReservationThankYouPage({
         >
           {stillPending
             ? "Ton paiement est en cours de validation, on confirme ta réservation dans quelques secondes par email."
-            : "On a notifié le sitter par email. Tu reçois une confirmation dès qu'il accepte ta demande."}
+            : "Ta réservation est confirmée et le sitter a été prévenu. Tu reçois ses coordonnées par email pour convenir des détails."}
         </p>
 
         <div

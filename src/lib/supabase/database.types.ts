@@ -234,7 +234,6 @@ export type Database = {
           created_at: string
           experience_years: number | null
           id: string
-          service_zones: string[]
           updated_at: string
         }
         Insert: {
@@ -243,7 +242,6 @@ export type Database = {
           created_at?: string
           experience_years?: number | null
           id: string
-          service_zones?: string[]
           updated_at?: string
         }
         Update: {
@@ -252,7 +250,6 @@ export type Database = {
           created_at?: string
           experience_years?: number | null
           id?: string
-          service_zones?: string[]
           updated_at?: string
         }
         Relationships: [
@@ -283,7 +280,6 @@ export type Database = {
           experience_years: number | null
           full_name: string | null
           id: string | null
-          service_zones: string[] | null
         }
         Relationships: []
       }
@@ -297,6 +293,7 @@ export type Database = {
         | "pending_acceptance"
         | "confirmed"
         | "cancelled_by_client"
+        | "cancelled_by_sitter"
         | "refused_by_sitter"
         | "no_response"
         | "completed"
@@ -434,6 +431,7 @@ export const Constants = {
         "pending_acceptance",
         "confirmed",
         "cancelled_by_client",
+        "cancelled_by_sitter",
         "refused_by_sitter",
         "no_response",
         "completed",

@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Archivo+Black&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@600;700;900&display=swap");
 @import "tailwindcss";
 
 /* =============================================
@@ -7,30 +7,33 @@
    ============================================= */
 
 :root {
-  /* Brand wordmark font, loaded via the @import above. Declared at the root
+  /* Brand title font, loaded via the @import above. Declared at the root
      so inline `var(--font-brand)` works site-wide without a host className.
      --font-display is aliased to --font-brand so every H1/H2 that already
-     used `var(--font-display)` picks up the new heavy wordmark identity
-     without per-file edits. Instrument Serif (the previous display value)
-     is no longer loaded. */
-  --font-brand: "Archivo Black", system-ui, sans-serif;
+     used `var(--font-display)` picks up the title identity without per-file
+     edits. The brand charte (Studio Shifumi, 2026-05) specifies Museo Sans
+     Cond 900 for titles; that face is a paid font, so we use Saira Condensed
+     900 - a free, condensed, humanist match - per client direction. */
+  --font-brand: "Saira Condensed", system-ui, sans-serif;
   --font-display: var(--font-brand);
 
   /* === COLORS ===
-     Brand palette: deep green + cream beige (client direction, 2026-05-15).
+     Brand palette: forest green + cream beige. Green recentered on the
+     official charte value #3c582e (Studio Shifumi, 2026-05) - --coral-500
+     is now the exact brand green, with tints/shades derived around it.
      Token names kept (--coral-*, --peach-*) so the existing component code
      picks up the rebrand with zero refactor. Rename to --brand-* / --surface-*
      can happen post-validation. */
-  --coral-50:  #EAF1EC;
-  --coral-100: #D4E0D6;
-  --coral-200: #A8C1AC;
-  --coral-300: #7BA083;
-  --coral-400: #4E7E5A;
-  --coral-500: #2D5A3F;
-  --coral-600: #1F3D2C;
-  --coral-700: #162B1F;
-  --coral-800: #0D1B14;
-  --coral-900: #08110C;
+  --coral-50:  #F1F6EE;
+  --coral-100: #DDEAD7;
+  --coral-200: #BCD3B1;
+  --coral-300: #90B67C;
+  --coral-400: #608B4B;
+  --coral-500: #3C582E;
+  --coral-600: #2D4422;
+  --coral-700: #223419;
+  --coral-800: #162310;
+  --coral-900: #0F190B;
 
   --peach-50:  #FAF6EA;
   --peach-100: #F4ECD8;
@@ -109,7 +112,7 @@
   --shadow-md: 0 6px 16px rgba(20, 19, 18, 0.08), 0 2px 4px rgba(20, 19, 18, 0.04);
   --shadow-lg: 0 16px 40px rgba(20, 19, 18, 0.12), 0 4px 8px rgba(20, 19, 18, 0.06);
   --shadow-xl: 0 28px 60px rgba(20, 19, 18, 0.16), 0 8px 16px rgba(20, 19, 18, 0.08);
-  --shadow-coral: 0 12px 32px rgba(45, 90, 63, 0.22), 0 4px 8px rgba(45, 90, 63, 0.12);
+  --shadow-coral: 0 12px 32px rgba(60, 88, 46, 0.22), 0 4px 8px rgba(60, 88, 46, 0.12);
   --shadow-inset: inset 0 1px 2px rgba(20, 19, 18, 0.06);
 
   /* === MOTION === */

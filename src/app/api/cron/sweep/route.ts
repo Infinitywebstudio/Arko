@@ -1,23 +1,17 @@
 import type { NextRequest } from "next/server";
 
-import {
-  sendClientBookingNoResponseNotification,
-} from "@/lib/email/booking";
 import { createAdminClient } from "@/lib/supabase/server";
-import { isDemoMode } from "@/lib/demo";
-import { getStripe } from "@/lib/stripe/client";
 
 /**
- * Scheduled sweep endpoint. Two jobs run every invocation:
+ * Scheduled sweep endpoint. One job runs every invocation:
  *
- *   1. NO-RESPONSE: bookings that stayed `pending_acceptance` past their
- *      start time get the auto-refund + status flip to `no_response`. The
- *      client gets an email so they know to find another sitter.
+ *   AUTO-CLOSE: bookings stuck in `confirmed` 48h past their planned end get
+ *     force-flipped to `completed` (no comment, no email). It's the hygiene
+ *     cron - sitters are supposed to close manually with their free-text
+ *     comment; this just sweeps the ones that fell through.
  *
- *   2. AUTO-CLOSE: bookings stuck in `confirmed` 48h past their planned end
- *      get force-flipped to `completed` (no comment, no email). It's the
- *      hygiene cron - sitters are supposed to close manually with their
- *      free-text comment; this just sweeps the ones that fell through.
+ * (There is no longer a no-response sweep: bookings are confirmed on payment,
+ * so there's no pending-acceptance state to time out.)
  *
  * Trigger options (we don't ship a hard dependency on any):
  *   - Vercel Cron (vercel.json) - easy on Pro tier, capped to daily on Hobby.
@@ -51,57 +45,11 @@ export async function GET(request: NextRequest) {
   const autoCloseCutoffIso = new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString();
 
   const summary = {
-    noResponseProcessed: 0,
-    noResponseFailures: 0,
     autoClosed: 0,
     autoCloseFailures: 0,
   };
 
-  // ---------- 1. No-response sweep ------------------------
-  const { data: stalled, error: stalledErr } = await admin
-    .from("bookings")
-    .select("id, stripe_payment_intent_id, refunded_at")
-    .eq("status", "pending_acceptance")
-    .lt("start_at", nowIso);
-
-  if (stalledErr) {
-    console.error("[cron sweep] no-response query failed", stalledErr);
-  } else if (stalled && stalled.length > 0) {
-    for (const booking of stalled) {
-      try {
-        if (
-          booking.stripe_payment_intent_id &&
-          !booking.refunded_at &&
-          !isDemoMode()
-        ) {
-          await getStripe().refunds.create({
-            payment_intent: booking.stripe_payment_intent_id,
-          });
-        }
-
-        const { data: updated } = await admin
-          .from("bookings")
-          .update({
-            status: "no_response",
-            refunded_at: new Date().toISOString(),
-          })
-          .eq("id", booking.id)
-          .eq("status", "pending_acceptance")
-          .select("id")
-          .maybeSingle();
-
-        if (updated) {
-          summary.noResponseProcessed += 1;
-          await sendClientBookingNoResponseNotification(booking.id);
-        }
-      } catch (e) {
-        summary.noResponseFailures += 1;
-        console.error("[cron sweep] no-response failed for", booking.id, e);
-      }
-    }
-  }
-
-  // ---------- 2. Auto-close sweep -------------------------
+  // ---------- Auto-close sweep ----------------------------
   // Only target rows where start_at + duration_hours + 48h margin is past.
   // We don't know the precise end_at without a SQL expression; do the math in
   // SQL via a small expression in a filtered query. Postgres supports

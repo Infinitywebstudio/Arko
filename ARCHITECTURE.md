@@ -66,7 +66,7 @@ Aucun autre service tiers en boucle. Pas de microservice maison. Pas de file de 
 |---|---|---|
 | `auth.users` | Identifiants (email, mdp hashé bcrypt, sessions). Géré par Supabase Auth. | Géré par Supabase |
 | `public.profiles` | Profil applicatif : `id` (= auth.users.id), `role` (client / sitter), `full_name`, `phone`, `avatar_url` | Lecture restreinte aux contractants (clients voient phone d'un sitter avec qui ils ont une booking) |
-| `public.sitter_profiles` | Données sitter-spécifiques : bio, expérience, zones, chiens dangereux | Lecture publique via la vue `sitters_public` |
+| `public.sitter_profiles` | Données sitter-spécifiques : bio, expérience, chiens dangereux | Lecture publique via la vue `sitters_public` |
 | `public.sitter_availability` | Créneaux hebdo (par weekday) | Lecture publique authentifiée, écriture par le sitter uniquement |
 | `public.sitter_badges` | Badges vérif (id_check, background_check, first_aid) | Lecture publique, écriture **service_role uniquement** (admin seulement) |
 | `public.bookings` | **Transactions de garde** — status, prix snapshotés, IDs Stripe, contact snapshoté | Lecture/écriture restreinte au client ou au sitter du booking |
@@ -78,7 +78,7 @@ Aucun autre service tiers en boucle. Pas de microservice maison. Pas de file de 
 ### 3.4 Enums
 
 - `user_role` : `client` | `sitter`
-- `booking_status` : `pending_payment` → `pending_acceptance` → (`confirmed` | `cancelled_by_client` | `refused_by_sitter` | `no_response`) → `completed`
+- `booking_status` : `pending_payment` → `confirmed` → (`completed` | `cancelled_by_client` | `cancelled_by_sitter`). Le paiement confirme directement la garde (pas d'acceptation sitter). Valeurs héritées conservées dans l'enum pour les anciennes lignes : `pending_acceptance`, `refused_by_sitter`, `no_response`.
 - `sitter_badge_kind` : `id_check` | `background_check` | `first_aid`
 
 ### 3.5 Storage Supabase
@@ -125,18 +125,17 @@ La plateforme **n'utilise pas Stripe Connect**. Conséquences :
 
 1. **Server action** `createBookingAction` insère un booking `pending_payment` puis crée une Checkout Session Stripe avec `metadata.booking_id`
 2. **Stripe redirige** le client vers `stripe.com` pour la saisie carte
-3. **Webhook Stripe** (`/api/stripe/webhook`) reçoit `checkout.session.completed`, vérifie la signature avec `STRIPE_WEBHOOK_SECRET`, flip le booking en `pending_acceptance`, déclenche email sitter
+3. **Webhook Stripe** (`/api/stripe/webhook`) reçoit `checkout.session.completed`, vérifie la signature avec `STRIPE_WEBHOOK_SECRET`, flip le booking en `confirmed` (pas d'acceptation sitter), déclenche email sitter + email confirmation client
 4. **Refunds automatiques** via `stripe.refunds.create()` lors de :
    - Annulation par le client (jusqu'au démarrage de la garde)
-   - Refus par le sitter
-   - Cron : sitter n'a pas répondu à H+0 (no-response sweep)
+   - Annulation par le sitter (jusqu'au démarrage de la garde)
 
 ### 4.4 Garde-fous
 
 - **Trigger Postgres** sur `bookings` : `price_cents = sitter_payout_cents + platform_fee_cents` enforcé en DB
 - **Prix jamais envoyé par le client** : entièrement re-dérivé côté serveur à chaque création
 - **Snapshot du prix** dans le booking : si les tarifs changent demain, les bookings passés restent à leur prix d'origine
-- **Idempotence webhook** : `.eq("status", "pending_payment")` garantit qu'une livraison dupliquée ne fait rien
+- **Idempotence webhook** : `.eq("status", "pending_payment")` garantit qu'une livraison dupliquée ne fait rien (le flip vers `confirmed` n'a lieu qu'une fois)
 
 ---
 
@@ -144,10 +143,9 @@ La plateforme **n'utilise pas Stripe Connect**. Conséquences :
 
 | Email | Déclenché par | Destinataire |
 |---|---|---|
-| Nouvelle garde | Webhook Stripe (paiement réussi) | Sitter |
-| Garde acceptée | Action `acceptBookingAction` | Client (avec numéro sitter + boutons WhatsApp/tel) |
-| Garde refusée | Action `refuseBookingAction` | Client |
-| Garde expirée (no-response) | Cron sweep H+0 | Client |
+| Nouvelle garde confirmée | Webhook Stripe (paiement réussi) | Sitter |
+| Réservation confirmée | Webhook Stripe (paiement réussi) | Client (avec numéro sitter + boutons WhatsApp/tel) |
+| Garde annulée par le sitter | Action `cancelBookingBySitterAction` | Client (refund auto) |
 
 Templates : `src/lib/email/booking.ts`. Tous incluent text + HTML, click-to-call et lien `wa.me` pour WhatsApp quand un téléphone est dispo.
 
@@ -174,14 +172,13 @@ Vercel Cron lit `vercel.json` à la racine. Une seule entrée actuellement :
 { "path": "/api/cron/sweep", "schedule": "0 4 * * *" }
 ```
 
-Exécution quotidienne à 04:00 UTC (06:00 Paris). Deux passes :
+Exécution quotidienne à 04:00 UTC (06:00 Paris). Une passe :
 
-1. **No-response sweep** : tout booking `pending_acceptance` dont `start_at < now()` → refund Stripe + status `no_response` + email client
-2. **Auto-close** : tout booking `confirmed` qui est ≥ 48h après `end_at` (start_at + duration) → status `completed` silencieusement (hygiène, pour les sitters qui oublient de clôturer)
+1. **Auto-close** : tout booking `confirmed` qui est ≥ 48h après `end_at` (start_at + duration) → status `completed` silencieusement (hygiène, pour les sitters qui oublient de clôturer)
 
 **Sécurité** : requiert `Authorization: Bearer ${CRON_SECRET}` (envoyé automatiquement par Vercel Cron).
 
-**Limite Vercel Hobby** : 1 cron / jour. Pour passer à 15 min de granularité (utile pour les no-response refunds), il faut soit upgrade Vercel Pro, soit déclencher l'endpoint depuis GitHub Actions (free, schedule à 5 min) ou Supabase pg_cron.
+**Limite Vercel Hobby** : 1 cron / jour, suffisant pour l'auto-close. Pour plus de granularité, déclencher l'endpoint depuis GitHub Actions (free) ou Supabase pg_cron.
 
 ### 6.2 Mode démo
 
@@ -243,7 +240,7 @@ Toutes les tables `public.*` ont RLS activée. Politiques résumées :
 - Nom complet (profiles)
 - Numéro de téléphone (profiles, snapshot dans bookings)
 - Avatar (storage.avatars)
-- Pour les sitters : bio, expérience, zones (sitter_profiles), pièces d'identité (storage.sitter-documents)
+- Pour les sitters : bio, expérience (sitter_profiles), pièces d'identité (storage.sitter-documents)
 - Pour les bookings : tout l'historique (start_at, prix, notes client)
 
 ### 8.2 Droits utilisateurs

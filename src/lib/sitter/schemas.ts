@@ -1,7 +1,5 @@
 import { z } from "zod";
 
-import { isValidZoneId } from "@/lib/zones";
-
 // ---------- Profile fields -----------------------------------
 
 const bioSchema = z
@@ -26,20 +24,6 @@ const experienceYearsSchema = z
   .nullable()
   .optional();
 
-// Zone IDs come from a curated TS constant (src/lib/zones.ts). We reject any value
-// not in that list - keeps DB rows aligned with the dropdown and prevents stale
-// or typo'd zones leaking in via crafted requests.
-const serviceZoneItemSchema = z
-  .string()
-  .trim()
-  .refine(isValidZoneId, { message: "Zone invalide" });
-
-const serviceZonesSchema = z
-  .array(serviceZoneItemSchema)
-  .max(30, { message: "Maximum 30 zones" })
-  .transform((arr) => Array.from(new Set(arr))) // de-duplicate
-  .default([]);
-
 // HH:MM matcher (24h, optional seconds ignored). Used by availability slots only.
 const timeStringSchema = z
   .string()
@@ -49,7 +33,6 @@ export const sitterProfileSchema = z.object({
   bio: bioSchema,
   experience_years: experienceYearsSchema,
   accepts_dangerous_breeds: z.boolean().default(false),
-  service_zones: serviceZonesSchema,
 });
 
 export type SitterProfileInput = z.infer<typeof sitterProfileSchema>;

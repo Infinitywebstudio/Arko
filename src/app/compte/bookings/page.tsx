@@ -37,22 +37,26 @@ const formatDateTime = (iso: string) =>
 
 const STATUS_LABEL: Record<BookingStatus, string> = {
   pending_payment: "Paiement en cours",
-  pending_acceptance: "En attente du sitter",
   confirmed: "Confirmée",
   cancelled_by_client: "Annulée",
+  cancelled_by_sitter: "Annulée par le sitter - remboursée",
+  completed: "Terminée",
+  // Legacy statuses kept for historical rows created before direct confirmation.
+  pending_acceptance: "En attente du sitter",
   refused_by_sitter: "Refusée par le sitter",
   no_response: "Sans réponse - remboursée",
-  completed: "Terminée",
 };
 
 const STATUS_TONE: Record<BookingStatus, { bg: string; fg: string }> = {
   pending_payment: { bg: "var(--ink-100)", fg: "var(--ink-700)" },
-  pending_acceptance: { bg: "var(--peach-100)", fg: "var(--coral-700)" },
   confirmed: { bg: "var(--success-50)", fg: "var(--success-700)" },
   cancelled_by_client: { bg: "var(--ink-100)", fg: "var(--ink-500)" },
+  cancelled_by_sitter: { bg: "var(--ink-100)", fg: "var(--ink-500)" },
+  completed: { bg: "var(--ink-100)", fg: "var(--ink-700)" },
+  // Legacy statuses.
+  pending_acceptance: { bg: "var(--peach-100)", fg: "var(--coral-700)" },
   refused_by_sitter: { bg: "var(--ink-100)", fg: "var(--ink-500)" },
   no_response: { bg: "var(--ink-100)", fg: "var(--ink-500)" },
-  completed: { bg: "var(--ink-100)", fg: "var(--ink-700)" },
 };
 
 export default async function ClientBookingsPage() {
@@ -72,9 +76,7 @@ export default async function ClientBookingsPage() {
   const bookings = (data ?? []) as Booking[];
   const now = Date.now();
   const upcoming = bookings.filter(
-    (b) =>
-      new Date(b.start_at).getTime() > now &&
-      (b.status === "pending_acceptance" || b.status === "confirmed"),
+    (b) => new Date(b.start_at).getTime() > now && b.status === "confirmed",
   );
   const past = bookings.filter((b) => !upcoming.includes(b));
 

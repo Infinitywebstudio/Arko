@@ -2,7 +2,10 @@ import type { NextRequest } from "next/server";
 import type Stripe from "stripe";
 
 import { createAdminClient } from "@/lib/supabase/server";
-import { sendSitterBookingNotification } from "@/lib/email/booking";
+import {
+  sendSitterBookingNotification,
+  sendClientBookingConfirmedNotification,
+} from "@/lib/email/booking";
 import { getStripe } from "@/lib/stripe/client";
 
 /**
@@ -10,7 +13,8 @@ import { getStripe } from "@/lib/stripe/client";
  * Stripe Checkout. Two transitions matter for MVP:
  *
  *   checkout.session.completed → booking moves from pending_payment to
- *     pending_acceptance, sitter gets the email notification.
+ *     confirmed (no sitter-acceptance step). The sitter is notified of the new
+ *     garde and the client gets a confirmation email.
  *   checkout.session.expired   → if the booking is still pending_payment after
  *     the 30-minute Stripe-imposed expiry, drop the row. The slot was held but
  *     never paid for.
@@ -24,7 +28,7 @@ import { getStripe } from "@/lib/stripe/client";
  *     retrying. The exception is signature failure, which is genuinely a 4xx.
  *   - Idempotency: Stripe can deliver the same event multiple times. The
  *     state-machine update is idempotent (only flips pending_payment →
- *     pending_acceptance once); the email is best-effort and a duplicate is
+ *     confirmed once); the emails are best-effort and a duplicate is
  *     unlikely-to-be-disastrous.
  */
 
@@ -91,7 +95,7 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session): Promis
   const { data: updated, error } = await admin
     .from("bookings")
     .update({
-      status: "pending_acceptance",
+      status: "confirmed",
       stripe_payment_intent_id: paymentIntentId,
     })
     .eq("id", bookingId)
@@ -104,12 +108,15 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session): Promis
     return;
   }
   if (!updated) {
-    // Either the booking is already pending_acceptance (duplicate event) or
-    // it was cancelled in the meantime. Nothing to do.
+    // Either the booking is already confirmed (duplicate event) or it was
+    // cancelled in the meantime. Nothing to do.
     return;
   }
 
+  // Notify both parties: the sitter has a new garde to honour, the client gets
+  // their confirmation. Both are best-effort (logged, never thrown).
   await sendSitterBookingNotification(bookingId);
+  await sendClientBookingConfirmedNotification(bookingId);
 }
 
 async function handleCheckoutExpired(session: Stripe.Checkout.Session): Promise<void> {

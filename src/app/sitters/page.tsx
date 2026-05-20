@@ -1,10 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
-import { Arko, Icon, type ArkoMood } from "@/components/mascot";
+import { Arko, type ArkoMood } from "@/components/mascot";
 import { listAllSitters } from "@/lib/sitter/helpers";
 import { calculatePrice, formatEuros } from "@/lib/booking/pricing";
-import { zoneLabel } from "@/lib/zones";
 
 export const metadata: Metadata = {
   title: "Tous les dog-sitters · ARKO",
@@ -99,9 +98,6 @@ function SitterCard({ sitter, index }: SitterCardProps) {
   const collar = FALLBACK_COLLARS[index % FALLBACK_COLLARS.length]!;
   const mood = FALLBACK_MOODS[index % FALLBACK_MOODS.length]!;
   const id = sitter.id ?? "";
-  const firstZoneLabel =
-    sitter.service_zones && sitter.service_zones[0] ? zoneLabel(sitter.service_zones[0]) : null;
-  const totalZones = sitter.service_zones?.length ?? 0;
 
   return (
     <Link
@@ -124,24 +120,6 @@ function SitterCard({ sitter, index }: SitterCardProps) {
       </div>
       <div style={{ padding: "var(--space-5)", display: "flex", flexDirection: "column", flex: 1, gap: 8 }}>
         <div style={{ fontWeight: 600, fontSize: 16 }}>{displayName(sitter.full_name)}</div>
-        {firstZoneLabel && (
-          <div
-            style={{
-              fontFamily: "var(--font-mono)",
-              fontSize: 12,
-              color: "var(--ink-500)",
-              display: "flex",
-              alignItems: "center",
-              gap: 6,
-            }}
-          >
-            <Icon name="pin" size={12} />
-            <span>
-              {firstZoneLabel}
-              {totalZones > 1 && ` +${totalZones - 1}`}
-            </span>
-          </div>
-        )}
         {sitter.experience_years !== null && sitter.experience_years !== undefined && (
           <div
             style={{
