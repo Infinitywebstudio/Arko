@@ -33,7 +33,7 @@ export async function createClient() {
 }
 
 /**
- * Admin client using the service_role key. Bypasses RLS — use only for
+ * Admin client using the service_role key. Bypasses RLS - use only for
  * trusted server-side operations that explicitly need to escape RLS
  * (webhooks, scheduled jobs, support tooling). Never import from a Client
  * Component or expose its return value to the browser.

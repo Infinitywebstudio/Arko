@@ -7,13 +7,13 @@ import { isValidZoneId } from "@/lib/zones";
  * minimum the client controls: sitter, when, how long, options, where, notes.
  *
  * Pricing, urgent/late flags, and client identity are derived server-side and
- * are NOT accepted from the form — keeping pricing-relevant inputs out of user
+ * are NOT accepted from the form - keeping pricing-relevant inputs out of user
  * control is non-negotiable for trust. The Postgres trigger then double-checks
  * the price split as a final safety net.
  */
 export const createBookingSchema = z.object({
   sitter_id: z.string().uuid({ message: "Sitter invalide" }),
-  // YYYY-MM-DD — server combines with start_hour and Europe/Paris to build a
+  // YYYY-MM-DD - server combines with start_hour and Europe/Paris to build a
   // full instant.
   start_date: z
     .string()

@@ -8,10 +8,10 @@ import { isDemoMode } from "@/lib/demo";
 import { zoneLabel } from "@/lib/zones";
 
 /**
- * Internal helper — every booking email goes through this so the demo-mode
+ * Internal helper - every booking email goes through this so the demo-mode
  * short-circuit is enforced in one place. In demo mode we never call Resend;
  * a console.info dump shows operators what *would* have shipped. In real
- * mode any send error is logged but never thrown — emails are best-effort
+ * mode any send error is logged but never thrown - emails are best-effort
  * notifications on top of the in-app dashboards.
  */
 async function deliver(args: {
@@ -24,7 +24,7 @@ async function deliver(args: {
 }): Promise<void> {
   if (isDemoMode()) {
     console.info(
-      `[demo email] ${args.context} would send to ${args.to} — subject: "${args.subject}"`,
+      `[demo email] ${args.context} would send to ${args.to} - subject: "${args.subject}"`,
     );
     return;
   }
@@ -62,7 +62,7 @@ const formatDateTime = (iso: string) =>
  *
  * Uses the service-role admin client because we're server-to-server here (no
  * user session) and need to read both the booking row and the sitter's auth
- * email — neither of which a session-bound client can access.
+ * email - neither of which a session-bound client can access.
  *
  * Failures are logged but never thrown. Email delivery is a best-effort
  * notification on top of the in-app dashboard; bouncing the webhook would put
@@ -111,9 +111,9 @@ export async function sendSitterBookingNotification(bookingId: string): Promise<
     (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000");
   const dashboardUrl = `${siteUrl}/sitter`;
 
-  const subject = `ARKO — Nouvelle garde · ${dateLabel}`;
+  const subject = `ARKO - Nouvelle garde · ${dateLabel}`;
 
-  // Click-to-contact links — only included once the sitter has visibility on the
+  // Click-to-contact links - only included once the sitter has visibility on the
   // client (i.e. as soon as they receive this email). They're shortcuts on top
   // of the phone number, not a separate channel.
   const tel = telLink(booking.client_phone);
@@ -169,7 +169,7 @@ export async function sendSitterBookingNotification(bookingId: string): Promise<
       <p style="margin-top: 28px;">
         <a href="${dashboardUrl}" style="display: inline-block; background: #2D5A3F; color: white; padding: 12px 20px; border-radius: 999px; text-decoration: none; font-weight: 600;">Voir et répondre</a>
       </p>
-      <p style="font-size: 11px; color: #999; margin-top: 24px;">ARKO — dog-sitting court terme</p>
+      <p style="font-size: 11px; color: #999; margin-top: 24px;">ARKO - dog-sitting court terme</p>
     </div>
   `;
 
@@ -231,7 +231,7 @@ export async function sendClientBookingAcceptedNotification(
     `Bonjour ${sitterName}, c'est pour la garde de ${dateLabel} via ARKO.`,
   );
 
-  const subject = `ARKO — ${sitterName} a accepté ta garde du ${dateLabel}`;
+  const subject = `ARKO - ${sitterName} a accepté ta garde du ${dateLabel}`;
 
   const text = [
     `Bonne nouvelle ! ${sitterName} a accepté ta réservation.`,
@@ -268,9 +268,9 @@ export async function sendClientBookingAcceptedNotification(
         <tr><td style="padding: 6px 0; color: #666;">Lieu</td><td style="padding: 6px 0; font-weight: 600;">${meetingLabel}</td></tr>
       </table>
       <h3 style="font-size: 14px; margin-top: 24px;">Contacter ${sitterName}</h3>
-      ${sitterPhone ? `<p style="margin: 4px 0;">${sitterPhone}</p>` : `<p style="margin: 4px 0; color: #888;">Numéro non disponible — contacte le support.</p>`}
+      ${sitterPhone ? `<p style="margin: 4px 0;">${sitterPhone}</p>` : `<p style="margin: 4px 0; color: #888;">Numéro non disponible - contacte le support.</p>`}
       ${contactButtonsHtml}
-      <p style="font-size: 11px; color: #999; margin-top: 24px;">ARKO — dog-sitting court terme</p>
+      <p style="font-size: 11px; color: #999; margin-top: 24px;">ARKO - dog-sitting court terme</p>
     </div>
   `;
 
@@ -285,7 +285,7 @@ export async function sendClientBookingAcceptedNotification(
 }
 
 /**
- * Notify the client that their sitter declined the booking — payment refunded
+ * Notify the client that their sitter declined the booking - payment refunded
  * automatically. Wired in by the sitter's refuse action in Phase 4.
  */
 export async function sendClientBookingRefusedNotification(
@@ -346,8 +346,8 @@ async function sendClientCancellationNotification(
     : `${sitterName} n'a pas répondu à temps pour la garde du ${dateLabel}.`;
 
   const subject = opts.reason === "refused"
-    ? `ARKO — Réservation non confirmée — remboursée`
-    : `ARKO — Réservation expirée — remboursée`;
+    ? `ARKO - Réservation non confirmée - remboursée`
+    : `ARKO - Réservation expirée - remboursée`;
 
   const siteUrl =
     process.env.NEXT_PUBLIC_SITE_URL ??
@@ -375,7 +375,7 @@ async function sendClientCancellationNotification(
       <p style="margin-top: 24px;">
         <a href="${sittersUrl}" style="display: inline-block; background: #2D5A3F; color: white; padding: 12px 20px; border-radius: 999px; text-decoration: none; font-weight: 600;">Voir d'autres sitters</a>
       </p>
-      <p style="font-size: 11px; color: #999; margin-top: 24px;">ARKO — dog-sitting court terme</p>
+      <p style="font-size: 11px; color: #999; margin-top: 24px;">ARKO - dog-sitting court terme</p>
     </div>
   `;
 

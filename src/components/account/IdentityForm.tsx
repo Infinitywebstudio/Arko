@@ -44,7 +44,7 @@ export default function IdentityForm({ initial }: Props) {
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [isPending, startTransition] = useTransition();
 
-  // Only enable the submit button when there's an actual change to persist —
+  // Only enable the submit button when there's an actual change to persist -
   // avoids accidental no-op submissions and gives the user a hint that the
   // form is in sync.
   const dirty = fullName.trim() !== initial.full_name || phone.trim() !== (initial.phone ?? "");

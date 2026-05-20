@@ -268,7 +268,7 @@ export default function SignUpWizard() {
         <span style={{ width: 36 }} />
       </div>
 
-      {/* Step 1 — Role */}
+      {/* Step 1 - Role */}
       {step === 1 && (
         <>
           <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
@@ -303,13 +303,13 @@ export default function SignUpWizard() {
         </>
       )}
 
-      {/* Step 2 — Email */}
+      {/* Step 2 - Email */}
       {step === 2 && (
         <>
           <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
             <h1 style={titleStyle}>Quel est ton email ?</h1>
             <p style={subtitleStyle}>
-              On t'enverra un lien de vérification — pense à confirmer ton inscription.
+              On t'enverra un lien de vérification - pense à confirmer ton inscription.
             </p>
           </div>
           <div>
@@ -332,7 +332,7 @@ export default function SignUpWizard() {
         </>
       )}
 
-      {/* Step 3 — Password */}
+      {/* Step 3 - Password */}
       {step === 3 && (
         <>
           <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
@@ -431,7 +431,7 @@ export default function SignUpWizard() {
         </>
       )}
 
-      {/* Step 4 — Personal info */}
+      {/* Step 4 - Personal info */}
       {step === 4 && (
         <>
           <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>

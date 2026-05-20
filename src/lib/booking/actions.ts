@@ -246,7 +246,7 @@ export async function createBookingAction(
     late ? "Garde tardive (+7€)" : null,
   ]
     .filter(Boolean)
-    .join(" · ") || "ARKO — garde de chien";
+    .join(" · ") || "ARKO - garde de chien";
 
   let checkoutUrl: string | null;
   try {
@@ -271,7 +271,7 @@ export async function createBookingAction(
       payment_intent_data: { metadata: { booking_id: booking.id } },
       success_url: `${siteUrl}/reservations/${booking.id}/merci`,
       cancel_url: `${siteUrl}/sitters/${input.sitter_id}`,
-      // Auto-expire after 30 min of inactivity — caps the time a slot stays held
+      // Auto-expire after 30 min of inactivity - caps the time a slot stays held
       // in pending_payment without payment.
       expires_at: Math.floor(Date.now() / 1000) + 30 * 60,
     });
@@ -371,7 +371,7 @@ export async function cancelBookingAction(
  * the table enforce this even if the action were bypassed.
  *
  * `client_closed_at` is set on the first submission and left untouched on
- * subsequent edits — gives admin a "time-to-first-comment" signal without
+ * subsequent edits - gives admin a "time-to-first-comment" signal without
  * resetting on every keystroke save.
  */
 export async function submitClientCommentAction(
@@ -430,7 +430,7 @@ export async function submitClientCommentAction(
 // Sitter-side actions: accept / refuse / close
 // =============================================================
 // All three are gated by requireRole("sitter") + RLS "sitter updates own
-// booking" — only the booking's sitter can flip its state. The action layer
+// booking" - only the booking's sitter can flip its state. The action layer
 // then enforces which transitions are legal (a sitter can't, for instance,
 // refuse a confirmed booking; the cancellation path is the client's).
 
@@ -465,7 +465,7 @@ export async function acceptBookingAction(
   }
 
   // Best-effort client notification. Email failure must not flip the booking
-  // back — that would create an inconsistent state. We log and move on; the
+  // back - that would create an inconsistent state. We log and move on; the
   // sitter still sees the row as confirmed and can phone the client directly.
   const { sendClientBookingAcceptedNotification } = await import("@/lib/email/booking");
   void sendClientBookingAcceptedNotification(bookingId);
@@ -502,7 +502,7 @@ export async function refuseBookingAction(
   }
 
   // Refund FIRST. If Stripe fails the booking stays pending_acceptance and
-  // the sitter can retry — better than a refused-but-not-refunded ghost.
+  // the sitter can retry - better than a refused-but-not-refunded ghost.
   if (
     booking.stripe_payment_intent_id &&
     !booking.refunded_at &&
@@ -541,7 +541,7 @@ export async function refuseBookingAction(
 /**
  * Sitter closes a confirmed booking after the garde period has ended. Records
  * an optional free-text comment (no rating, per MVP scope). Closure is
- * allowed any time after start_at — we don't gate on end_at because the
+ * allowed any time after start_at - we don't gate on end_at because the
  * sitter is the ground-truth source on whether the garde actually wrapped up.
  */
 export async function closeBookingAction(

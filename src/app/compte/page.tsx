@@ -22,7 +22,7 @@ const tileLink: React.CSSProperties = {
 };
 
 export default async function ComptePage() {
-  // The /compte layout already gates auth + sitter-redirect — this fetch is
+  // The /compte layout already gates auth + sitter-redirect - this fetch is
   // for the in-page profile data, not a re-gate. Both reads come from the
   // same RSC request so there's no extra round-trip.
   const session = await requireUser();

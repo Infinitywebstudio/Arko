@@ -17,7 +17,7 @@ const CLIENT_STEPS: Step[] = [
     i: "search",
     n: "01",
     t: "Trouvez votre sitter",
-    d: "Parcourez les profils près de votre lieu : musée, restaurant, balade. Bio, zones, disponibilités en clair.",
+    d: "Parcourez les profils près de votre lieu : musée, restaurant, balade.",
   },
   {
     i: "calendar",
@@ -41,7 +41,7 @@ const CLIENT_STEPS: Step[] = [
     i: "heart",
     n: "05",
     t: "Profitez sereinement",
-    d: "Votre chien est entre de bonnes pattes. Annulation gratuite jusqu’au début de la garde.",
+    d: "Votre chien est entre de bonnes pattes. Le dog-sitter promènera votre toutou durant votre visite, avec un itinéraire vu avec vous au préalable.",
   },
   {
     i: "star",
@@ -56,7 +56,7 @@ const SITTER_STEPS: Step[] = [
     i: "user",
     n: "01",
     t: "Créez votre profil",
-    d: "Bio, expérience, zones d’intervention, photo. Validation rapide par l’équipe ARKO.",
+    d: "Bio, expérience, photo. Validation rapide par l’équipe ARKO.",
   },
   {
     i: "clock",
@@ -97,7 +97,7 @@ export function HomeApproach() {
   const steps = role === "client" ? CLIENT_STEPS : SITTER_STEPS;
 
   // Drive the mobile pagination dots from the actual scroll position.
-  // IntersectionObserver beats a scroll listener here — it fires exactly
+  // IntersectionObserver beats a scroll listener here - it fires exactly
   // when a card's threshold crosses, no debouncing required.
   useEffect(() => {
     const root = trackRef.current;
@@ -107,7 +107,7 @@ export function HomeApproach() {
     const io = new IntersectionObserver(
       (entries) => {
         // Pick the card with the highest intersectionRatio currently.
-        // Multiple entries may fire on a single scroll — only act on the
+        // Multiple entries may fire on a single scroll - only act on the
         // one that's most visible.
         const best = entries
           .filter((e) => e.isIntersecting)
@@ -121,7 +121,7 @@ export function HomeApproach() {
     );
     cards.forEach((c) => io.observe(c));
     return () => io.disconnect();
-    // Re-bind when role changes — `steps` length is constant but the
+    // Re-bind when role changes - `steps` length is constant but the
     // children identity changes, so observer targets must be refreshed.
   }, [role]);
 
@@ -189,7 +189,7 @@ export function HomeApproach() {
             lineHeight: 1.6,
           }}
         >
-          Chaque étape a été conçue pour rendre l’expérience simple, fluide et fiable —
+          Chaque étape a été conçue pour rendre l’expérience simple, fluide et fiable -
           côté tourisme comme côté sitter.
         </p>
 
@@ -313,7 +313,7 @@ export function HomeApproach() {
         ))}
       </div>
 
-      {/* Pagination dots — `display: none` by default, flipped to flex on
+      {/* Pagination dots - `display: none` by default, flipped to flex on
           mobile via `.home-approach-dots` in globals.css. Click jumps the
           carousel to that card; the active dot is driven by the observer. */}
       <div

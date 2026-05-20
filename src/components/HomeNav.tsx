@@ -9,12 +9,12 @@ import Link from "next/link";
  * the user scrolls past ~hero height so the nav stays legible over body
  * content.
  *
- * The threshold is intentionally generous (80px) — short enough to react
+ * The threshold is intentionally generous (80px) - short enough to react
  * the moment the user starts scrolling, long enough that a tiny accidental
  * wheel tick doesn't cause a flicker.
  *
  * Mobile (< 860px) shows a hamburger that opens a left-side drawer with the
- * primary CTAs and the nav links — the desktop link row is hidden at that
+ * primary CTAs and the nav links - the desktop link row is hidden at that
  * width via globals.css `.home-nav-links`.
  */
 const SCROLL_THRESHOLD = 80;
@@ -269,7 +269,7 @@ export function HomeNav() {
           </button>
         </div>
 
-        {/* CTAs first — Uber Eats pattern, the most actionable items at the top */}
+        {/* CTAs first - Uber Eats pattern, the most actionable items at the top */}
         <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
           <Link
             href="/inscription"

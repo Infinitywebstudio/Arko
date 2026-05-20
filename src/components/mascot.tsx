@@ -28,7 +28,7 @@ export function Arko({
   const stroke = "#0F1310";
   return (
     <svg width={size} height={size} viewBox="0 0 100 100" fill="none" {...rest}>
-      {/* Neck ruff / chest tuft — sits behind the head silhouette for depth */}
+      {/* Neck ruff / chest tuft - sits behind the head silhouette for depth */}
       <path
         d="M68 82 Q60 90 50 89 Q42 88 38 82 L42 78 Q50 82 58 80 Z"
         fill={fur}
@@ -60,7 +60,7 @@ export function Arko({
           strokeWidth="2.5"
           strokeLinejoin="round"
         />
-        {/* Inner ear — slightly lighter to give the silhouette dimension */}
+        {/* Inner ear - slightly lighter to give the silhouette dimension */}
         <path
           d="M36 12 L 41 22 L 46 20 Z"
           fill="#7A5E3A"
@@ -68,7 +68,7 @@ export function Arko({
         />
       </g>
 
-      {/* Eye — single visible eye on the profile side. White highlight only
+      {/* Eye - single visible eye on the profile side. White highlight only
           when awake; sleepy mood collapses it to a stitched-line. */}
       {eyeOpen ? (
         <>
@@ -85,11 +85,11 @@ export function Arko({
         />
       )}
 
-      {/* Nose — solid dark, with a tiny highlight to read as a snout tip */}
+      {/* Nose - solid dark, with a tiny highlight to read as a snout tip */}
       <ellipse cx="7" cy="55" rx="2.6" ry="2" fill={stroke} />
       <circle cx="6.2" cy="54.2" r="0.6" fill="#FFFFFF" opacity="0.6" />
 
-      {/* Mouth — short line under the snout, opens slightly on happy/waggy */}
+      {/* Mouth - short line under the snout, opens slightly on happy/waggy */}
       {tongue ? (
         <>
           <path
@@ -117,7 +117,7 @@ export function Arko({
         />
       )}
 
-      {/* Collar — curves under the neck/chest. Tag hangs at the front. */}
+      {/* Collar - curves under the neck/chest. Tag hangs at the front. */}
       {collar && (
         <g>
           <path

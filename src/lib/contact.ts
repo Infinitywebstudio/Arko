@@ -25,7 +25,7 @@ export function telLink(phone: string | null | undefined): string | null {
 /**
  * `wa.me` click-to-chat link. Returns null if phone is missing/empty or if
  * the digit count doesn't look international (a number we can't be sure
- * WhatsApp will route — better to hide the button than to show a broken one).
+ * WhatsApp will route - better to hide the button than to show a broken one).
  */
 export function whatsappLink(
   phone: string | null | undefined,
@@ -34,7 +34,7 @@ export function whatsappLink(
   if (!phone) return null;
   const digits = digitsOnly(phone);
   // wa.me requires the country code. Domestic 10-digit numbers won't route.
-  // We accept 8-15 digits as a permissive range — same envelope Zod allows.
+  // We accept 8-15 digits as a permissive range - same envelope Zod allows.
   if (digits.length < 8 || digits.length > 15) return null;
   const url = `https://wa.me/${digits}`;
   return prefilledText ? `${url}?text=${encodeURIComponent(prefilledText)}` : url;

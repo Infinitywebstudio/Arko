@@ -16,7 +16,7 @@ export type AuthSession = {
 
 /**
  * Returns the currently authenticated user with their profile, or null.
- * Calls supabase.auth.getUser() (verified, not just decoded) — never trust
+ * Calls supabase.auth.getUser() (verified, not just decoded) - never trust
  * supabase.auth.getSession() server-side because it does not revalidate
  * the JWT against the auth server.
  *

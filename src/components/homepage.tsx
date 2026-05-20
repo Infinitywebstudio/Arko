@@ -5,7 +5,7 @@ import type { Database } from "@/lib/supabase/database.types";
 
 type SitterPublic = Database["public"]["Views"]["sitters_public"]["Row"];
 
-// HomeNav is a client component (scroll-driven transparency) — re-exported
+// HomeNav is a client component (scroll-driven transparency) - re-exported
 // from a sibling file. The page imports it from "@/components/homepage" so
 // this barrel keeps the public API stable.
 export { HomeNav } from "./HomeNav";
@@ -29,7 +29,7 @@ export function HomeHero() {
         color: "white",
       }}
     >
-      {/* Background photo — absolute behind everything */}
+      {/* Background photo - absolute behind everything */}
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src={HERO_PHOTO_SRC}
@@ -44,7 +44,7 @@ export function HomeHero() {
           objectPosition: "center 40%",
         }}
       />
-      {/* Dark gradient overlay — left side darker for text legibility, right
+      {/* Dark gradient overlay - left side darker for text legibility, right
           side softer to keep the photo visible. */}
       <div
         style={{
@@ -142,9 +142,6 @@ export function HomeHero() {
               color: "rgba(255,255,255,0.7)",
             }}
           >
-            <span style={{ display: "flex", alignItems: "center", gap: 6 }}>
-              <Icon name="shield" size={14} color="rgba(255,255,255,0.7)" /> Assurance incluse
-            </span>
             <span style={{ display: "flex", alignItems: "center", gap: 6 }}>
               <Icon name="check" size={14} color="rgba(255,255,255,0.7)" /> Sitters vérifiés
             </span>
@@ -354,7 +351,7 @@ function displayName(full: string | null): string {
 
 export function HomeSitters({ sitters }: { sitters: SitterPublic[] }) {
   if (!sitters || sitters.length === 0) {
-    // No sitters in DB yet — hide the whole section so the page stays clean.
+    // No sitters in DB yet - hide the whole section so the page stays clean.
     return null;
   }
   return (
@@ -516,7 +513,7 @@ export function HomeTrust() {
     },
     {
       i: "phone",
-      t: "Support 24/7",
+      t: "Support 7/7",
       d: "Une équipe humaine joignable à tout moment, en français et anglais.",
     },
   ];

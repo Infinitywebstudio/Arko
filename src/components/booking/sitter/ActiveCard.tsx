@@ -32,7 +32,7 @@ function formatDelta(ms: number): string {
 }
 
 export default function ActiveCard({ booking }: { booking: SitterBookingView }) {
-  // Tick once a minute — booking timelines are in hours, second-precision is
+  // Tick once a minute - booking timelines are in hours, second-precision is
   // CPU for no UX gain. Initial state from Date.now() avoids the hydration
   // mismatch you'd hit with a useState constant.
   const [now, setNow] = useState<number>(() => Date.now());
@@ -76,7 +76,7 @@ export default function ActiveCard({ booking }: { booking: SitterBookingView }) 
       ? `Garde dans ${formatDelta(startMs - now)}`
       : phase === "during"
         ? `En cours · ${formatDelta(endMs - now)} restants`
-        : "Garde terminée — à clôturer";
+        : "Garde terminée - à clôturer";
 
   const countdownTone =
     phase === "before"
@@ -210,7 +210,7 @@ export default function ActiveCard({ booking }: { booking: SitterBookingView }) 
       )}
 
       {/* Close-out section. Visible only once the garde has started (phase !=
-          "before"). Sitters can close early if needed — they're the source of
+          "before"). Sitters can close early if needed - they're the source of
           truth on whether the garde wrapped. */}
       {phase !== "before" && (
         <div

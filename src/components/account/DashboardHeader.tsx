@@ -12,7 +12,7 @@ export type DashboardNavLink = {
 };
 
 type Props = {
-  /** "Client" or "Sitter" — rendered as the pill next to the wordmark. */
+  /** "Client" or "Sitter" - rendered as the pill next to the wordmark. */
   roleLabel: string;
   /** Where the wordmark links back to inside the user's space. */
   homeHref: string;
@@ -54,7 +54,7 @@ export function DashboardHeader({
   // an effect on `pathname`, because setting state in an effect triggers
   // the react-hooks/set-state-in-effect lint and React's cascading-render
   // warning. Same-route clicks (clicking the link for the current page)
-  // never fire onClick-after-pathname-change anyway — they fire on click,
+  // never fire onClick-after-pathname-change anyway - they fire on click,
   // which is what we want.
   const closeAll = useCallback(() => {
     setDrawerOpen(false);
@@ -126,7 +126,7 @@ export function DashboardHeader({
             gap: 16,
           }}
         >
-          {/* Mobile hamburger — hidden ≥ 860px via CSS. */}
+          {/* Mobile hamburger - hidden ≥ 860px via CSS. */}
           <button
             type="button"
             className="dash-nav-burger"
@@ -190,7 +190,7 @@ export function DashboardHeader({
             </span>
           </Link>
 
-          {/* Desktop nav — hidden < 860px via CSS. */}
+          {/* Desktop nav - hidden < 860px via CSS. */}
           <nav
             className="dash-nav-links"
             aria-label={`Navigation ${roleLabel.toLowerCase()}`}
@@ -225,7 +225,7 @@ export function DashboardHeader({
 
           <div style={{ flex: 1 }} />
 
-          {/* Desktop user dropdown — hidden < 860px via CSS. */}
+          {/* Desktop user dropdown - hidden < 860px via CSS. */}
           <div
             ref={menuRef}
             className="dash-nav-user"

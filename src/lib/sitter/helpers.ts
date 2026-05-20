@@ -38,13 +38,13 @@ export async function getSitterAvailability(userId: string): Promise<Availabilit
 
 /**
  * Today's recurring slots for a sitter, ordered by start time. Uses the
- * server's local weekday — the weekly schedule is conceptually a recurring
+ * server's local weekday - the weekly schedule is conceptually a recurring
  * pattern in the sitter's own timezone, which for the MVP we assume to
  * coincide with the server (Vercel/eu-central-1 ≈ CEST). When we go
  * multi-region we'll store a tz on the profile.
  */
 export async function getTodayAvailability(userId: string): Promise<AvailabilityRow[]> {
-  const today = new Date().getDay(); // 0 = Sunday, 6 = Saturday — matches the weekday column.
+  const today = new Date().getDay(); // 0 = Sunday, 6 = Saturday - matches the weekday column.
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("sitter_availability")
@@ -68,7 +68,7 @@ export async function getSitterBadges(userId: string): Promise<BadgeRow[]> {
 
 /**
  * Fetch a sitter's public-facing profile (homepage card / public profile page).
- * Goes through the sitters_public view — never exposes phone/email.
+ * Goes through the sitters_public view - never exposes phone/email.
  */
 export async function getSitterPublic(id: string): Promise<SitterPublicRow | null> {
   const supabase = await createClient();
@@ -98,7 +98,7 @@ export async function listSittersForHome(limit = 8): Promise<SitterPublicRow[]> 
 
 /**
  * Full sitters listing for the dedicated `/sitters` page. No filters per MVP
- * scope — the client browses a flat list. Volume is low at launch so we don't
+ * scope - the client browses a flat list. Volume is low at launch so we don't
  * paginate yet; revisit when sitters > ~50 to add cursor pagination.
  */
 export async function listAllSitters(): Promise<SitterPublicRow[]> {

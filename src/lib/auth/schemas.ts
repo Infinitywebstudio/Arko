@@ -8,7 +8,7 @@ const emailSchema = z
 
 // Min 8 chars matches Supabase Auth's default minimum_password_length.
 // The signup wizard surfaces a strength meter on top of this, but server-side
-// we only enforce the floor — UX guidance is not a security control.
+// we only enforce the floor - UX guidance is not a security control.
 const passwordSchema = z
   .string({ message: "Mot de passe requis" })
   .min(8, { message: "Minimum 8 caractères" })
@@ -76,7 +76,7 @@ export const identitySchema = z.object({
 });
 export type IdentityInput = z.infer<typeof identitySchema>;
 
-// New email — re-used by the email-change flow (Supabase sends a confirmation).
+// New email - re-used by the email-change flow (Supabase sends a confirmation).
 export const updateEmailSchema = z.object({
   email: emailSchema,
 });

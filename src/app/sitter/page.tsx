@@ -37,7 +37,7 @@ export default async function SitterHomePage() {
   const session = await requireRole("sitter");
   const todaySlots = await getTodayAvailability(session.userId);
 
-  // Pending demand count — drives a coral badge on the "Demandes" tile to
+  // Pending demand count - drives a coral badge on the "Demandes" tile to
   // signal that something needs the sitter's attention.
   const supabase = await createClient();
   const { count: pendingCount } = await supabase

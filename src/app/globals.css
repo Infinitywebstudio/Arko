@@ -2,7 +2,7 @@
 @import "tailwindcss";
 
 /* =============================================
-   ARKO — Design System
+   ARKO - Design System
    Tokens, primitives, and utility classes
    ============================================= */
 
@@ -212,7 +212,7 @@ img { max-width: 100%; display: block; }
   transition: transform var(--dur-base) var(--ease-out),
               box-shadow var(--dur-base) var(--ease-out);
 }
-/* .card-hover is now a no-op marker — kept to avoid editing every call site.
+/* .card-hover is now a no-op marker - kept to avoid editing every call site.
    Cards stay static on hover per design decision (2026-05-15). */
 
 /* === ARROW LINK === */
@@ -244,7 +244,7 @@ img { max-width: 100%; display: block; }
   .home-nav-burger { display: inline-flex !important; }
   .home-nav-person { display: inline-flex !important; }
 
-  /* Dashboard header (/compte, /sitter): same swap — hide the desktop
+  /* Dashboard header (/compte, /sitter): same swap - hide the desktop
      link row + user dropdown, expose the hamburger that opens the
      mobile drawer. The drawer carries the user block + nav + logout. */
   .dash-nav-links { display: none !important; }
@@ -253,7 +253,7 @@ img { max-width: 100%; display: block; }
 
   /* Approach steps become a horizontal snap-scroll carousel on mobile.
      Padding bleeds to the section edges so the cards line up with the
-     section title above. The native scrollbar is hidden — pagination
+     section title above. The native scrollbar is hidden - pagination
      dots rendered by HomeApproach take over as the visual affordance. */
   .home-approach-grid {
     display: flex !important;

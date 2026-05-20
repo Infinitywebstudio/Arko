@@ -21,7 +21,7 @@ export default function CancelBookingButton({ bookingId }: Props) {
         setError(result.error);
       }
       // On success the page revalidates server-side and the row updates with
-      // the cancelled state — no client-side state to clear.
+      // the cancelled state - no client-side state to clear.
     });
   };
 

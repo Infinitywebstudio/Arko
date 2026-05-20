@@ -37,7 +37,7 @@ export async function proxy(request: NextRequest) {
 
   const { pathname } = request.nextUrl;
 
-  // Gate protected routes — redirect unauthenticated users to /connexion
+  // Gate protected routes - redirect unauthenticated users to /connexion
   // and remember where they wanted to go.
   if (!user && PROTECTED_PREFIXES.some((p) => pathname.startsWith(p))) {
     const url = request.nextUrl.clone();

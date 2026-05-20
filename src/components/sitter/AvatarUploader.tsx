@@ -110,7 +110,7 @@ export default function AvatarUploader({ currentUrl, fallbackName }: Props) {
             minHeight: 16,
           }}
         >
-          {error ?? success ?? "JPEG, PNG ou WebP — 5 Mo max"}
+          {error ?? success ?? "JPEG, PNG ou WebP - 5 Mo max"}
         </div>
       </div>
     </div>

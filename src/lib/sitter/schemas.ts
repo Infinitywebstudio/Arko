@@ -27,7 +27,7 @@ const experienceYearsSchema = z
   .optional();
 
 // Zone IDs come from a curated TS constant (src/lib/zones.ts). We reject any value
-// not in that list — keeps DB rows aligned with the dropdown and prevents stale
+// not in that list - keeps DB rows aligned with the dropdown and prevents stale
 // or typo'd zones leaking in via crafted requests.
 const serviceZoneItemSchema = z
   .string()

@@ -6,7 +6,7 @@ import { createClient } from "@/lib/supabase/server";
  *
  * Supabase sends users here after they click an emailed link with a `code`
  * query param. We exchange the code for a session (writes Supabase cookies)
- * and redirect to the original destination (`next`) — defaulting to /compte.
+ * and redirect to the original destination (`next`) - defaulting to /compte.
  */
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);

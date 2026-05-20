@@ -16,14 +16,14 @@ import { getStripe } from "@/lib/stripe/client";
  *
  *   2. AUTO-CLOSE: bookings stuck in `confirmed` 48h past their planned end
  *      get force-flipped to `completed` (no comment, no email). It's the
- *      hygiene cron — sitters are supposed to close manually with their
+ *      hygiene cron - sitters are supposed to close manually with their
  *      free-text comment; this just sweeps the ones that fell through.
  *
  * Trigger options (we don't ship a hard dependency on any):
- *   - Vercel Cron (vercel.json) — easy on Pro tier, capped to daily on Hobby.
+ *   - Vercel Cron (vercel.json) - easy on Pro tier, capped to daily on Hobby.
  *   - GitHub Actions schedule (`*\/10 * * * *`) hitting this URL with the
- *     CRON_SECRET in the header — works on free tiers and goes to 5-min res.
- *   - Supabase pg_cron + pg_net — keeps it inside the same project.
+ *     CRON_SECRET in the header - works on free tiers and goes to 5-min res.
+ *   - Supabase pg_cron + pg_net - keeps it inside the same project.
  *   - Manual curl during ops.
  *
  * Auth: any caller must present `Authorization: Bearer ${CRON_SECRET}` or
@@ -32,7 +32,7 @@ import { getStripe } from "@/lib/stripe/client";
  *
  * Idempotency: every state transition uses `.eq("status", ...)` so a duplicate
  * sweep within seconds does nothing on already-processed rows. Each booking
- * succeeds or fails independently — one bad refund doesn't poison the batch.
+ * succeeds or fails independently - one bad refund doesn't poison the batch.
  */
 
 export async function GET(request: NextRequest) {

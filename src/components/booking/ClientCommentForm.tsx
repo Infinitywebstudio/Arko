@@ -19,7 +19,7 @@ type Props = {
  * close, ours has no status-flip side effect).
  *
  * Empty submissions clear the comment (server normalises empty trimmed
- * strings to NULL). We do not block "submit while empty" — clients may want
+ * strings to NULL). We do not block "submit while empty" - clients may want
  * to remove a comment they previously left.
  */
 export default function ClientCommentForm({ bookingId, initial }: Props) {

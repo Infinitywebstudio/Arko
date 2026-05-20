@@ -40,7 +40,7 @@ const sectionHelpStyle: React.CSSProperties = {
 
 export default async function ClientAccountSettingsPage() {
   // The /compte layout has already gated the route to authenticated clients,
-  // so requireUser here is purely to surface the session — no extra redirect.
+  // so requireUser here is purely to surface the session - no extra redirect.
   const session = await requireUser();
 
   return (
@@ -76,7 +76,7 @@ export default async function ClientAccountSettingsPage() {
         <div>
           <h2 style={sectionLabelStyle}>Mes informations</h2>
           <p style={{ ...sectionHelpStyle, marginTop: 6 }}>
-            Nom et téléphone — affichés à ton sitter une fois la garde acceptée.
+            Nom et téléphone - affichés à ton sitter une fois la garde acceptée.
           </p>
         </div>
         <IdentityForm

@@ -6,7 +6,7 @@ import BottomNav, { type BottomNavTab } from "./BottomNav";
  * out, a client, or a sitter. Server-side so we can read the session without
  * any client-side hydration of auth state.
  *
- * Tab counts are kept ≤ 5 — anything more is unreadable on a 360px viewport.
+ * Tab counts are kept ≤ 5 - anything more is unreadable on a 360px viewport.
  * Sitter parameters and other rarely-used links don't make the bottom nav;
  * they live in their respective sub-pages.
  */

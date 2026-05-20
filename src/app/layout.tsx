@@ -18,7 +18,7 @@ const jetBrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "ARKO — Faites garder votre chien le temps d'une visite",
+  title: "ARKO - Faites garder votre chien le temps d'une visite",
   description:
     "1, 2 ou 3 heures de garde, par des dog-sitters vérifiés près de chez vous. Réservation en moins d'une minute, paiement sécurisé.",
 };

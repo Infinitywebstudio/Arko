@@ -80,7 +80,7 @@ export default async function SitterDemandesPage() {
         </h1>
       </header>
 
-      {/* Pending acceptance — the actionable bucket comes first */}
+      {/* Pending acceptance - the actionable bucket comes first */}
       <Section
         title="En attente de ta réponse"
         count={pending.length}
@@ -91,7 +91,7 @@ export default async function SitterDemandesPage() {
         ))}
       </Section>
 
-      {/* Confirmed — upcoming + active gardes with live countdown + close */}
+      {/* Confirmed - upcoming + active gardes with live countdown + close */}
       {confirmed.length > 0 && (
         <Section title="Gardes confirmées" count={confirmed.length} empty="">
           {confirmed.map((b) => (
@@ -211,7 +211,7 @@ function serialize(b: Booking) {
 const STATUS_LABEL_PAST: Record<string, string> = {
   cancelled_by_client: "Annulée par le client",
   refused_by_sitter: "Tu as refusé",
-  no_response: "Sans réponse — remboursée",
+  no_response: "Sans réponse - remboursée",
   completed: "Terminée",
 };
 

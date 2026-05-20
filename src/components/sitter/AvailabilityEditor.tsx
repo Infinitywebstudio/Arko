@@ -101,7 +101,7 @@ export default function AvailabilityEditor({ initial }: Props) {
       if (result.ok) {
         setJustSaved(true);
         // Revert the button label after the user has had time to read it.
-        // No banner anywhere — the button text *is* the feedback.
+        // No banner anywhere - the button text *is* the feedback.
         setTimeout(() => setJustSaved(false), 2000);
       } else {
         setError(result.error);

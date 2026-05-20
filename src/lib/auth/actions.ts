@@ -39,7 +39,7 @@ function getSiteUrl(): string {
 
 /**
  * Translate the most common Supabase Auth error messages to French.
- * Anything we don't recognise falls back to a generic message — never
+ * Anything we don't recognise falls back to a generic message - never
  * leak raw provider errors to the user.
  */
 /**
@@ -47,7 +47,7 @@ function getSiteUrl(): string {
  *
  * The caller's session lives in cookies on the cookie-backed client. Calling
  * `supabase.auth.signInWithPassword` on that client rotates the access /
- * refresh tokens and rewrites the cookies — fine on its own, but anything
+ * refresh tokens and rewrites the cookies - fine on its own, but anything
  * the action does *after* (e.g. `auth.updateUser`) then fails with
  * "Auth session missing!" because the in-flight cookie writes are not
  * yet readable by subsequent SDK calls in the same action.
@@ -127,7 +127,7 @@ export async function signUpAction(formData: FormData): Promise<ActionResult> {
     return { ok: false, error: translateAuthError(error.message) };
   }
 
-  // Supabase sends a verification email. We don't auto-login — the user
+  // Supabase sends a verification email. We don't auto-login - the user
   // must click the link first. We redirect to a "check your email" view.
   return { ok: true, redirectTo: "/inscription/verifier-email" };
 }
@@ -178,7 +178,7 @@ export async function signOutAction(): Promise<void> {
 }
 
 // =============================================================
-// Forgot password — sends reset email
+// Forgot password - sends reset email
 // =============================================================
 export async function forgotPasswordAction(
   formData: FormData,
@@ -207,7 +207,7 @@ export async function forgotPasswordAction(
 }
 
 // =============================================================
-// Reset password — sets a new password (user already authenticated via reset link)
+// Reset password - sets a new password (user already authenticated via reset link)
 // =============================================================
 export async function resetPasswordAction(
   formData: FormData,
@@ -238,24 +238,24 @@ export async function resetPasswordAction(
 }
 
 // =============================================================
-// Update identity — full_name + phone on public.profiles
+// Update identity - full_name + phone on public.profiles
 // =============================================================
 //
 // Role-agnostic: both clients and sitters use this. The DB-level trigger
 // (`prevent_user_role_change`) and RLS (`auth.uid() = id`) make it impossible
 // for a user to escalate to a different role or overwrite someone else's
-// profile here — even though we don't pass `role` we still re-assert the
+// profile here - even though we don't pass `role` we still re-assert the
 // UPDATE is scoped to the current user's id.
 //
 // We revalidate every surface where the identity is rendered so the new
 // values show up without a hard refresh:
-//   * /compte                  — landing card displays name/phone
-//   * /compte/parametres       — form's `initial` props come from the session
-//   * /sitter/profil           — same form re-uses identity
-//   * /sitters/[id]            — public sitter page shows the name
+//   * /compte                  - landing card displays name/phone
+//   * /compte/parametres       - form's `initial` props come from the session
+//   * /sitter/profil           - same form re-uses identity
+//   * /sitters/[id]            - public sitter page shows the name
 //
 // Note on snapshots: bookings already created keep their `client_full_name`
-// and `client_phone` snapshots. That's intentional — the sitter has the
+// and `client_phone` snapshots. That's intentional - the sitter has the
 // number the client used at booking time, not whatever it becomes later.
 export async function updateIdentityAction(
   formData: FormData,
@@ -297,7 +297,7 @@ export async function updateIdentityAction(
 }
 
 // =============================================================
-// Update email — sends a confirmation email to the new address
+// Update email - sends a confirmation email to the new address
 // =============================================================
 //
 // Supabase's `auth.updateUser({ email })` behaviour: depending on project
@@ -331,7 +331,7 @@ export async function updateEmailAction(formData: FormData): Promise<ActionResul
 }
 
 // =============================================================
-// Update password — requires the current password (re-auth)
+// Update password - requires the current password (re-auth)
 // =============================================================
 //
 // Defence in depth: even though the user is authenticated, we re-verify
@@ -340,7 +340,7 @@ export async function updateEmailAction(formData: FormData): Promise<ActionResul
 //
 // Implementation note (do not "simplify"): we use two isolated Supabase
 // clients here instead of the request-scoped one.
-//   1. A throwaway anon client for `signInWithPassword` — verifies the
+//   1. A throwaway anon client for `signInWithPassword` - verifies the
 //      current password without touching the request's cookies, so the
 //      caller's session token isn't rotated mid-action.
 //   2. The service-role admin client for the actual password update via
@@ -364,7 +364,7 @@ export async function updatePasswordAction(formData: FormData): Promise<ActionRe
     };
   }
 
-  // 1. Verify the current password through an isolated client — see
+  // 1. Verify the current password through an isolated client - see
   //    verifyPassword's docstring for why we can't reuse the cookie-backed
   //    client here.
   const ok = await verifyPassword(session.email, parsed.data.current_password);
@@ -377,7 +377,7 @@ export async function updatePasswordAction(formData: FormData): Promise<ActionRe
   }
 
   // 2. Update the password via service_role admin. Bypasses RLS and doesn't
-  //    depend on the user's session cookies — robust on Vercel where the
+  //    depend on the user's session cookies - robust on Vercel where the
   //    cookie rewrite race surfaces.
   const admin = createAdminClient();
   const { error } = await admin.auth.admin.updateUserById(session.userId, {
@@ -391,13 +391,13 @@ export async function updatePasswordAction(formData: FormData): Promise<ActionRe
 }
 
 // =============================================================
-// Delete account — re-auth + irreversible
+// Delete account - re-auth + irreversible
 // =============================================================
 //
 // Cascade order:
 //   1. Verify the password (defence in depth).
 //   2. Best-effort cleanup of user-owned storage (avatars). Orphans are not
-//      catastrophic — RLS on the bucket already prevents access — but we
+//      catastrophic - RLS on the bucket already prevents access - but we
 //      try anyway to honour data-deletion expectations.
 //   3. admin.deleteUser via service_role. ON DELETE CASCADE on
 //      profiles.id → auth.users.id removes the profile (and sitter_profiles,
@@ -422,7 +422,7 @@ export async function deleteAccountAction(formData: FormData): Promise<ActionRes
   }
 
   // Verify the password through an isolated client so the caller's session
-  // cookies are not rewritten — same race condition as updatePasswordAction.
+  // cookies are not rewritten - same race condition as updatePasswordAction.
   const ok = await verifyPassword(session.email, parsed.data.current_password);
   if (!ok) {
     return {
@@ -473,7 +473,7 @@ export async function deleteAccountAction(formData: FormData): Promise<ActionRes
           .remove(files.map((f) => `${session.userId}/${f.name}`));
       }
     } catch {
-      // Swallow — storage failure must not block account deletion.
+      // Swallow - storage failure must not block account deletion.
     }
   }
 

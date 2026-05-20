@@ -30,7 +30,7 @@ import {
  *   - Arrow keys navigate the visible (post-filter) list; Enter selects.
  *
  * The component is intentionally controlled (parent owns the value) and
- * does not call any server action itself — keeps it reusable across the
+ * does not call any server action itself - keeps it reusable across the
  * three forms that need a phone field.
  */
 
@@ -119,7 +119,7 @@ export default function PhoneInput({
   // Focus the search input when opening.
   useEffect(() => {
     if (open) {
-      // Defer a tick — the input is mounted by the same render that flips `open`.
+      // Defer a tick - the input is mounted by the same render that flips `open`.
       requestAnimationFrame(() => searchRef.current?.focus());
     }
   }, [open]);
@@ -132,7 +132,7 @@ export default function PhoneInput({
 
   // Reset the active index when the filter changes so keyboard navigation
   // never points past the visible list. Same render-time sync pattern as
-  // above — an effect here would cause a cascade.
+  // above - an effect here would cause a cascade.
   const [lastNormQuery, setLastNormQuery] = useState(normQuery);
   if (normQuery !== lastNormQuery) {
     setLastNormQuery(normQuery);

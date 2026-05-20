@@ -32,7 +32,7 @@ export default async function ReservationThankYouPage({
   const { id } = await params;
   const session = await requireUser(`/reservations/${id}/merci`);
 
-  // RLS only lets the booking's client read it — anyone else hits the notFound
+  // RLS only lets the booking's client read it - anyone else hits the notFound
   // path instead of leaking that the row exists.
   const supabase = await createClient();
   const { data: booking } = await supabase
@@ -56,7 +56,7 @@ export default async function ReservationThankYouPage({
     .filter(Boolean)
     .join(" · ");
 
-  // The webhook may not have fired yet when Stripe redirects back — show a
+  // The webhook may not have fired yet when Stripe redirects back - show a
   // softer message in that case so the user isn't told "confirmed" until
   // pending_acceptance lands.
   const stillPending = booking.status === "pending_payment";

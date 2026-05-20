@@ -4,12 +4,12 @@ import { requireUser } from "@/lib/auth/helpers";
 import { DashboardHeader } from "@/components/account/DashboardHeader";
 
 /**
- * Client-area shell — gates the whole /compte/* subtree to authenticated
+ * Client-area shell - gates the whole /compte/* subtree to authenticated
  * clients and renders the shared chrome (logo, top-nav, user dropdown).
  *
  * Sitters who land here are routed to their own hub. We don't use
  * requireRole("client") because its built-in mismatched-role redirect points
- * back at /compte — which would loop forever for a sitter. Doing the redirect
+ * back at /compte - which would loop forever for a sitter. Doing the redirect
  * explicitly avoids that footgun.
  */
 export default async function CompteLayout({ children }: { children: React.ReactNode }) {

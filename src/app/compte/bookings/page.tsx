@@ -41,7 +41,7 @@ const STATUS_LABEL: Record<BookingStatus, string> = {
   confirmed: "Confirmée",
   cancelled_by_client: "Annulée",
   refused_by_sitter: "Refusée par le sitter",
-  no_response: "Sans réponse — remboursée",
+  no_response: "Sans réponse - remboursée",
   completed: "Terminée",
 };
 
@@ -64,7 +64,7 @@ export default async function ClientBookingsPage() {
     .select(
       "id, status, start_at, duration_hours, price_cents, dangerous_breed, urgent, late, meeting_zone_id, sitter_id, client_full_name, client_comment, sitter_comment, sitter:profiles!sitter_id (full_name, avatar_url, phone)",
     )
-    // Hide pending_payment from the user-facing list — they're either still
+    // Hide pending_payment from the user-facing list - they're either still
     // in the Stripe Checkout flow or about to expire and get cleaned up.
     .neq("status", "pending_payment")
     .order("start_at", { ascending: false });
@@ -193,7 +193,7 @@ function BookingCard({ booking, cancellable }: { booking: Booking; cancellable: 
     .filter(Boolean)
     .join(" · ");
 
-  // Contact buttons only after the sitter has accepted — privacy gate matches
+  // Contact buttons only after the sitter has accepted - privacy gate matches
   // the user-facing model. Phone surfaces only via the JOIN, and the new RLS
   // policy already ensures it's only readable to the booking's owner.
   const showContact = booking.status === "confirmed" && booking.sitter?.phone;

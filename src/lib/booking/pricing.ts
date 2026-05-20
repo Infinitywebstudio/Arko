@@ -11,10 +11,10 @@
  *   - late (after 19h):                   +7€
  *
  * IMPORTANT: clients NEVER send a price. The action layer always re-derives
- * the price from these constants — the booking row is then validated by a
+ * the price from these constants - the booking row is then validated by a
  * Postgres trigger that asserts price = sitter_payout + platform_fee.
  *
- * OPEN DECISION — pending Louis confirmation:
+ * OPEN DECISION - pending Louis confirmation:
  *   Where do option surcharges go (sitter vs platform)?
  *   Default below: 100% to platform (treat options as risk/friction premiums
  *   that compensate the platform's commitment, base tariff being the sitter's
@@ -65,7 +65,7 @@ export type PricingBreakdown = {
 export function calculatePrice(input: PricingInput): PricingBreakdown {
   const base = BASE_TARIFF[input.duration];
   if (!base) {
-    throw new Error(`Invalid duration: ${input.duration} — must be 1, 2 or 3`);
+    throw new Error(`Invalid duration: ${input.duration} - must be 1, 2 or 3`);
   }
 
   let options = 0;
@@ -85,7 +85,7 @@ export function calculatePrice(input: PricingInput): PricingBreakdown {
   };
 }
 
-/** Format a cents amount as "12,00 €" — French convention, no decimals if exact euros. */
+/** Format a cents amount as "12,00 €" - French convention, no decimals if exact euros. */
 export function formatEuros(cents: number): string {
   const euros = cents / 100;
   return `${euros.toFixed(2).replace(".", ",")} €`;

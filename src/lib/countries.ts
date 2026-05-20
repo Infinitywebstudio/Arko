@@ -3,7 +3,7 @@
  *
  * Used by the PhoneInput combobox. Names are in French (audience-aligned).
  * Flag glyphs are derived from the ISO-2 code at runtime via Regional
- * Indicator codepoints — keeps the data file small and consistent.
+ * Indicator codepoints - keeps the data file small and consistent.
  *
  * Sort order: alphabetical by French name. The search filter is
  * accent-insensitive and matches on name OR dial code.
@@ -286,7 +286,7 @@ export function getCountry(code: string): Country | undefined {
 
 /**
  * Regional-indicator flag emoji from an ISO-2 code. Returns a placeholder
- * when the code is not 2 ASCII letters — keeps the UI from collapsing if
+ * when the code is not 2 ASCII letters - keeps the UI from collapsing if
  * we ever feed it malformed data.
  */
 export function flagEmoji(iso2: string): string {
@@ -312,7 +312,7 @@ export function digitsOnly(input: string): string {
  * Algorithm: longest-prefix-match on dial codes. NANP (+1XXX) entries win
  * over plain +1 when the area code matches; otherwise +1 falls back to US.
  * If nothing matches (or input is empty / missing the +) we return the
- * default country with the digits as local — the form will surface the
+ * default country with the digits as local - the form will surface the
  * mismatch the moment the user touches the field.
  */
 export function parseE164(

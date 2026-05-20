@@ -255,7 +255,7 @@ export default async function SitterProfilePage({
         )}
       </section>
 
-      {/* CTA — disabled for the sitter on their own profile (no booking yourself).
+      {/* CTA - disabled for the sitter on their own profile (no booking yourself).
           Hidden entirely if the sitter has no availability slots, since the
           reservation page would be a dead end. */}
       <section>

@@ -80,7 +80,7 @@ function maxDateInParis(daysAhead: number): string {
 }
 
 function weekdayOfDateString(dateStr: string): number {
-  // Using noon avoids any DST edge — we only care about the calendar day in Paris.
+  // Using noon avoids any DST edge - we only care about the calendar day in Paris.
   const d = new Date(`${dateStr}T12:00:00Z`);
   const name = new Intl.DateTimeFormat("en-US", {
     timeZone: PARIS_TZ,
@@ -116,7 +116,7 @@ export default function ReservationForm({ sitter, slots, clientName }: Props) {
   const [isPending, startTransition] = useTransition();
 
   // The list of hours the sitter actually offers on the chosen date for the
-  // chosen duration. Computed locally — server re-validates the same rule.
+  // chosen duration. Computed locally - server re-validates the same rule.
   const validHours = useMemo(() => {
     const weekday = weekdayOfDateString(date);
     const slotsForDay = slots.filter((s) => s.weekday === weekday);
@@ -141,7 +141,7 @@ export default function ReservationForm({ sitter, slots, clientName }: Props) {
       duration,
       dangerous_breed: dangerous,
       late,
-      // Urgent isn't shown live (the threshold is 30min and we'd need a tick) —
+      // Urgent isn't shown live (the threshold is 30min and we'd need a tick) -
       // we lean on server to apply it. UI stays calm.
       urgent: false,
     });
@@ -180,7 +180,7 @@ export default function ReservationForm({ sitter, slots, clientName }: Props) {
     startTransition(async () => {
       const result = await createBookingAction(fd);
       if (result.ok) {
-        // Hard redirect to Stripe — leaves the SPA cleanly.
+        // Hard redirect to Stripe - leaves the SPA cleanly.
         window.location.href = result.redirectTo;
       } else {
         setError(result.error);
@@ -521,7 +521,7 @@ export default function ReservationForm({ sitter, slots, clientName }: Props) {
             textAlign: "center",
           }}
         >
-          Paiement sécurisé Stripe — réservation au nom de {clientName}
+          Paiement sécurisé Stripe - réservation au nom de {clientName}
         </div>
       </div>
     </form>

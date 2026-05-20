@@ -17,7 +17,7 @@ import { getStripe } from "@/lib/stripe/client";
  *
  * Handler discipline:
  *   - Verify the signature before doing anything else. An unsigned (or wrongly
- *     signed) request is rejected with 400 — we never trust the body.
+ *     signed) request is rejected with 400 - we never trust the body.
  *   - Use the service-role admin client. RLS would otherwise block these
  *     writes since there's no user session here.
  *   - Return 200 even on internal failures (logged) to stop Stripe from
@@ -66,7 +66,7 @@ export async function POST(request: NextRequest) {
     }
   } catch (err) {
     console.error("[stripe webhook] handler threw on", event.type, err);
-    // Still 200 — we don't want Stripe to retry on a programming error here.
+    // Still 200 - we don't want Stripe to retry on a programming error here.
     // Errors are tracked in the logs and surfaced via observability.
   }
 
@@ -86,7 +86,7 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session): Promis
 
   const admin = createAdminClient();
 
-  // Only flip the row if it's still pending_payment — guard against duplicate
+  // Only flip the row if it's still pending_payment - guard against duplicate
   // delivery and races with a manual cancel.
   const { data: updated, error } = await admin
     .from("bookings")
@@ -117,7 +117,7 @@ async function handleCheckoutExpired(session: Stripe.Checkout.Session): Promise<
   if (!bookingId) return;
 
   const admin = createAdminClient();
-  // Only delete if still pending_payment — if the row already advanced (paid
+  // Only delete if still pending_payment - if the row already advanced (paid
   // through some other path) we leave it alone.
   const { error } = await admin
     .from("bookings")

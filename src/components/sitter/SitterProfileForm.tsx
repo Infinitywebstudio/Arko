@@ -59,7 +59,7 @@ export default function SitterProfileForm({ initial, identity }: Props) {
     initial.experience_years === null ? "" : String(initial.experience_years),
   );
   const [acceptsDangerous, setAcceptsDangerous] = useState(initial.accepts_dangerous_breeds);
-  // Filter out IDs that no longer exist in the curated list — happens when a zone
+  // Filter out IDs that no longer exist in the curated list - happens when a zone
   // is removed from src/lib/zones.ts after sitters have already saved profiles.
   // Without this filter, the old slugs would make the validator reject the form.
   const [selectedZones, setSelectedZones] = useState<Set<string>>(
@@ -83,7 +83,7 @@ export default function SitterProfileForm({ initial, identity }: Props) {
     fd.append("bio", bio);
     fd.append("experience_years", years);
     fd.append("accepts_dangerous_breeds", acceptsDangerous ? "true" : "false");
-    // Send each zone as a repeated field — the action's getAll("service_zones") handles this.
+    // Send each zone as a repeated field - the action's getAll("service_zones") handles this.
     for (const id of selectedZones) {
       fd.append("service_zones", id);
     }
@@ -280,7 +280,7 @@ export default function SitterProfileForm({ initial, identity }: Props) {
             marginTop: 4,
           }}
         >
-          {selectedZones.size} sélectionnée{selectedZones.size > 1 ? "s" : ""} — clique pour ajouter ou retirer
+          {selectedZones.size} sélectionnée{selectedZones.size > 1 ? "s" : ""} - clique pour ajouter ou retirer
         </div>
         {fieldErrors.service_zones && <FieldError>{fieldErrors.service_zones}</FieldError>}
       </div>

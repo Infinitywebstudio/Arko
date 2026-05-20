@@ -83,7 +83,7 @@ export async function updateSitterProfileAction(
 
   // Two updates in sequence on the same DB. RLS on profiles enforces auth.uid() = id;
   // the role-mutation trigger blocks any attempt to escalate. Failure of the second
-  // update leaves identity unchanged but sitter_profiles updated — acceptable: the
+  // update leaves identity unchanged but sitter_profiles updated - acceptable: the
   // user simply re-submits; both updates are idempotent.
   const sitterUpdate = await supabase
     .from("sitter_profiles")
@@ -121,7 +121,7 @@ export async function updateSitterProfileAction(
 // =============================================================
 //
 // We replace rather than diff because the form is small (≤ 28 slots) and
-// "replace" keeps the UX trivial — sitter sees the current week, edits,
+// "replace" keeps the UX trivial - sitter sees the current week, edits,
 // submits the whole picture. The cost (one DELETE + one INSERT) is dwarfed
 // by network latency; the simpler code is the right trade.
 export async function replaceAvailabilityAction(
@@ -215,7 +215,7 @@ export async function uploadAvatarAction(formData: FormData): Promise<ActionResu
   }
   const file = parsed.data;
 
-  // Belt and braces — Zod already enforces this, but never trust the client.
+  // Belt and braces - Zod already enforces this, but never trust the client.
   if (file.size > AVATAR_MAX_BYTES) {
     return { ok: false, error: "Fichier trop lourd." };
   }
