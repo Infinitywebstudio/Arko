@@ -10,7 +10,7 @@ export const metadata: Metadata = {
   description: "Parcours tous les dog-sitters ARKO disponibles dans Arles.",
 };
 
-const FALLBACK_COLLARS = ["#2D5A3F", "#1B2A49", "#2E7D5B", "#F4A261"];
+const FALLBACK_COLLARS = ["#3C582E", "#1B2A49", "#2E7D5B", "#F4A261"];
 const FALLBACK_MOODS: ArkoMood[] = ["happy", "waggy", "alert", "sleepy"];
 const ENTRY_PRICE = formatEuros(calculatePrice({ duration: 1 }).price_cents);
 

@@ -339,7 +339,7 @@ const HOME_CARD_PRICE_EUR = 32;
 
 // Visual rotation for the Arko mascot fallback when a sitter has no avatar.
 const FALLBACK_MOODS: ArkoMood[] = ["happy", "alert", "waggy", "happy"];
-const FALLBACK_COLLARS = ["#2D5A3F", "#1B2A49", "#2E7D5B", "#F4A261"];
+const FALLBACK_COLLARS = ["#3C582E", "#1B2A49", "#2E7D5B", "#F4A261"];
 
 function displayName(full: string | null): string {
   if (!full) return "Sitter";
