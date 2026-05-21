@@ -90,6 +90,7 @@
   --space-4: calc(16px * var(--density));
   --space-5: calc(20px * var(--density));
   --space-6: calc(24px * var(--density));
+  --space-7: calc(28px * var(--density));
   --space-8: calc(32px * var(--density));
   --space-10: calc(40px * var(--density));
   --space-12: calc(48px * var(--density));

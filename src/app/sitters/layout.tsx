@@ -12,11 +12,11 @@ export default async function SittersLayout({ children }: { children: React.Reac
           position: "sticky",
           top: 0,
           zIndex: 50,
-          background: "rgba(247, 244, 236, 0.72)",
-          backdropFilter: "blur(24px) saturate(180%)",
-          WebkitBackdropFilter: "blur(24px) saturate(180%)",
-          borderBottom: "1px solid rgba(216, 213, 200, 0.5)",
-          boxShadow: "0 8px 24px rgba(15, 19, 16, 0.04)",
+          // Same flat colour as the page body (--ink-50) so the bar blends in
+          // instead of reading as a distinct lighter band; a hairline border
+          // keeps a subtle separation when content scrolls under it.
+          background: "var(--ink-50)",
+          borderBottom: "1px solid var(--ink-200)",
         }}
       >
         <div
