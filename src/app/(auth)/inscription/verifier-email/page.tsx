@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Arko } from "@/components/mascot";
+import { Icon } from "@/components/mascot";
 
 export const metadata: Metadata = {
   title: "Vérifie ton email · ARKO",
@@ -19,8 +19,19 @@ export default function VerifyEmailPage() {
         textAlign: "center",
       }}
     >
-      <div style={{ display: "flex", justifyContent: "center", marginBottom: 16 }}>
-        <Arko size={96} mood="waggy" />
+      <div
+        style={{
+          width: 72,
+          height: 72,
+          margin: "0 auto 16px",
+          borderRadius: 36,
+          background: "var(--coral-50)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <Icon name="message" size={32} color="var(--coral-600)" />
       </div>
       <h1
         style={{

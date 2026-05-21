@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { Arko } from "@/components/mascot";
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (

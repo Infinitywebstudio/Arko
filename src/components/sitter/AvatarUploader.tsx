@@ -3,7 +3,8 @@
 import { useRef, useState, useTransition } from "react";
 
 import { uploadAvatarAction, deleteAvatarAction } from "@/lib/sitter/actions";
-import { Arko, Icon } from "@/components/mascot";
+import { Icon } from "@/components/mascot";
+import { Initials } from "@/components/Initials";
 
 type Props = {
   currentUrl: string | null;
@@ -68,7 +69,7 @@ export default function AvatarUploader({ currentUrl, fallbackName }: Props) {
           // eslint-disable-next-line @next/next/no-img-element -- avatar is a remote Supabase URL; not optimised for now
           <img src={currentUrl} alt={fallbackName} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
         ) : (
-          <Arko size={72} mood="happy" />
+          <Initials name={fallbackName} size={96} />
         )}
       </div>
 

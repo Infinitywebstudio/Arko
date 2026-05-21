@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Arko, Paw, Icon, type ArkoMood } from "./mascot";
+import { Icon } from "./mascot";
 import type { Database } from "@/lib/supabase/database.types";
 
 type SitterPublic = Database["public"]["Views"]["sitters_public"]["Row"];
@@ -208,24 +208,21 @@ export function HomeStats() {
 }
 
 export function HomeHowItWorks() {
-  const steps: { n: string; t: string; d: string; mood: ArkoMood }[] = [
+  const steps: { n: string; t: string; d: string }[] = [
     {
       n: "01",
       t: "Choisissez un lieu",
       d: "Précisez où vous serez : musée, restaurant, balade. On trouve un sitter à 5 min à pied.",
-      mood: "alert",
     },
     {
       n: "02",
       t: "Réservez en 1 min",
       d: "Sélectionnez la durée et les options. Le paiement est sécurisé par Stripe, débité après la garde.",
-      mood: "happy",
     },
     {
       n: "03",
       t: "Profitez tranquille",
       d: "Photos en temps réel, géolocalisation du sitter, support 24/7. Votre chien est entre de bonnes pattes.",
-      mood: "waggy",
     },
   ];
   return (
@@ -337,8 +334,7 @@ export function HomeHowItWorks() {
 const HOME_CARD_DURATION_HOURS = 2;
 const HOME_CARD_PRICE_EUR = 32;
 
-// Visual rotation for the Arko mascot fallback when a sitter has no avatar.
-const FALLBACK_MOODS: ArkoMood[] = ["happy", "alert", "waggy", "happy"];
+// Tints for the gradient placeholder behind a sitter card when it has no photo.
 const FALLBACK_COLLARS = ["#3C582E", "#1B2A49", "#2E7D5B", "#F4A261"];
 
 function displayName(full: string | null): string {
@@ -405,7 +401,6 @@ export function HomeSitters({ sitters }: { sitters: SitterPublic[] }) {
       >
         {sitters.slice(0, 4).map((s, i) => {
           const collar = FALLBACK_COLLARS[i % FALLBACK_COLLARS.length]!;
-          const mood = FALLBACK_MOODS[i % FALLBACK_MOODS.length]!;
           const sitterId = s.id ?? "";
           return (
             <Link
@@ -619,12 +614,6 @@ export function HomeCTA() {
           textAlign: "center",
         }}
       >
-        <div style={{ position: "absolute", top: -40, left: -40, opacity: 0.15 }}>
-          <Paw size={180} color="white" />
-        </div>
-        <div style={{ position: "absolute", bottom: -50, right: -30, opacity: 0.15 }}>
-          <Paw size={220} color="white" />
-        </div>
         <div style={{ position: "relative" }}>
           <h2
             style={{

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
-import { Arko, type ArkoMood } from "@/components/mascot";
+import { Initials } from "@/components/Initials";
 import { listAllSitters } from "@/lib/sitter/helpers";
 import { calculatePrice, formatEuros } from "@/lib/booking/pricing";
 
@@ -10,8 +10,8 @@ export const metadata: Metadata = {
   description: "Parcours tous les dog-sitters ARKO disponibles dans Arles.",
 };
 
+// Tints used for the gradient placeholder behind a sitter card when no photo.
 const FALLBACK_COLLARS = ["#3C582E", "#1B2A49", "#2E7D5B", "#F4A261"];
-const FALLBACK_MOODS: ArkoMood[] = ["happy", "waggy", "alert", "sleepy"];
 const ENTRY_PRICE = formatEuros(calculatePrice({ duration: 1 }).price_cents);
 
 function displayName(full: string | null): string {
@@ -96,7 +96,6 @@ type SitterCardProps = {
 
 function SitterCard({ sitter, index }: SitterCardProps) {
   const collar = FALLBACK_COLLARS[index % FALLBACK_COLLARS.length]!;
-  const mood = FALLBACK_MOODS[index % FALLBACK_MOODS.length]!;
   const id = sitter.id ?? "";
 
   return (
@@ -116,7 +115,7 @@ function SitterCard({ sitter, index }: SitterCardProps) {
           justifyContent: "center",
         }}
       >
-        {!sitter.avatar_url && <Arko size={140} mood={mood} collar={collar} />}
+        {!sitter.avatar_url && <Initials name={sitter.full_name} size={140} />}
       </div>
       <div style={{ padding: "var(--space-5)", display: "flex", flexDirection: "column", flex: 1, gap: 8 }}>
         <div style={{ fontWeight: 600, fontSize: 16 }}>{displayName(sitter.full_name)}</div>

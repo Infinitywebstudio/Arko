@@ -3,7 +3,7 @@ import Link from "next/link";
 
 import { requireRole } from "@/lib/auth/helpers";
 import { createClient } from "@/lib/supabase/server";
-import { Arko } from "@/components/mascot";
+import { Initials } from "@/components/Initials";
 import { formatEuros } from "@/lib/booking/pricing";
 import ActiveCard from "@/components/booking/sitter/ActiveCard";
 import type { Database } from "@/lib/supabase/database.types";
@@ -232,11 +232,7 @@ function HistoryRow({ booking, now }: { booking: Booking; now: number }) {
           justifyContent: "center",
         }}
       >
-        <Arko
-          size={28}
-          mood={booking.status === "completed" ? "waggy" : "sleepy"}
-          collar="#1B2A49"
-        />
+        <Initials name={booking.client_full_name} size={36} />
       </div>
       <div style={{ flex: 1, minWidth: 200 }}>
         <div style={{ fontWeight: 600, fontSize: 13 }}>{booking.client_full_name}</div>

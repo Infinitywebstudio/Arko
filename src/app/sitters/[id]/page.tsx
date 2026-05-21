@@ -8,7 +8,8 @@ import {
   getSitterBadges,
   getSitterPublic,
 } from "@/lib/sitter/helpers";
-import { Arko, Icon } from "@/components/mascot";
+import { Icon } from "@/components/mascot";
+import { Initials } from "@/components/Initials";
 import type { Database } from "@/lib/supabase/database.types";
 
 type BadgeKind = Database["public"]["Enums"]["sitter_badge_kind"];
@@ -105,7 +106,7 @@ export default async function SitterProfilePage({
               style={{ width: "100%", height: "100%", objectFit: "cover" }}
             />
           ) : (
-            <Arko size={110} mood="happy" />
+            <Initials name={sitter.full_name} size={110} />
           )}
         </div>
         <div style={{ flex: 1, minWidth: 240 }}>

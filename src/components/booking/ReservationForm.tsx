@@ -5,7 +5,8 @@ import { useMemo, useState, useTransition } from "react";
 import { createBookingAction } from "@/lib/booking/actions";
 import { calculatePrice, formatEuros, type Duration } from "@/lib/booking/pricing";
 import { ZONES, zoneLabel } from "@/lib/zones";
-import { Arko, Icon } from "@/components/mascot";
+import { Icon } from "@/components/mascot";
+import { Initials } from "@/components/Initials";
 
 const PARIS_TZ = "Europe/Paris";
 
@@ -210,7 +211,7 @@ export default function ReservationForm({ sitter, slots, clientName }: Props) {
             // eslint-disable-next-line @next/next/no-img-element -- remote Supabase URL
             <img src={sitter.avatar_url} alt={sitter.full_name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
           ) : (
-            <Arko size={52} mood="happy" />
+            <Initials name={sitter.full_name} size={64} />
           )}
         </div>
         <div>

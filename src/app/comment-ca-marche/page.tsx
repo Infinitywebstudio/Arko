@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { HomeNav, HomeFooter } from "@/components/homepage";
-import { Icon, Paw, type IconName } from "@/components/mascot";
+import { Icon, type IconName } from "@/components/mascot";
 import { getCurrentUser, navUserFrom } from "@/lib/auth/helpers";
 
 export const metadata: Metadata = {
@@ -94,9 +94,6 @@ export default async function CommentCaMarchePage() {
           overflow: "hidden",
         }}
       >
-        <div style={{ position: "absolute", top: -40, right: -30, opacity: 0.1 }}>
-          <Paw size={220} color="white" />
-        </div>
         <div style={{ position: "relative", maxWidth: 760, margin: "0 auto" }}>
           <div style={{ ...eyebrow, color: "var(--peach-100)" }}>
             Comment ça marche

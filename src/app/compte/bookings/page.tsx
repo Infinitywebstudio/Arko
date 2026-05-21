@@ -3,7 +3,8 @@ import Link from "next/link";
 
 import { requireRole } from "@/lib/auth/helpers";
 import { createClient } from "@/lib/supabase/server";
-import { Arko, Icon } from "@/components/mascot";
+import { Icon } from "@/components/mascot";
+import { Initials } from "@/components/Initials";
 import { formatEuros } from "@/lib/booking/pricing";
 import { zoneLabel } from "@/lib/zones";
 import { telLink, whatsappLink } from "@/lib/contact";
@@ -237,7 +238,7 @@ function BookingCard({ booking, cancellable }: { booking: Booking; cancellable: 
             // eslint-disable-next-line @next/next/no-img-element
             <img src={booking.sitter.avatar_url} alt={sitterName} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
           ) : (
-            <Arko size={40} mood="happy" />
+            <Initials name={sitterName} size={48} />
           )}
         </div>
         <div style={{ flex: 1, minWidth: 220 }}>

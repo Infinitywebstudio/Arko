@@ -6,7 +6,7 @@ import { requireUser } from "@/lib/auth/helpers";
 import { createClient } from "@/lib/supabase/server";
 import { formatEuros } from "@/lib/booking/pricing";
 import { zoneLabel } from "@/lib/zones";
-import { Arko, Icon } from "@/components/mascot";
+import { Icon } from "@/components/mascot";
 
 const PARIS_TZ = "Europe/Paris";
 
@@ -91,7 +91,11 @@ export default async function ReservationThankYouPage({
             justifyContent: "center",
           }}
         >
-          {stillPending ? <Arko size={72} mood="alert" /> : <Arko size={72} mood="happy" />}
+          {stillPending ? (
+            <Icon name="clock" size={44} color="var(--coral-600)" />
+          ) : (
+            <Icon name="check" size={48} color="var(--success-700)" />
+          )}
         </div>
 
         <div

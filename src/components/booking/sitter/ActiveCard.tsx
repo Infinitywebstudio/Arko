@@ -6,7 +6,8 @@ import { closeBookingAction, cancelBookingBySitterAction } from "@/lib/booking/a
 import { formatEuros } from "@/lib/booking/pricing";
 import { telLink, whatsappLink } from "@/lib/contact";
 import { zoneLabel } from "@/lib/zones";
-import { Arko, Icon } from "@/components/mascot";
+import { Icon } from "@/components/mascot";
+import { Initials } from "@/components/Initials";
 
 const PARIS_TZ = "Europe/Paris";
 
@@ -134,7 +135,7 @@ export default function ActiveCard({ booking }: { booking: SitterBookingView }) 
             flexShrink: 0,
           }}
         >
-          <Arko size={40} mood={phase === "during" ? "waggy" : "happy"} collar="#2E7D5B" />
+          <Initials name={booking.client_full_name} size={48} />
         </div>
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ fontWeight: 600, fontSize: 15 }}>{booking.client_full_name}</div>
