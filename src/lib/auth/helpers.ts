@@ -14,6 +14,33 @@ export type AuthSession = {
   profile: Profile;
 };
 
+/** Everything the public nav / dashboard header need to render the logged-in
+ *  account control (UserMenu), derived from the session's role. */
+export type NavUser = {
+  /** Landing page for the user's space (mobile icon + "Mon espace" links). */
+  spaceHref: string;
+  settingsHref: string;
+  /** Sitters have a dedicated profile page; clients manage it in settings. */
+  profileHref?: string;
+  fullName: string;
+  email: string;
+  avatarUrl?: string | null;
+};
+
+/** Maps a session to the nav-facing user shape, or null when logged out. */
+export function navUserFrom(session: AuthSession | null): NavUser | null {
+  if (!session) return null;
+  const isSitter = session.profile.role === "sitter";
+  return {
+    spaceHref: isSitter ? "/sitter" : "/compte",
+    settingsHref: isSitter ? "/sitter/parametres" : "/compte/parametres",
+    profileHref: isSitter ? "/sitter/profil" : undefined,
+    fullName: session.profile.full_name,
+    email: session.email,
+    avatarUrl: session.profile.avatar_url,
+  };
+}
+
 /**
  * Returns the currently authenticated user with their profile, or null.
  * Calls supabase.auth.getUser() (verified, not just decoded) - never trust

@@ -1,10 +1,11 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 import { signOutAction } from "@/lib/auth/actions";
+import { Avatar, LogoutIcon, UserMenu, getInitials } from "./UserMenu";
 
 export type DashboardNavLink = {
   href: string;
@@ -47,18 +48,14 @@ export function DashboardHeader({
 }: Props) {
   const pathname = usePathname();
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [menuOpen, setMenuOpen] = useState(false);
-  const menuRef = useRef<HTMLDivElement>(null);
 
-  // Closing on navigation is handled by per-link onClick (below) instead of
-  // an effect on `pathname`, because setting state in an effect triggers
-  // the react-hooks/set-state-in-effect lint and React's cascading-render
-  // warning. Same-route clicks (clicking the link for the current page)
-  // never fire onClick-after-pathname-change anyway - they fire on click,
-  // which is what we want.
+  // Closing the drawer on navigation is handled by per-link onClick (below)
+  // instead of an effect on `pathname`, because setting state in an effect
+  // triggers the react-hooks/set-state-in-effect lint and React's
+  // cascading-render warning. The desktop user dropdown manages its own state
+  // inside UserMenu.
   const closeAll = useCallback(() => {
     setDrawerOpen(false);
-    setMenuOpen(false);
   }, []);
 
   // Lock body scroll while drawer is open.
@@ -71,32 +68,16 @@ export function DashboardHeader({
     };
   }, [drawerOpen]);
 
-  // Escape closes drawer and dropdown.
+  // Escape closes the drawer (the desktop dropdown handles its own Escape).
   useEffect(() => {
-    if (!drawerOpen && !menuOpen) return;
+    if (!drawerOpen) return;
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        setDrawerOpen(false);
-        setMenuOpen(false);
-      }
+      if (e.key === "Escape") setDrawerOpen(false);
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [drawerOpen, menuOpen]);
+  }, [drawerOpen]);
 
-  // Click outside closes the desktop dropdown.
-  useEffect(() => {
-    if (!menuOpen) return;
-    const onDown = (e: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
-        setMenuOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", onDown);
-    return () => document.removeEventListener("mousedown", onDown);
-  }, [menuOpen]);
-
-  const firstName = fullName.trim().split(/\s+/)[0] || fullName;
   const initials = getInitials(fullName);
   // Pick the single most specific nav match so the root link (e.g. "/compte")
   // doesn't light up on a sub-route ("/compte/bookings") in addition to the
@@ -225,148 +206,16 @@ export function DashboardHeader({
 
           <div style={{ flex: 1 }} />
 
-          {/* Desktop user dropdown - hidden < 860px via CSS. */}
-          <div
-            ref={menuRef}
-            className="dash-nav-user"
-            style={{ position: "relative", display: "flex" }}
-          >
-            <button
-              type="button"
-              aria-haspopup="menu"
-              aria-expanded={menuOpen}
-              aria-label="Ouvrir le menu utilisateur"
-              onClick={() => setMenuOpen((v) => !v)}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 10,
-                padding: "4px 10px 4px 4px",
-                background: menuOpen ? "var(--ink-100)" : "transparent",
-                border: "1px solid var(--ink-200)",
-                borderRadius: 999,
-                cursor: "pointer",
-                transition: "background 0.15s",
-              }}
-            >
-              <Avatar size={32} avatarUrl={avatarUrl} initials={initials} />
-              <span
-                style={{
-                  fontFamily: "var(--font-mono)",
-                  fontSize: 13,
-                  fontWeight: 600,
-                  color: "var(--ink-800)",
-                  maxWidth: 120,
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
-                  whiteSpace: "nowrap",
-                }}
-              >
-                {firstName}
-              </span>
-              <ChevronIcon open={menuOpen} />
-            </button>
-
-            {menuOpen && (
-              <div
-                role="menu"
-                style={{
-                  position: "absolute",
-                  top: "calc(100% + 8px)",
-                  right: 0,
-                  minWidth: 260,
-                  background: "rgba(247, 244, 236, 0.96)",
-                  backdropFilter: "blur(20px) saturate(180%)",
-                  WebkitBackdropFilter: "blur(20px) saturate(180%)",
-                  border: "1px solid rgba(216, 213, 200, 0.6)",
-                  borderRadius: 14,
-                  boxShadow: "0 12px 36px rgba(15, 19, 16, 0.14)",
-                  padding: 6,
-                  zIndex: 60,
-                  overflow: "hidden",
-                }}
-              >
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 12,
-                    padding: "10px 12px",
-                    borderBottom: "1px solid rgba(216, 213, 200, 0.6)",
-                    marginBottom: 6,
-                  }}
-                >
-                  <Avatar size={40} avatarUrl={avatarUrl} initials={initials} />
-                  <div style={{ minWidth: 0 }}>
-                    <div
-                      style={{
-                        fontSize: 14,
-                        fontWeight: 600,
-                        color: "var(--ink-800)",
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
-                        whiteSpace: "nowrap",
-                      }}
-                    >
-                      {fullName}
-                    </div>
-                    <div
-                      style={{
-                        fontSize: 12,
-                        color: "var(--ink-500)",
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
-                        whiteSpace: "nowrap",
-                      }}
-                    >
-                      {email}
-                    </div>
-                  </div>
-                </div>
-
-                {profileHref && (
-                  <MenuLink href={profileHref} icon={<UserIcon />} onNavigate={closeAll}>
-                    Mon profil
-                  </MenuLink>
-                )}
-                <MenuLink href={settingsHref} icon={<GearIcon />} onNavigate={closeAll}>
-                  Paramètres
-                </MenuLink>
-
-                <div
-                  style={{
-                    borderTop: "1px solid rgba(216, 213, 200, 0.6)",
-                    marginTop: 6,
-                    paddingTop: 6,
-                  }}
-                >
-                  <form action={signOutAction}>
-                    <button
-                      type="submit"
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 10,
-                        width: "100%",
-                        padding: "10px 12px",
-                        background: "transparent",
-                        border: "none",
-                        borderRadius: 10,
-                        fontFamily: "var(--font-mono)",
-                        fontSize: 13,
-                        fontWeight: 500,
-                        color: "var(--ink-700)",
-                        cursor: "pointer",
-                        textAlign: "left",
-                      }}
-                    >
-                      <LogoutIcon />
-                      Déconnexion
-                    </button>
-                  </form>
-                </div>
-              </div>
-            )}
+          {/* Desktop user dropdown - hidden < 860px via CSS. Shared with the
+              public marketing nav via UserMenu. */}
+          <div className="dash-nav-user" style={{ display: "flex" }}>
+            <UserMenu
+              fullName={fullName}
+              email={email}
+              avatarUrl={avatarUrl}
+              settingsHref={settingsHref}
+              profileHref={profileHref}
+            />
           </div>
         </div>
       </header>
@@ -550,99 +399,6 @@ export function DashboardHeader({
   );
 }
 
-function MenuLink({
-  href,
-  icon,
-  children,
-  onNavigate,
-}: {
-  href: string;
-  icon: React.ReactNode;
-  children: React.ReactNode;
-  onNavigate: () => void;
-}) {
-  return (
-    <Link
-      href={href}
-      role="menuitem"
-      onClick={onNavigate}
-      style={{
-        display: "flex",
-        alignItems: "center",
-        gap: 10,
-        padding: "10px 12px",
-        borderRadius: 10,
-        fontFamily: "var(--font-mono)",
-        fontSize: 13,
-        fontWeight: 500,
-        color: "var(--ink-700)",
-        textDecoration: "none",
-      }}
-    >
-      {icon}
-      {children}
-    </Link>
-  );
-}
-
-function Avatar({
-  size,
-  avatarUrl,
-  initials,
-}: {
-  size: number;
-  avatarUrl?: string | null;
-  initials: string;
-}) {
-  if (avatarUrl) {
-    return (
-      // eslint-disable-next-line @next/next/no-img-element
-      <img
-        src={avatarUrl}
-        alt=""
-        width={size}
-        height={size}
-        style={{
-          width: size,
-          height: size,
-          borderRadius: "50%",
-          objectFit: "cover",
-          flexShrink: 0,
-          background: "var(--peach-200)",
-        }}
-      />
-    );
-  }
-  return (
-    <span
-      aria-hidden
-      style={{
-        width: size,
-        height: size,
-        borderRadius: "50%",
-        background: "var(--coral-100)",
-        color: "var(--coral-700)",
-        display: "inline-flex",
-        alignItems: "center",
-        justifyContent: "center",
-        fontFamily: "var(--font-mono)",
-        fontSize: Math.round(size * 0.38),
-        fontWeight: 700,
-        flexShrink: 0,
-      }}
-    >
-      {initials}
-    </span>
-  );
-}
-
-function getInitials(name: string): string {
-  const parts = name.trim().split(/\s+/).filter(Boolean);
-  if (parts.length === 0) return "?";
-  if (parts.length === 1) return parts[0]!.slice(0, 2).toUpperCase();
-  return (parts[0]![0]! + parts[parts.length - 1]![0]!).toUpperCase();
-}
-
 function pickActiveHref(
   pathname: string | null,
   links: DashboardNavLink[],
@@ -691,83 +447,6 @@ function CloseIcon() {
     >
       <path d="M6 6l12 12" />
       <path d="M18 6L6 18" />
-    </svg>
-  );
-}
-
-function ChevronIcon({ open }: { open: boolean }) {
-  return (
-    <svg
-      width="14"
-      height="14"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      style={{
-        color: "var(--ink-500)",
-        transform: open ? "rotate(180deg)" : "rotate(0deg)",
-        transition: "transform 160ms ease",
-      }}
-    >
-      <path d="M6 9l6 6 6-6" />
-    </svg>
-  );
-}
-
-function UserIcon() {
-  return (
-    <svg
-      width="16"
-      height="16"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <circle cx="12" cy="8" r="4" />
-      <path d="M4 20a8 8 0 0 1 16 0" />
-    </svg>
-  );
-}
-
-function GearIcon() {
-  return (
-    <svg
-      width="16"
-      height="16"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <circle cx="12" cy="12" r="3" />
-      <path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z" />
-    </svg>
-  );
-}
-
-function LogoutIcon() {
-  return (
-    <svg
-      width="16"
-      height="16"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-      <path d="M16 17l5-5-5-5" />
-      <path d="M21 12H9" />
     </svg>
   );
 }

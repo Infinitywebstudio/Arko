@@ -3,6 +3,10 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 
+import { signOutAction } from "@/lib/auth/actions";
+import type { NavUser } from "@/lib/auth/helpers";
+import { UserMenu } from "@/components/account/UserMenu";
+
 /**
  * Sticky top navigation for the marketing homepage. Starts transparent so
  * the hero photo bleeds under it; flips to a solid cream/white surface once
@@ -19,7 +23,11 @@ import Link from "next/link";
  */
 const SCROLL_THRESHOLD = 80;
 
-export function HomeNav() {
+/** When `user` is set the visitor is authenticated: the desktop auth CTAs are
+ *  replaced by the shared UserMenu dropdown, the mobile icon points at their
+ *  space, and the drawer shows "Mon espace" + logout. Resolved server-side
+ *  (navUserFrom) by the page rendering HomeNav. */
+export function HomeNav({ user }: { user?: NavUser | null }) {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
 
@@ -143,9 +151,9 @@ export function HomeNav() {
           {/* Mobile-only quick access to auth on the right edge of the bar.
               Hidden ≥ 860px where the inline CTAs take over. */}
           <Link
-            href="/connexion"
+            href={user ? user.spaceHref : "/connexion"}
             className="home-nav-person"
-            aria-label="Connexion ou inscription"
+            aria-label={user ? "Mon espace" : "Connexion ou inscription"}
             style={{
               display: "none",
               width: 40,
@@ -167,28 +175,40 @@ export function HomeNav() {
             className="home-nav-ctas"
             style={{ display: "flex", gap: 10, alignItems: "center" }}
           >
-            <Link
-              href="/connexion"
-              className="btn btn-ghost btn-sm"
-              style={{ color: textColor, transition: "color 220ms ease" }}
-            >
-              Connexion
-            </Link>
-            <Link
-              href="/inscription"
-              className="btn btn-primary btn-sm btn-pill"
-              style={
-                scrolled
-                  ? undefined
-                  : {
-                      background: "white",
-                      color: "var(--coral-600)",
-                      boxShadow: "0 8px 24px rgba(0,0,0,0.15)",
-                    }
-              }
-            >
-              S&apos;inscrire
-            </Link>
+            {user ? (
+              <UserMenu
+                fullName={user.fullName}
+                email={user.email}
+                avatarUrl={user.avatarUrl}
+                settingsHref={user.settingsHref}
+                profileHref={user.profileHref}
+              />
+            ) : (
+              <>
+                <Link
+                  href="/connexion"
+                  className="btn btn-ghost btn-sm"
+                  style={{ color: textColor, transition: "color 220ms ease" }}
+                >
+                  Connexion
+                </Link>
+                <Link
+                  href="/inscription"
+                  className="btn btn-primary btn-sm btn-pill"
+                  style={
+                    scrolled
+                      ? undefined
+                      : {
+                          background: "white",
+                          color: "var(--coral-600)",
+                          boxShadow: "0 8px 24px rgba(0,0,0,0.15)",
+                        }
+                  }
+                >
+                  S&apos;inscrire
+                </Link>
+              </>
+            )}
           </div>
         </div>
       </nav>
@@ -273,22 +293,46 @@ export function HomeNav() {
 
         {/* CTAs first - Uber Eats pattern, the most actionable items at the top */}
         <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-          <Link
-            href="/inscription"
-            className="btn btn-primary"
-            onClick={() => setOpen(false)}
-            style={{ height: 48, width: "100%" }}
-          >
-            S&apos;inscrire
-          </Link>
-          <Link
-            href="/connexion"
-            className="btn btn-outline"
-            onClick={() => setOpen(false)}
-            style={{ height: 48, width: "100%" }}
-          >
-            Connexion
-          </Link>
+          {user ? (
+            <>
+              <Link
+                href={user.spaceHref}
+                className="btn btn-primary"
+                onClick={() => setOpen(false)}
+                style={{ height: 48, width: "100%" }}
+              >
+                Mon espace
+              </Link>
+              <form action={signOutAction}>
+                <button
+                  type="submit"
+                  className="btn btn-outline"
+                  style={{ height: 48, width: "100%" }}
+                >
+                  Déconnexion
+                </button>
+              </form>
+            </>
+          ) : (
+            <>
+              <Link
+                href="/inscription"
+                className="btn btn-primary"
+                onClick={() => setOpen(false)}
+                style={{ height: 48, width: "100%" }}
+              >
+                S&apos;inscrire
+              </Link>
+              <Link
+                href="/connexion"
+                className="btn btn-outline"
+                onClick={() => setOpen(false)}
+                style={{ height: 48, width: "100%" }}
+              >
+                Connexion
+              </Link>
+            </>
+          )}
         </div>
 
         {/* Nav links */}

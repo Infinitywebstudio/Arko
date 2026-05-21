@@ -27,8 +27,17 @@ type Props = {
  * keeps "Profil" highlighted even on a deep edit page) when `matchPrefix` is
  * true on the tab; otherwise it's strict equality.
  */
+/** Auth-flow routes where the bottom bar is noise (the page is a focused form
+ *  and its own "Connexion" tab would be redundant). Hidden there. */
+const HIDE_ON_PREFIXES = ["/connexion", "/inscription"];
+
 export default function BottomNav({ tabs }: Props) {
   const pathname = usePathname() ?? "";
+
+  const hidden = HIDE_ON_PREFIXES.some(
+    (p) => pathname === p || pathname.startsWith(`${p}/`),
+  );
+  if (hidden) return null;
 
   return (
     <nav className="bottom-nav" aria-label="Navigation principale">

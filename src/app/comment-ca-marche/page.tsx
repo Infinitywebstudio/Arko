@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { HomeNav, HomeFooter } from "@/components/homepage";
 import { Icon, Paw, type IconName } from "@/components/mascot";
+import { getCurrentUser, navUserFrom } from "@/lib/auth/helpers";
 
 export const metadata: Metadata = {
   title: "Comment ça marche · ARKO",
@@ -75,10 +76,11 @@ const eyebrow = {
   fontWeight: 600,
 };
 
-export default function CommentCaMarchePage() {
+export default async function CommentCaMarchePage() {
+  const navUser = navUserFrom(await getCurrentUser());
   return (
     <>
-      <HomeNav />
+      <HomeNav user={navUser} />
 
       {/* Hero - colored background so the transparent fixed nav stays legible */}
       <section

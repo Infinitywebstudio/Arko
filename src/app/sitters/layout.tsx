@@ -1,8 +1,10 @@
 import Link from "next/link";
 
-import { Arko } from "@/components/mascot";
+import { getCurrentUser, navUserFrom } from "@/lib/auth/helpers";
+import { UserMenu } from "@/components/account/UserMenu";
 
-export default function SittersLayout({ children }: { children: React.ReactNode }) {
+export default async function SittersLayout({ children }: { children: React.ReactNode }) {
+  const navUser = navUserFrom(await getCurrentUser());
   return (
     <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
       <header
@@ -43,12 +45,24 @@ export default function SittersLayout({ children }: { children: React.ReactNode 
             </span>
           </Link>
           <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
-            <Link href="/connexion" className="btn btn-ghost btn-sm">
-              Connexion
-            </Link>
-            <Link href="/inscription" className="btn btn-primary btn-sm btn-pill">
-              S&apos;inscrire
-            </Link>
+            {navUser ? (
+              <UserMenu
+                fullName={navUser.fullName}
+                email={navUser.email}
+                avatarUrl={navUser.avatarUrl}
+                settingsHref={navUser.settingsHref}
+                profileHref={navUser.profileHref}
+              />
+            ) : (
+              <>
+                <Link href="/connexion" className="btn btn-ghost btn-sm">
+                  Connexion
+                </Link>
+                <Link href="/inscription" className="btn btn-primary btn-sm btn-pill">
+                  S&apos;inscrire
+                </Link>
+              </>
+            )}
           </div>
         </div>
       </header>
