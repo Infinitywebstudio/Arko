@@ -672,12 +672,11 @@ export function HomeCTA() {
 export function HomeFooter() {
   const cols: { t: string; l: { label: string; href?: string }[] }[] = [
     {
-      t: "Produit",
+      t: "Navigation",
       l: [
         { label: "Trouver un sitter" },
         { label: "Devenir sitter" },
         { label: "Tarifs" },
-        { label: "Villes disponibles" },
       ],
     },
     {
