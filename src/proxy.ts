@@ -38,8 +38,13 @@ export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Gate protected routes - redirect unauthenticated users to /connexion
-  // and remember where they wanted to go.
-  if (!user && PROTECTED_PREFIXES.some((p) => pathname.startsWith(p))) {
+  // and remember where they wanted to go. Match on path segments so the
+  // "/sitter" guard doesn't also swallow the public "/sitters" listing
+  // (plain startsWith("/sitter") matches "/sitters" too).
+  const isProtected = PROTECTED_PREFIXES.some(
+    (p) => pathname === p || pathname.startsWith(p + "/"),
+  );
+  if (!user && isProtected) {
     const url = request.nextUrl.clone();
     url.pathname = "/connexion";
     url.searchParams.set("redirect", pathname);
