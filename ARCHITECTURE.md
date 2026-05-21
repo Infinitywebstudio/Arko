@@ -184,7 +184,7 @@ Exécution quotidienne à 04:00 UTC (06:00 Paris). Une passe :
 
 Flag d'env `DEMO_MODE=true` court-circuite Stripe et Resend pour démonstration sans comptes externes :
 
-- Booking créé → status auto-`pending_acceptance` (skip Checkout)
+- Booking créé → status auto-`confirmed` (skip Checkout)
 - Refunds → status flippé sans appel API Stripe
 - Emails → `console.info` au lieu d'envoi
 
@@ -199,7 +199,7 @@ Flag d'env `DEMO_MODE=true` court-circuite Stripe et Resend pour démonstration 
 Toutes les tables `public.*` ont RLS activée. Politiques résumées :
 
 - **Profils** : utilisateur lit son propre profil ; un client lit le profil d'un sitter uniquement s'il a une booking active avec lui (incluant le téléphone) ; sitter listing public passe par la vue `sitters_public` qui n'expose ni téléphone ni email
-- **Bookings** : le client lit/crée/annule ses propres bookings ; le sitter lit/met à jour les siens (accept/refuse/close)
+- **Bookings** : le client lit/crée/annule ses propres bookings ; le sitter lit/met à jour les siens (annulation avant le début + clôture)
 - **Storage** : politiques de bucket enforcent que `(storage.foldername(name))[1] = auth.uid()::text` — chaque user ne touche que son propre dossier
 - **service_role** : utilisé exclusivement côté serveur pour les opérations admin (webhooks, crons, suppression compte). **Jamais exposé côté navigateur**.
 

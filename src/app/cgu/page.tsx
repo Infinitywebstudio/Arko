@@ -71,10 +71,10 @@ export default function CGUPage() {
         >
           En attendant, pour toute question contractuelle, écris-nous à{" "}
           <a
-            href="mailto:hello@arko.app"
+            href="mailto:hello@arko.life"
             style={{ color: "var(--coral-600)", textDecoration: "underline" }}
           >
-            hello@arko.app
+            hello@arko.life
           </a>
           .
         </p>

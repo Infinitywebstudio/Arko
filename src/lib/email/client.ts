@@ -19,7 +19,7 @@ export function getResend(): Resend {
 /**
  * Configured "from" header for transactional emails. The default points to
  * Resend's onboarding sender so dev never silently 401s; in prod we override
- * to a verified domain like `bookings@arko.fr`.
+ * to a verified domain like `bookings@arko.life`.
  */
 export function emailFrom(): string {
   return process.env.RESEND_FROM_EMAIL ?? "ARKO <onboarding@resend.dev>";

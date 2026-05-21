@@ -72,10 +72,10 @@ export default function ConfidentialitePage() {
         >
           Pour toute question RGPD, écris-nous à{" "}
           <a
-            href="mailto:privacy@arko.app"
+            href="mailto:privacy@arko.life"
             style={{ color: "var(--coral-600)", textDecoration: "underline" }}
           >
-            privacy@arko.app
+            privacy@arko.life
           </a>
           .
         </p>
