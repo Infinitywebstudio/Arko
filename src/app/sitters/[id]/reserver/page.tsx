@@ -40,7 +40,7 @@ export default async function ReservationPage({
       style={{
         maxWidth: 720,
         margin: "0 auto",
-        padding: "var(--space-12) var(--space-6)",
+        padding: "var(--space-5) var(--space-6) var(--space-12)",
       }}
     >
       <ReservationForm
