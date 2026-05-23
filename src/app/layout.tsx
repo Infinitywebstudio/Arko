@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import BottomNavRoot from "@/components/BottomNavRoot";
+import CookieConsent from "@/components/CookieConsent";
 
 // Saira Condensed (the brand title face) is loaded via @import in globals.css.
 // next/font helpers emit a broken `unicode-range: U+??` for the basic-Latin
@@ -34,6 +35,7 @@ export default function RootLayout({
       <body>
         {children}
         <BottomNavRoot />
+        <CookieConsent />
       </body>
     </html>
   );

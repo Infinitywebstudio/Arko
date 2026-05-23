@@ -1,0 +1,135 @@
+/*
+ * ARKO brand overrides for vanilla-cookieconsent v3.
+ * Loaded AFTER cookieconsent.css so these win the cascade.
+ * Token names mirror src/app/globals.css (--coral-*, --peach-*, --ink-*).
+ */
+
+#cc-main {
+  /* Palette */
+  --cc-bg: #ffffff;
+  --cc-primary-color: var(--ink-900);
+  --cc-secondary-color: var(--ink-600);
+  --cc-border-radius: 16px;
+  --cc-modal-border-radius: 20px;
+
+  /* Primary action — "Tout accepter" (brand vert ARKO) */
+  --cc-btn-primary-bg: var(--coral-500);
+  --cc-btn-primary-color: #ffffff;
+  --cc-btn-primary-border-color: var(--coral-500);
+  --cc-btn-primary-hover-bg: var(--coral-600);
+  --cc-btn-primary-hover-color: #ffffff;
+  --cc-btn-primary-hover-border-color: var(--coral-600);
+
+  /* Secondary actions — "Tout refuser", "Personnaliser", "Enregistrer" */
+  --cc-btn-secondary-bg: var(--peach-50);
+  --cc-btn-secondary-color: var(--ink-900);
+  --cc-btn-secondary-border-color: var(--ink-200);
+  --cc-btn-secondary-hover-bg: var(--peach-100);
+  --cc-btn-secondary-hover-color: var(--ink-900);
+  --cc-btn-secondary-hover-border-color: var(--ink-300);
+
+  /* Toggles (catégories) */
+  --cc-toggle-bg-on: var(--coral-500);
+  --cc-toggle-bg-off: var(--ink-300);
+  --cc-toggle-bg-readonly: var(--coral-200);
+  --cc-toggle-knob-bg: #ffffff;
+  --cc-toggle-knob-icon-color: var(--coral-500);
+
+  /* Catégorie cards (modale Préférences) */
+  --cc-cookie-category-block-bg: var(--peach-50);
+  --cc-cookie-category-block-border: var(--ink-200);
+  --cc-cookie-category-block-bg-hover: var(--peach-100);
+  --cc-cookie-category-block-border-hover: var(--ink-300);
+  --cc-cookie-category-expanded-block-bg: var(--peach-50);
+  --cc-cookie-category-expanded-block-hover-bg: var(--peach-100);
+
+  /* Modale + dividers + footer */
+  --cc-separator-border-color: var(--ink-200);
+  --cc-footer-bg: var(--peach-50);
+  --cc-footer-color: var(--ink-600);
+  --cc-footer-border-color: var(--ink-200);
+
+  /* Overlay */
+  --cc-overlay-bg: rgba(15, 19, 16, 0.5);
+
+  /* Typo */
+  font-family: var(--font-mono), ui-monospace, "SF Mono", Menlo, monospace !important;
+}
+
+/* Boutons : forcer la police mono et un poids cohérent */
+#cc-main .pm__btn,
+#cc-main .cm__btn {
+  font-family: var(--font-mono), ui-monospace, monospace !important;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+/* Titres : police Saira Condensed comme le reste du site */
+#cc-main .cm__title,
+#cc-main .pm__title,
+#cc-main .pm__section-title {
+  font-family: var(--font-display), system-ui, sans-serif !important;
+  color: var(--ink-900);
+  font-weight: 400;
+  letter-spacing: -0.01em;
+}
+
+/* Footer (consent modal) : transformer le lien "Politique de confidentialité"
+   en lien visible — coral souligné, plus un fond crème pour qu'il ressorte. */
+#cc-main .cm__desc a,
+#cc-main .cm__footer a,
+#cc-main .pm__section a {
+  color: var(--coral-600) !important;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  font-weight: 600;
+}
+
+#cc-main .cm__desc a:hover,
+#cc-main .cm__footer a:hover,
+#cc-main .pm__section a:hover {
+  color: var(--coral-500) !important;
+  background: transparent !important;
+  text-decoration: underline;
+}
+
+/* "Tout refuser" (consent modal) : rendu en lien discret pour le rendre moins
+   visible que "Tout accepter" (l'utilisateur garde la liberté mais on n'incite
+   pas au refus aveugle — recommandation CNIL : refus aussi simple que l'accord,
+   pas forcément aussi visuel). */
+#cc-main .cm__btn[data-role="necessary"],
+#cc-main .cm__btn[data-role="show"] {
+  background: transparent !important;
+  border: 1px solid transparent !important;
+  color: var(--ink-500) !important;
+  font-weight: 500 !important;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  box-shadow: none !important;
+  padding: 4px 8px !important;
+  min-height: 0 !important;
+}
+
+/* Resserre l'espacement entre "Tout refuser" et "Personnaliser" (groupe
+   secondaire) puisqu'ils sont en lien discret, plus en boutons pleins. */
+#cc-main .cm__btn-group {
+  gap: 2px !important;
+}
+
+#cc-main .cm__btn[data-role="necessary"]:hover,
+#cc-main .cm__btn[data-role="show"]:hover {
+  background: transparent !important;
+  border-color: transparent !important;
+  color: var(--ink-700) !important;
+  text-decoration: underline;
+}
+
+/* Sections d'info (sans toggle de catégorie, ex. "En savoir plus") : pas de
+   carte interactive — on retire la bordure, le fond et le hover. */
+#cc-main .pm__section:not(.pm__section--toggle),
+#cc-main .pm__section:not(.pm__section--toggle):hover {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+

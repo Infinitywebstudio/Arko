@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Icon } from "./mascot";
+import CookieSettingsLink from "./CookieSettingsLink";
 import type { Database } from "@/lib/supabase/database.types";
 
 type SitterPublic = Database["public"]["Views"]["sitters_public"]["Row"];
@@ -112,7 +113,6 @@ export function HomeHero() {
               style={{
                 background: "white",
                 color: "var(--coral-600)",
-                boxShadow: "0 12px 32px rgba(0,0,0,0.18)",
               }}
             >
               Trouver un sitter <Icon name="arrow" size={16} color="var(--coral-600)" />
@@ -524,14 +524,13 @@ export function HomeTrust() {
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/trust-dog.jpg"
-            alt="Chien souriant avec son maître en ville"
+            alt="Portrait d'un Border Collie noir et blanc"
             style={{
               width: "100%",
               maxWidth: 520,
               aspectRatio: "4 / 5",
               objectFit: "cover",
               borderRadius: 28,
-              boxShadow: "var(--shadow-lg)",
               display: "block",
             }}
           />
@@ -580,7 +579,6 @@ export function HomeTrust() {
                     alignItems: "center",
                     justifyContent: "center",
                     flexShrink: 0,
-                    boxShadow: "var(--shadow-sm)",
                   }}
                 >
                   <Icon name={f.i} size={20} color="var(--coral-500)" />
@@ -670,7 +668,12 @@ export function HomeFooter() {
     },
     {
       t: "Aide",
-      l: [{ label: "Centre d'aide" }, { label: "CGU" }, { label: "Confidentialité" }],
+      l: [
+        { label: "Centre d'aide" },
+        { label: "CGU" },
+        { label: "Confidentialité" },
+        { label: "__cookie-settings__" },
+      ],
     },
     {
       t: "Contact",
@@ -729,11 +732,18 @@ export function HomeFooter() {
                 {c.t}
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-2)" }}>
-                {c.l.map((item) => (
-                  <a key={item.label} href={item.href} style={{ fontFamily: "var(--font-mono)", fontSize: 13 }}>
-                    {item.label}
-                  </a>
-                ))}
+                {c.l.map((item) =>
+                  item.label === "__cookie-settings__" ? (
+                    <CookieSettingsLink
+                      key="cookie-settings"
+                      style={{ fontFamily: "var(--font-mono)", fontSize: 13 }}
+                    />
+                  ) : (
+                    <a key={item.label} href={item.href} style={{ fontFamily: "var(--font-mono)", fontSize: 13 }}>
+                      {item.label}
+                    </a>
+                  ),
+                )}
               </div>
             </div>
           ))}
