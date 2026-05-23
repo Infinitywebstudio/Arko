@@ -42,7 +42,6 @@ export default function ResetPasswordForm() {
         background: "white",
         borderRadius: 24,
         padding: "var(--space-10) var(--space-8)",
-        boxShadow: "var(--shadow-lg)",
         width: "100%",
         maxWidth: 440,
         display: "flex",

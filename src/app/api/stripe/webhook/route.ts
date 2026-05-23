@@ -6,6 +6,7 @@ import {
   sendSitterBookingNotification,
   sendClientBookingConfirmedNotification,
 } from "@/lib/email/booking";
+import { sendSitterBookingSms } from "@/lib/sms/booking";
 import { getStripe } from "@/lib/stripe/client";
 
 /**
@@ -114,8 +115,10 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session): Promis
   }
 
   // Notify both parties: the sitter has a new garde to honour, the client gets
-  // their confirmation. Both are best-effort (logged, never thrown).
+  // their confirmation. All best-effort (logged, never thrown). The sitter also
+  // gets an SMS - a higher-salience nudge than email for a time-sensitive garde.
   await sendSitterBookingNotification(bookingId);
+  await sendSitterBookingSms(bookingId);
   await sendClientBookingConfirmedNotification(bookingId);
 }
 

@@ -204,7 +204,6 @@ export function HomeApproach() {
             borderRadius: 999,
             border: "1px solid var(--ink-200)",
             padding: 4,
-            boxShadow: "var(--shadow-sm)",
           }}
         >
           <RoleTab
@@ -243,7 +242,7 @@ export function HomeApproach() {
               display: "flex",
               flexDirection: "column",
               gap: "var(--space-3)",
-              transition: "transform 220ms ease, box-shadow 220ms ease, border-color 220ms ease",
+              transition: "transform 220ms ease, border-color 220ms ease",
             }}
           >
             <div

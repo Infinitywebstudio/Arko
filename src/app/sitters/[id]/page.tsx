@@ -95,7 +95,6 @@ export default async function SitterProfilePage({
             alignItems: "center",
             justifyContent: "center",
             flexShrink: 0,
-            boxShadow: "var(--shadow-md)",
           }}
         >
           {sitter.avatar_url ? (

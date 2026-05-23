@@ -222,7 +222,9 @@ export async function createBookingAction(
       .eq("id", booking.id);
     const { sendSitterBookingNotification, sendClientBookingConfirmedNotification } =
       await import("@/lib/email/booking");
+    const { sendSitterBookingSms } = await import("@/lib/sms/booking");
     void sendSitterBookingNotification(booking.id);
+    void sendSitterBookingSms(booking.id);
     void sendClientBookingConfirmedNotification(booking.id);
     return { ok: true, redirectTo: `${siteUrl}/reservations/${booking.id}/merci` };
   }

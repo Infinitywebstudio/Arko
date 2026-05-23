@@ -118,13 +118,14 @@ export default function AvailabilityEditor({ initial }: Props) {
           return (
             <div
               key={day.dbValue}
+              className="availability-day"
               style={{
                 background: "white",
                 border: "1px solid var(--ink-200)",
                 borderRadius: 16,
                 padding: "var(--space-5)",
                 display: "grid",
-                gridTemplateColumns: "120px 1fr",
+                gridTemplateColumns: "120px minmax(0, 1fr)",
                 gap: 16,
                 alignItems: "start",
               }}
@@ -156,7 +157,7 @@ export default function AvailabilityEditor({ initial }: Props) {
                   </div>
                 ) : (
                   daySlots.map((slot) => (
-                    <div key={slot.key} style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                    <div key={slot.key} style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
                       <input
                         type="time"
                         value={slot.start_time}
@@ -257,4 +258,6 @@ const timeInput: React.CSSProperties = {
   fontSize: 13,
   color: "var(--ink-900)",
   outline: "none",
+  minWidth: 0,
+  flex: "1 1 110px",
 };

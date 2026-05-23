@@ -56,7 +56,6 @@ const cardStyle: React.CSSProperties = {
   background: "white",
   borderRadius: 24,
   padding: "var(--space-10) var(--space-8)",
-  boxShadow: "var(--shadow-lg)",
   width: "100%",
   maxWidth: 480,
   display: "flex",
@@ -85,7 +84,7 @@ const inputStyle = (hasError: boolean): React.CSSProperties => ({
   fontSize: 14,
   color: "var(--ink-900)",
   outline: "none",
-  transition: "border 0.15s, box-shadow 0.15s",
+  transition: "border 0.15s",
 });
 
 const titleStyle: React.CSSProperties = {

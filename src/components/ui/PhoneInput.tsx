@@ -293,7 +293,6 @@ export default function PhoneInput({
             background: "white",
             border: "1px solid var(--ink-300)",
             borderRadius: 12,
-            boxShadow: "var(--shadow-lg)",
             display: "flex",
             flexDirection: "column",
             overflow: "hidden",

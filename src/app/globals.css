@@ -108,13 +108,13 @@
   --radius-pill: 999px;
 
   /* === SHADOWS === */
-  --shadow-xs: 0 1px 2px rgba(20, 19, 18, 0.04);
-  --shadow-sm: 0 2px 4px rgba(20, 19, 18, 0.06), 0 1px 2px rgba(20, 19, 18, 0.04);
-  --shadow-md: 0 6px 16px rgba(20, 19, 18, 0.08), 0 2px 4px rgba(20, 19, 18, 0.04);
-  --shadow-lg: 0 16px 40px rgba(20, 19, 18, 0.12), 0 4px 8px rgba(20, 19, 18, 0.06);
-  --shadow-xl: 0 28px 60px rgba(20, 19, 18, 0.16), 0 8px 16px rgba(20, 19, 18, 0.08);
-  --shadow-coral: 0 12px 32px rgba(60, 88, 46, 0.22), 0 4px 8px rgba(60, 88, 46, 0.12);
-  --shadow-inset: inset 0 1px 2px rgba(20, 19, 18, 0.06);
+  --shadow-xs: none;
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: none;
+  --shadow-xl: none;
+  --shadow-coral: none;
+  --shadow-inset: none;
 
   /* === MOTION === */
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
@@ -159,8 +159,7 @@ img { max-width: 100%; display: block; }
   border-radius: var(--radius-md);
   cursor: pointer;
   transition: transform var(--dur-fast) var(--ease-out),
-              background var(--dur-fast) var(--ease-out),
-              box-shadow var(--dur-fast) var(--ease-out);
+              background var(--dur-fast) var(--ease-out);
   white-space: nowrap;
 }
 .btn:active { transform: translateY(1px); }
@@ -168,7 +167,6 @@ img { max-width: 100%; display: block; }
 .btn-primary {
   background: var(--coral-500);
   color: white;
-  box-shadow: var(--shadow-coral);
 }
 
 .btn-secondary { background: var(--ink-900); color: white; }
@@ -177,7 +175,6 @@ img { max-width: 100%; display: block; }
   background: white;
   color: var(--ink-900);
   border: 1px solid var(--ink-300);
-  box-shadow: var(--shadow-xs);
 }
 
 .btn-ghost { background: transparent; color: var(--ink-900); }
@@ -213,8 +210,7 @@ img { max-width: 100%; display: block; }
   border: 1px solid var(--ink-200);
   border-radius: var(--radius-lg);
   overflow: hidden;
-  transition: transform var(--dur-base) var(--ease-out),
-              box-shadow var(--dur-base) var(--ease-out);
+  transition: transform var(--dur-base) var(--ease-out);
 }
 /* .card-hover is now a no-op marker - kept to avoid editing every call site.
    Cards stay static on hover per design decision (2026-05-15). */
@@ -287,6 +283,9 @@ img { max-width: 100%; display: block; }
     flex-basis: 84vw !important;
     max-width: none !important;
   }
+  /* Sitter availability cards: stack label above slots on narrow screens
+     so the time inputs + delete button always fit inside the card. */
+  .availability-day { grid-template-columns: 1fr !important; gap: 8px !important; }
 }
 
 /* === BOTTOM NAV (mobile only) ===
@@ -313,7 +312,6 @@ img { max-width: 100%; display: block; }
     backdrop-filter: blur(24px) saturate(180%);
     border-top: 1px solid rgba(216, 213, 200, 0.5);
     padding: 8px 4px calc(8px + env(safe-area-inset-bottom)) 4px;
-    box-shadow: 0 -8px 24px rgba(15, 19, 16, 0.06);
     justify-content: space-around;
     align-items: stretch;
   }

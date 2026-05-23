@@ -114,7 +114,6 @@ export default async function SitterHomePage() {
             height: 12,
             borderRadius: 999,
             background: hasSlots ? "var(--success-500)" : "var(--ink-500)",
-            boxShadow: hasSlots ? "0 0 0 5px rgba(16, 185, 129, 0.25)" : "none",
             flexShrink: 0,
           }}
         />

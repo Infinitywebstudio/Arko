@@ -75,7 +75,6 @@ export default async function ReservationThankYouPage({
           border: "1px solid var(--ink-200)",
           borderRadius: 24,
           padding: "var(--space-10) var(--space-8)",
-          boxShadow: "var(--shadow-md)",
           textAlign: "center",
         }}
       >
