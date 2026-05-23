@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 
 import { requireRole } from "@/lib/auth/helpers";
 import { getSitterProfile } from "@/lib/sitter/helpers";
@@ -57,13 +56,34 @@ export default async function SitterProfilePage() {
           }}
         >
           Ces informations sont visibles par les clients qui cherchent un sitter.{" "}
-          <Link
-            href={`/sitters/${session.userId}`}
-            style={{ color: "var(--coral-600)", fontWeight: 600, textDecoration: "underline" }}
-            target="_blank"
+          <span
+            aria-disabled
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 8,
+              color: "var(--ink-400)",
+              fontWeight: 600,
+              cursor: "not-allowed",
+            }}
           >
-            Voir ton profil public →
-          </Link>
+            Voir ton profil public
+            <span
+              style={{
+                fontFamily: "var(--font-mono)",
+                fontSize: 9,
+                fontWeight: 700,
+                letterSpacing: "0.06em",
+                textTransform: "uppercase",
+                color: "var(--ink-400)",
+                background: "var(--ink-100)",
+                padding: "2px 8px",
+                borderRadius: 8,
+              }}
+            >
+              Bientôt
+            </span>
+          </span>
         </p>
       </div>
 

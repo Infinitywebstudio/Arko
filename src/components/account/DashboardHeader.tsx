@@ -21,6 +21,8 @@ type Props = {
   settingsHref: string;
   /** Profile link (sitter has /sitter/profil; client uses /compte/parametres). */
   profileHref?: string;
+  /** Availability link (sitter only). */
+  availabilityHref?: string;
   /** Display name + email shown in the dropdown header and drawer user block. */
   fullName: string;
   email: string;
@@ -39,6 +41,7 @@ export function DashboardHeader({
   navLinks,
   settingsHref,
   profileHref,
+  availabilityHref,
   fullName,
   email,
   avatarUrl,
@@ -76,10 +79,16 @@ export function DashboardHeader({
   }, [drawerOpen]);
 
   const initials = getInitials(fullName);
-  // Pick the single most specific nav match so the root link (e.g. "/compte")
-  // doesn't light up on a sub-route ("/compte/bookings") in addition to the
-  // child link.
-  const activeHref = pickActiveHref(pathname, navLinks);
+  // Pick the single most specific match across the primary nav AND the
+  // secondary "compte" links — otherwise "/sitter" (Vue générale) would also
+  // light up while on "/sitter/disponibilites" because startsWith matches.
+  const allHrefs = [
+    ...navLinks.map((l) => l.href),
+    ...(profileHref ? [profileHref] : []),
+    ...(availabilityHref ? [availabilityHref] : []),
+    settingsHref,
+  ];
+  const activeHref = pickActiveHref(pathname, allHrefs);
 
   return (
     <>
@@ -220,6 +229,7 @@ export function DashboardHeader({
                 avatarUrl={avatarUrl}
                 settingsHref={settingsHref}
                 profileHref={profileHref}
+                availabilityHref={availabilityHref}
               />
             </div>
           </div>
@@ -380,6 +390,39 @@ export function DashboardHeader({
           })}
         </nav>
 
+        {/* Secondary "compte" links - same items as the desktop dropdown
+            (Mon profil / Disponibilités / Paramètres) so the drawer carries
+            the full account surface on mobile. */}
+        <nav
+          aria-label="Compte"
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            gap: 2,
+            paddingTop: 12,
+            marginTop: 4,
+            borderTop: "1px solid rgba(216, 213, 200, 0.6)",
+          }}
+        >
+          {profileHref && (
+            <DrawerSecondaryLink href={profileHref} onClick={closeAll} active={profileHref === activeHref}>
+              Mon profil
+            </DrawerSecondaryLink>
+          )}
+          {availabilityHref && (
+            <DrawerSecondaryLink
+              href={availabilityHref}
+              onClick={closeAll}
+              active={availabilityHref === activeHref}
+            >
+              Disponibilités
+            </DrawerSecondaryLink>
+          )}
+          <DrawerSecondaryLink href={settingsHref} onClick={closeAll} active={settingsHref === activeHref}>
+            Paramètres
+          </DrawerSecondaryLink>
+        </nav>
+
         <div style={{ flex: 1 }} />
 
         <form action={signOutAction} style={{ textAlign: "center", marginTop: 4 }}>
@@ -407,12 +450,12 @@ export function DashboardHeader({
 
 function pickActiveHref(
   pathname: string | null,
-  links: DashboardNavLink[],
+  hrefs: string[],
 ): string | null {
   if (!pathname) return null;
   let best: string | null = null;
   let bestLen = -1;
-  for (const { href } of links) {
+  for (const href of hrefs) {
     const matches = pathname === href || pathname.startsWith(href + "/");
     if (matches && href.length > bestLen) {
       best = href;
@@ -420,6 +463,38 @@ function pickActiveHref(
     }
   }
   return best;
+}
+
+function DrawerSecondaryLink({
+  href,
+  active,
+  onClick,
+  children,
+}: {
+  href: string;
+  active: boolean;
+  onClick: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <Link
+      href={href}
+      onClick={onClick}
+      style={{
+        display: "block",
+        padding: "10px 14px",
+        borderRadius: 10,
+        fontFamily: "var(--font-mono)",
+        fontSize: 13,
+        fontWeight: 500,
+        color: active ? "var(--coral-700)" : "var(--ink-700)",
+        background: active ? "var(--coral-50)" : "transparent",
+        textDecoration: "none",
+      }}
+    >
+      {children}
+    </Link>
+  );
 }
 
 function BurgerIcon() {

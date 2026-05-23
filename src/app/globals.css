@@ -244,11 +244,11 @@ img { max-width: 100%; display: block; }
   .home-nav-burger { display: inline-flex !important; }
   .home-nav-person { display: inline-flex !important; }
 
-  /* Dashboard header (/compte, /sitter): same swap - hide the desktop
-     link row + user dropdown, expose the hamburger that opens the
-     mobile drawer. The drawer carries the user block + nav + logout. */
+  /* Dashboard header (/compte, /sitter): hide the centered desktop link
+     row and expose the hamburger that opens the mobile drawer. The user
+     dropdown stays visible on the right so the avatar/name + dropdown
+     menu remain available on mobile (in addition to the drawer). */
   .dash-nav-links { display: none !important; }
-  .dash-nav-user { display: none !important; }
   .dash-nav-burger { display: inline-flex !important; }
 
   /* Approach steps become a horizontal snap-scroll carousel on mobile.

@@ -7,7 +7,7 @@ import { createClient } from "@/lib/supabase/server";
 import { Icon, type IconName } from "@/components/mascot";
 
 export const metadata: Metadata = {
-  title: "Aujourd'hui · ARKO Sitter",
+  title: "Vue générale · ARKO Sitter",
 };
 
 const DATE_FMT = new Intl.DateTimeFormat("fr-FR", {
@@ -48,7 +48,6 @@ export default async function SitterHomePage() {
     .gt("start_at", new Date().toISOString());
   const pendingNum = pendingCount ?? 0;
 
-  const firstName = session.profile.full_name.split(" ")[0] ?? session.profile.full_name;
   const todayLabel = DATE_FMT.format(new Date());
   const hasSlots = todaySlots.length > 0;
 
@@ -57,18 +56,6 @@ export default async function SitterHomePage() {
       {/* Greeting */}
       <header style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, flexWrap: "wrap" }}>
         <div>
-          <div
-            style={{
-              fontFamily: "var(--font-mono)",
-              fontSize: 11,
-              color: "var(--ink-500)",
-              letterSpacing: "0.08em",
-              textTransform: "uppercase",
-              marginBottom: 4,
-            }}
-          >
-            Bonjour {firstName}
-          </div>
           <h1
             style={{
               fontFamily: "var(--font-display)",
@@ -79,8 +66,10 @@ export default async function SitterHomePage() {
               margin: 0,
             }}
           >
-            Aujourd&apos;
-            <span style={{ color: "var(--coral-500)" }}>hui</span>
+            Bonjour{" "}
+            <span style={{ color: "var(--coral-500)" }}>
+              {session.profile.full_name}
+            </span>
           </h1>
           <div
             style={{
@@ -88,10 +77,10 @@ export default async function SitterHomePage() {
               fontSize: 13,
               color: "var(--ink-600)",
               marginTop: 6,
-              textTransform: "capitalize",
             }}
           >
-            {todayLabel}
+            Aujourd&apos;hui,{" "}
+            <span style={{ textTransform: "capitalize" }}>{todayLabel}</span>
           </div>
         </div>
       </header>

@@ -29,8 +29,8 @@ const CLIENT_TABS: BottomNavTab[] = [
 ];
 
 const SITTER_TABS: BottomNavTab[] = [
-  { href: "/sitter", icon: "calendar", label: "Aujourd'hui" },
-  { href: "/sitter/demandes", icon: "bell", label: "Demandes", matchPrefix: true },
+  { href: "/sitter", icon: "calendar", label: "Vue générale" },
+  { href: "/sitter/demandes", icon: "bell", label: "Mes demandes", matchPrefix: true },
   { href: "/sitter/profil", icon: "user", label: "Profil", matchPrefix: true },
   {
     href: "/sitter/disponibilites",

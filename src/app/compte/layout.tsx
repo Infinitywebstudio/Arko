@@ -28,9 +28,7 @@ export default async function CompteLayout({ children }: { children: React.React
       <DashboardHeader
         homeHref="/compte"
         navLinks={[
-          { href: "/compte", label: "Mon compte" },
           { href: "/compte/bookings", label: "Mes réservations" },
-          { href: "/compte/parametres", label: "Paramètres" },
         ]}
         settingsHref="/compte/parametres"
         fullName={session.profile.full_name}

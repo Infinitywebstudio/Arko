@@ -10,14 +10,12 @@ export default async function SitterLayout({ children }: { children: React.React
       <DashboardHeader
         homeHref="/sitter"
         navLinks={[
-          { href: "/sitter", label: "Aujourd'hui" },
-          { href: "/sitter/demandes", label: "Demandes" },
-          { href: "/sitter/profil", label: "Mon profil" },
-          { href: "/sitter/disponibilites", label: "Disponibilités" },
-          { href: "/sitter/parametres", label: "Paramètres" },
+          { href: "/sitter", label: "Vue générale" },
+          { href: "/sitter/demandes", label: "Mes demandes" },
         ]}
         settingsHref="/sitter/parametres"
         profileHref="/sitter/profil"
+        availabilityHref="/sitter/disponibilites"
         fullName={session.profile.full_name}
         email={session.email}
         avatarUrl={session.profile.avatar_url}

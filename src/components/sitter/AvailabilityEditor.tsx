@@ -158,6 +158,7 @@ export default function AvailabilityEditor({ initial }: Props) {
                 ) : (
                   daySlots.map((slot) => (
                     <div key={slot.key} style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+                      <span style={slotLabel}>De</span>
                       <input
                         type="time"
                         value={slot.start_time}
@@ -165,7 +166,7 @@ export default function AvailabilityEditor({ initial }: Props) {
                         disabled={isPending}
                         style={timeInput}
                       />
-                      <span style={{ color: "var(--ink-500)", fontFamily: "var(--font-mono)", fontSize: 12 }}>→</span>
+                      <span style={slotLabel}>à</span>
                       <input
                         type="time"
                         value={slot.end_time}
@@ -260,4 +261,11 @@ const timeInput: React.CSSProperties = {
   outline: "none",
   minWidth: 0,
   flex: "1 1 110px",
+};
+
+const slotLabel: React.CSSProperties = {
+  fontFamily: "var(--font-mono)",
+  fontSize: 12,
+  fontWeight: 600,
+  color: "var(--ink-600)",
 };
