@@ -69,7 +69,7 @@ export default async function SitterProfilePage({
       style={{
         maxWidth: 960,
         margin: "0 auto",
-        padding: "var(--space-12) var(--space-6)",
+        padding: "var(--space-5) var(--space-6) var(--space-12)",
         display: "flex",
         flexDirection: "column",
         gap: "var(--space-10)",
@@ -149,13 +149,32 @@ export default async function SitterProfilePage({
               ))}
             </div>
           )}
-          {isOwner && (
-            <div style={{ marginTop: 16 }}>
+          <div style={{ marginTop: 16, display: "flex", flexWrap: "wrap", gap: 8 }}>
+            {isOwner ? (
               <Link href="/sitter/profil" className="btn btn-outline btn-sm">
                 Modifier mon profil
               </Link>
-            </div>
-          )}
+            ) : availability.length === 0 ? (
+              <span
+                style={{
+                  fontFamily: "var(--font-mono)",
+                  fontSize: 12,
+                  color: "var(--ink-500)",
+                  fontStyle: "italic",
+                }}
+              >
+                Pas encore de créneau disponible
+              </span>
+            ) : (
+              <Link
+                href={`/sitters/${sitter.id}/reserver`}
+                className="arrow-link"
+                style={{ fontSize: 14, fontWeight: 600 }}
+              >
+                Réserver une garde <Icon name="arrow" size={14} />
+              </Link>
+            )}
+          </div>
         </div>
       </header>
 
@@ -239,34 +258,6 @@ export default async function SitterProfilePage({
         )}
       </section>
 
-      {/* CTA - disabled for the sitter on their own profile (no booking yourself).
-          Hidden entirely if the sitter has no availability slots, since the
-          reservation page would be a dead end. */}
-      <section>
-        {isOwner ? (
-          <button
-            type="button"
-            disabled
-            className="btn btn-outline btn-lg"
-            style={{ opacity: 0.6, cursor: "not-allowed" }}
-          >
-            C&apos;est ton profil
-          </button>
-        ) : availability.length === 0 ? (
-          <button
-            type="button"
-            disabled
-            className="btn btn-primary btn-lg"
-            style={{ opacity: 0.6, cursor: "not-allowed" }}
-          >
-            Pas encore de créneau
-          </button>
-        ) : (
-          <Link href={`/sitters/${sitter.id}/reserver`} className="btn btn-primary btn-lg">
-            Réserver une garde
-          </Link>
-        )}
-      </section>
     </article>
   );
 }

@@ -25,21 +25,8 @@ export default async function SittersListPage() {
   const sitters = await listAllSitters();
 
   return (
-    <article style={{ maxWidth: 1280, margin: "0 auto", padding: "var(--space-12) var(--space-6)" }}>
+    <article style={{ maxWidth: 1280, margin: "0 auto", padding: "var(--space-5) var(--space-6) var(--space-12)" }}>
       <header style={{ marginBottom: "var(--space-10)" }}>
-        <div
-          style={{
-            fontFamily: "var(--font-mono)",
-            fontSize: 11,
-            color: "var(--coral-600)",
-            letterSpacing: "0.12em",
-            textTransform: "uppercase",
-            marginBottom: "var(--space-4)",
-            fontWeight: 600,
-          }}
-        >
-          Dog-sitters · Arles
-        </div>
         <h1
           style={{
             fontFamily: "var(--font-display)",
