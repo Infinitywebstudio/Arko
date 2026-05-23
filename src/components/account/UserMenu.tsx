@@ -15,6 +15,13 @@ export type UserMenuProps = {
   settingsHref: string;
   /** Profile link - sitter only (/sitter/profil); clients omit it. */
   profileHref?: string;
+  /** True when the pill sits over a dark hero (transparent nav). Switches
+   *  text/border/chevron to a light treatment so the name stays readable. */
+  onDark?: boolean;
+  /** Compact trigger: 40x40 avatar-only button (no name, no chevron, no
+   *  border). Used as the mobile right-side icon so logged-in visitors get
+   *  the same dropdown UX as desktop instead of a one-way link. */
+  compact?: boolean;
 };
 
 /**
@@ -29,6 +36,8 @@ export function UserMenu({
   avatarUrl,
   settingsHref,
   profileHref,
+  onDark = false,
+  compact = false,
 }: UserMenuProps) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -70,31 +79,45 @@ export function UserMenu({
         style={{
           display: "flex",
           alignItems: "center",
-          gap: 10,
-          padding: "4px 10px 4px 4px",
-          background: open ? "var(--ink-100)" : "transparent",
-          border: "1px solid var(--ink-200)",
+          justifyContent: compact ? "center" : undefined,
+          gap: compact ? 0 : 10,
+          width: compact ? 40 : undefined,
+          height: compact ? 40 : undefined,
+          padding: compact ? 0 : "4px 10px 4px 4px",
+          background: open
+            ? onDark
+              ? "rgba(255,255,255,0.16)"
+              : "var(--ink-100)"
+            : "transparent",
+          border: compact
+            ? "none"
+            : `1px solid ${onDark ? "rgba(255,255,255,0.45)" : "var(--ink-200)"}`,
           borderRadius: 999,
           cursor: "pointer",
-          transition: "background 0.15s",
+          transition: "background 0.15s, border-color 220ms ease",
         }}
       >
-        <Avatar size={32} avatarUrl={avatarUrl} initials={initials} />
-        <span
-          style={{
-            fontFamily: "var(--font-mono)",
-            fontSize: 13,
-            fontWeight: 600,
-            color: "var(--ink-800)",
-            maxWidth: 120,
-            overflow: "hidden",
-            textOverflow: "ellipsis",
-            whiteSpace: "nowrap",
-          }}
-        >
-          {firstName}
-        </span>
-        <ChevronIcon open={open} />
+        <Avatar size={compact ? 34 : 32} avatarUrl={avatarUrl} initials={initials} />
+        {!compact && (
+          <>
+            <span
+              style={{
+                fontFamily: "var(--font-mono)",
+                fontSize: 13,
+                fontWeight: 600,
+                color: onDark ? "white" : "var(--ink-800)",
+                maxWidth: 120,
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+                transition: "color 220ms ease",
+              }}
+            >
+              {firstName}
+            </span>
+            <ChevronIcon open={open} onDark={onDark} />
+          </>
+        )}
       </button>
 
       {open && (
@@ -110,7 +133,6 @@ export function UserMenu({
             WebkitBackdropFilter: "blur(20px) saturate(180%)",
             border: "1px solid rgba(216, 213, 200, 0.6)",
             borderRadius: 14,
-            boxShadow: "0 12px 36px rgba(15, 19, 16, 0.14)",
             padding: 6,
             zIndex: 60,
             overflow: "hidden",
@@ -296,7 +318,7 @@ export function getInitials(name: string): string {
   return (parts[0]![0]! + parts[parts.length - 1]![0]!).toUpperCase();
 }
 
-function ChevronIcon({ open }: { open: boolean }) {
+function ChevronIcon({ open, onDark = false }: { open: boolean; onDark?: boolean }) {
   return (
     <svg
       width="14"
@@ -308,9 +330,9 @@ function ChevronIcon({ open }: { open: boolean }) {
       strokeLinecap="round"
       strokeLinejoin="round"
       style={{
-        color: "var(--ink-500)",
+        color: onDark ? "rgba(255,255,255,0.8)" : "var(--ink-500)",
         transform: open ? "rotate(180deg)" : "rotate(0deg)",
-        transition: "transform 160ms ease",
+        transition: "transform 160ms ease, color 220ms ease",
       }}
     >
       <path d="M6 9l6 6 6-6" />

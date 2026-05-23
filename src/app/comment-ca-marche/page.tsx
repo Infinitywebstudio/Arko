@@ -82,30 +82,26 @@ export default async function CommentCaMarchePage() {
     <>
       <HomeNav user={navUser} />
 
-      {/* Hero - colored background so the transparent fixed nav stays legible */}
+      {/* Hero - solid dark-green background, centered content */}
       <section
         style={{
-          position: "relative",
-          background:
-            "linear-gradient(135deg, var(--ink-900) 0%, var(--coral-700) 120%)",
-          color: "white",
+          background: "var(--coral-800)",
+          color: "var(--coral-100)",
           padding:
-            "calc(var(--space-20) + 56px) var(--space-8) var(--space-20)",
-          overflow: "hidden",
+            "calc(var(--space-24) + 56px) var(--space-8) var(--space-24)",
+          textAlign: "center",
         }}
       >
-        <div style={{ position: "relative", maxWidth: 760, margin: "0 auto" }}>
-          <div style={{ ...eyebrow, color: "var(--peach-100)" }}>
-            Comment ça marche
-          </div>
+        <div style={{ maxWidth: 880, margin: "0 auto" }}>
           <h1
             style={{
               fontFamily: "var(--font-display)",
-              fontSize: "clamp(34px, 5vw, 64px)",
+              fontSize: "clamp(40px, 6vw, 76px)",
               letterSpacing: "-0.02em",
-              lineHeight: 1,
-              margin: "var(--space-4) 0 var(--space-6)",
-              fontWeight: 400,
+              lineHeight: 1.05,
+              margin: 0,
+              fontWeight: 700,
+              color: "var(--coral-100)",
             }}
           >
             Profitez d&apos;Arles
@@ -115,11 +111,12 @@ export default async function CommentCaMarchePage() {
           <p
             style={{
               fontFamily: "var(--font-mono)",
-              fontSize: "clamp(14px, 1.4vw, 17px)",
-              color: "rgba(255,255,255,0.85)",
-              lineHeight: 1.7,
-              maxWidth: 600,
-              margin: 0,
+              fontSize: "clamp(15px, 1.4vw, 18px)",
+              color: "var(--coral-100)",
+              lineHeight: 1.6,
+              maxWidth: 560,
+              margin: "var(--space-6) auto 0",
+              fontWeight: 500,
             }}
           >
             Vous êtes en visite à Arles et souhaitez accéder à un musée, un restaurant
@@ -128,22 +125,38 @@ export default async function CommentCaMarchePage() {
           </p>
           <div
             style={{
-              marginTop: "var(--space-8)",
+              marginTop: "var(--space-10)",
               display: "flex",
-              gap: 12,
+              gap: "var(--space-6)",
               flexWrap: "wrap",
+              justifyContent: "center",
+              alignItems: "center",
             }}
           >
             <Link
               href="/sitters"
               className="btn btn-lg"
               style={{
-                background: "white",
-                color: "var(--coral-600)",
-                boxShadow: "0 12px 32px rgba(0,0,0,0.18)",
+                background: "var(--coral-100)",
+                color: "var(--coral-800)",
+                borderRadius: 999,
+                fontWeight: 700,
               }}
             >
-              Trouver un sitter <Icon name="arrow" size={16} color="var(--coral-600)" />
+              Trouver un sitter
+            </Link>
+            <Link
+              href="#etapes"
+              style={{
+                fontFamily: "var(--font-mono)",
+                fontSize: 15,
+                fontWeight: 600,
+                color: "var(--coral-100)",
+                textDecoration: "underline",
+                textUnderlineOffset: 4,
+              }}
+            >
+              Voir les étapes
             </Link>
           </div>
         </div>
@@ -151,10 +164,12 @@ export default async function CommentCaMarchePage() {
 
       {/* Steps */}
       <section
+        id="etapes"
         style={{
           padding: "var(--space-20) var(--space-8)",
           maxWidth: 880,
           margin: "0 auto",
+          scrollMarginTop: 80,
         }}
       >
         <div style={{ textAlign: "center", marginBottom: "var(--space-12)" }}>
@@ -330,7 +345,6 @@ export default async function CommentCaMarchePage() {
                   background: "white",
                   borderRadius: 999,
                   padding: "12px 20px",
-                  boxShadow: "var(--shadow-sm)",
                   fontFamily: "var(--font-mono)",
                   fontSize: 14,
                   fontWeight: 600,

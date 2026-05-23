@@ -2,43 +2,36 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 import { signOutAction } from "@/lib/auth/actions";
 import type { NavUser } from "@/lib/auth/helpers";
 import { UserMenu } from "@/components/account/UserMenu";
 
 /**
- * Sticky top navigation for the marketing homepage. Starts transparent so
- * the hero photo bleeds under it; flips to a solid cream/white surface once
- * the user scrolls past ~hero height so the nav stays legible over body
- * content.
+ * Floating glass pill nav for the marketing pages. Always opaque (frosted
+ * white), detached from the top edge with a margin, sits over the hero on
+ * desktop. Mobile (< 860px) collapses to burger + person icon and opens the
+ * existing left-side drawer.
  *
- * The threshold is intentionally generous (80px) - short enough to react
- * the moment the user starts scrolling, long enough that a tiny accidental
- * wheel tick doesn't cause a flicker.
- *
- * Mobile (< 860px) shows a hamburger that opens a left-side drawer with the
- * primary CTAs and the nav links - the desktop link row is hidden at that
- * width via globals.css `.home-nav-links`.
+ * The active route gets a solid white pastille so the user always knows
+ * where they are in the site.
  */
-const SCROLL_THRESHOLD = 80;
+const NAV_LINKS: Array<{ href: string; label: string }> = [
+  { href: "/", label: "Accueil" },
+  { href: "/sitters", label: "Trouver un sitter" },
+  { href: "/comment-ca-marche", label: "Comment ça marche" },
+  { href: "/inscription?role=sitter", label: "Devenir sitter" },
+  { href: "/aide", label: "Aide" },
+];
 
 /** When `user` is set the visitor is authenticated: the desktop auth CTAs are
  *  replaced by the shared UserMenu dropdown, the mobile icon points at their
  *  space, and the drawer shows "Mon espace" + logout. Resolved server-side
  *  (navUserFrom) by the page rendering HomeNav. */
 export function HomeNav({ user }: { user?: NavUser | null }) {
-  const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
-
-  useEffect(() => {
-    const onScroll = () => {
-      setScrolled(window.scrollY > SCROLL_THRESHOLD);
-    };
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
+  const pathname = usePathname();
 
   // Lock body scroll while the drawer is open so the page underneath
   // doesn't drift when the user pans inside the panel.
@@ -61,38 +54,49 @@ export function HomeNav({ user }: { user?: NavUser | null }) {
     return () => window.removeEventListener("keydown", onKey);
   }, [open]);
 
-  const textColor = scrolled ? "var(--ink-700)" : "rgba(255,255,255,0.9)";
-  const wordmarkColor = scrolled ? "var(--coral-600)" : "white";
+  const isActive = (href: string) => {
+    const base = href.split("?")[0]!;
+    if (base === "/") return pathname === "/";
+    return pathname === base || pathname.startsWith(base + "/");
+  };
 
   return (
     <>
       <nav
         style={{
           position: "fixed",
-          top: 0,
-          left: 0,
-          right: 0,
+          top: 16,
+          left: 16,
+          right: 16,
           zIndex: 50,
-          background: scrolled ? "rgba(250, 247, 245, 0.92)" : "transparent",
-          backdropFilter: scrolled ? "blur(20px)" : "none",
-          WebkitBackdropFilter: scrolled ? "blur(20px)" : "none",
-          borderBottom: scrolled ? "1px solid var(--ink-200)" : "1px solid transparent",
-          transition:
-            "background 220ms ease, border-color 220ms ease, backdrop-filter 220ms ease",
+          margin: "0 auto",
+          maxWidth: 1280,
+          background: "rgba(255,255,255,0.62)",
+          backdropFilter: "blur(24px) saturate(180%)",
+          WebkitBackdropFilter: "blur(24px) saturate(180%)",
+          border: "1px solid transparent",
+          borderRadius: 999,
         }}
       >
         <div
           style={{
-            maxWidth: 1280,
-            margin: "0 auto",
-            padding: "16px 24px",
+            padding: "8px 10px 8px 20px",
             display: "flex",
             alignItems: "center",
-            justifyContent: "space-between",
             gap: 12,
           }}
         >
-          <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+          {/* Left group - flex:1 so the center links stay visually centered
+              regardless of the side groups' content widths. */}
+          <div
+            style={{
+              flex: "1 1 0",
+              display: "flex",
+              alignItems: "center",
+              gap: 4,
+              minWidth: 0,
+            }}
+          >
             <button
               type="button"
               className="home-nav-burger"
@@ -105,11 +109,10 @@ export function HomeNav({ user }: { user?: NavUser | null }) {
                 height: 40,
                 alignItems: "center",
                 justifyContent: "center",
-                borderRadius: 10,
+                borderRadius: 999,
                 background: "transparent",
                 cursor: "pointer",
-                color: textColor,
-                transition: "color 220ms ease, background 220ms ease",
+                color: "var(--ink-800)",
               }}
             >
               <BurgerIcon color="currentColor" />
@@ -118,11 +121,10 @@ export function HomeNav({ user }: { user?: NavUser | null }) {
               href="/"
               style={{
                 fontFamily: "var(--font-brand), system-ui, sans-serif",
-                fontSize: 28,
+                fontSize: 26,
                 letterSpacing: "0.02em",
-                color: wordmarkColor,
+                color: "var(--coral-700)",
                 lineHeight: 1,
-                transition: "color 220ms ease",
                 textDecoration: "none",
               }}
             >
@@ -133,82 +135,111 @@ export function HomeNav({ user }: { user?: NavUser | null }) {
             className="home-nav-links"
             style={{
               display: "flex",
-              gap: 32,
+              gap: 2,
               fontFamily: "var(--font-mono)",
               fontSize: 13,
-              color: textColor,
               fontWeight: 500,
-              transition: "color 220ms ease",
             }}
           >
-            <a>Trouver un sitter</a>
-            <Link href="/comment-ca-marche" style={{ color: "inherit", textDecoration: "none" }}>
-              Comment ça marche
-            </Link>
-            <a>Devenir sitter</a>
-            <a>Aide</a>
+            {NAV_LINKS.map((l) => {
+              const active = isActive(l.href);
+              return (
+                <Link
+                  key={l.href}
+                  href={l.href}
+                  aria-current={active ? "page" : undefined}
+                  style={{
+                    padding: "8px 14px",
+                    borderRadius: 999,
+                    color: active ? "var(--ink-900)" : "var(--ink-700)",
+                    background: active ? "white" : "transparent",
+                    textDecoration: "none",
+                    whiteSpace: "nowrap",
+                    transition: "background 160ms ease, color 160ms ease",
+                  }}
+                >
+                  {l.label}
+                </Link>
+              );
+            })}
           </div>
-          {/* Mobile-only quick access to auth on the right edge of the bar.
-              Hidden ≥ 860px where the inline CTAs take over. */}
-          <Link
-            href={user ? user.spaceHref : "/connexion"}
-            className="home-nav-person"
-            aria-label={user ? "Mon espace" : "Connexion ou inscription"}
+          <div
             style={{
-              display: "none",
-              width: 40,
-              height: 40,
+              flex: "1 1 0",
+              display: "flex",
               alignItems: "center",
-              justifyContent: "center",
-              borderRadius: 999,
-              background: scrolled ? "var(--ink-100)" : "rgba(255,255,255,0.16)",
-              color: textColor,
-              transition: "background 220ms ease, color 220ms ease",
+              justifyContent: "flex-end",
+              gap: 8,
+              minWidth: 0,
             }}
           >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="12" cy="8" r="4" />
-              <path d="M4 20a8 8 0 0 1 16 0" />
-            </svg>
-          </Link>
-          <div
-            className="home-nav-ctas"
-            style={{ display: "flex", gap: 10, alignItems: "center" }}
-          >
+            {/* Mobile-only auth shortcut on the right edge of the pill.
+                Hidden ≥ 860px (see `.home-nav-person` in globals.css).
+                Logged-in visitors get a compact UserMenu (same dropdown as
+                desktop); logged-out get a plain link to /connexion. */}
             {user ? (
-              <UserMenu
-                fullName={user.fullName}
-                email={user.email}
-                avatarUrl={user.avatarUrl}
-                settingsHref={user.settingsHref}
-                profileHref={user.profileHref}
-              />
+              <div className="home-nav-person" style={{ display: "none" }}>
+                <UserMenu
+                  fullName={user.fullName}
+                  email={user.email}
+                  avatarUrl={user.avatarUrl}
+                  settingsHref={user.settingsHref}
+                  profileHref={user.profileHref}
+                  compact
+                />
+              </div>
             ) : (
-              <>
-                <Link
-                  href="/connexion"
-                  className="btn btn-ghost btn-sm"
-                  style={{ color: textColor, transition: "color 220ms ease" }}
-                >
-                  Connexion
-                </Link>
-                <Link
-                  href="/inscription"
-                  className="btn btn-primary btn-sm btn-pill"
-                  style={
-                    scrolled
-                      ? undefined
-                      : {
-                          background: "white",
-                          color: "var(--coral-600)",
-                          boxShadow: "0 8px 24px rgba(0,0,0,0.15)",
-                        }
-                  }
-                >
-                  S&apos;inscrire
-                </Link>
-              </>
+              <Link
+                href="/connexion"
+                className="home-nav-person"
+                aria-label="Connexion ou inscription"
+                style={{
+                  display: "none",
+                  width: 40,
+                  height: 40,
+                  alignItems: "center",
+                  justifyContent: "center",
+                  borderRadius: 999,
+                  background: "transparent",
+                  color: "var(--ink-800)",
+                }}
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="12" cy="8" r="4" />
+                  <path d="M4 20a8 8 0 0 1 16 0" />
+                </svg>
+              </Link>
             )}
+            <div
+              className="home-nav-ctas"
+              style={{ display: "flex", gap: 8, alignItems: "center" }}
+            >
+              {user ? (
+                <UserMenu
+                  fullName={user.fullName}
+                  email={user.email}
+                  avatarUrl={user.avatarUrl}
+                  settingsHref={user.settingsHref}
+                  profileHref={user.profileHref}
+                />
+              ) : (
+                <>
+                  <Link
+                    href="/connexion"
+                    className="btn btn-ghost btn-sm"
+                    style={{ color: "var(--ink-800)" }}
+                  >
+                    Connexion
+                  </Link>
+                  <Link
+                    href="/inscription"
+                    className="btn btn-primary btn-sm btn-pill"
+                  >
+                    S&apos;inscrire
+                  </Link>
+                </>
+              )}
+            </div>
           </div>
         </div>
       </nav>
@@ -251,7 +282,6 @@ export function HomeNav({ user }: { user?: NavUser | null }) {
           gap: 20,
           transform: open ? "translateX(0)" : "translateX(-105%)",
           transition: "transform 260ms cubic-bezier(0.32, 0.72, 0, 1)",
-          boxShadow: "8px 0 32px rgba(15, 19, 16, 0.12)",
         }}
       >
         <div
@@ -303,11 +333,20 @@ export function HomeNav({ user }: { user?: NavUser | null }) {
               >
                 Mon espace
               </Link>
-              <form action={signOutAction}>
+              <form action={signOutAction} style={{ textAlign: "center", marginTop: 4 }}>
                 <button
                   type="submit"
-                  className="btn btn-outline"
-                  style={{ height: 48, width: "100%" }}
+                  style={{
+                    background: "transparent",
+                    border: "none",
+                    padding: "8px 4px",
+                    fontFamily: "var(--font-mono)",
+                    fontSize: 13,
+                    color: "var(--ink-600)",
+                    textDecoration: "underline",
+                    textUnderlineOffset: 4,
+                    cursor: "pointer",
+                  }}
                 >
                   Déconnexion
                 </button>
