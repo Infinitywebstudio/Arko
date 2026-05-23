@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 import { signOutAction } from "@/lib/auth/actions";
-import { Avatar, LogoutIcon, UserMenu, getInitials } from "./UserMenu";
+import { Avatar, UserMenu, getInitials } from "./UserMenu";
 
 export type DashboardNavLink = {
   href: string;
@@ -13,8 +13,6 @@ export type DashboardNavLink = {
 };
 
 type Props = {
-  /** "Client" or "Sitter" - rendered as the pill next to the wordmark. */
-  roleLabel: string;
   /** Where the wordmark links back to inside the user's space. */
   homeHref: string;
   /** Primary nav items, rendered as a row on desktop and a stack in the drawer. */
@@ -37,7 +35,6 @@ const NAV_FONT: React.CSSProperties = {
 };
 
 export function DashboardHeader({
-  roleLabel,
   homeHref,
   navLinks,
   settingsHref,
@@ -88,97 +85,94 @@ export function DashboardHeader({
     <>
       <header
         style={{
-          position: "sticky",
-          top: 0,
+          position: "fixed",
+          top: 16,
+          left: 16,
+          right: 16,
           zIndex: 50,
-          background: "rgba(247, 244, 236, 0.85)",
-          backdropFilter: "blur(20px) saturate(180%)",
-          WebkitBackdropFilter: "blur(20px) saturate(180%)",
-          borderBottom: "1px solid rgba(216, 213, 200, 0.6)",
+          margin: "0 auto",
+          maxWidth: 1280,
+          background: "rgba(255,255,255,0.62)",
+          backdropFilter: "blur(24px) saturate(180%)",
+          WebkitBackdropFilter: "blur(24px) saturate(180%)",
+          border: "1px solid transparent",
+          borderRadius: 999,
         }}
       >
         <div
           style={{
-            maxWidth: 1280,
-            margin: "0 auto",
-            padding: "14px 20px",
+            padding: "8px 10px 8px 20px",
             display: "flex",
             alignItems: "center",
-            gap: 16,
+            gap: 12,
           }}
         >
-          {/* Mobile hamburger - hidden ≥ 860px via CSS. */}
-          <button
-            type="button"
-            className="dash-nav-burger"
-            aria-label="Ouvrir le menu"
-            aria-expanded={drawerOpen}
-            onClick={() => setDrawerOpen(true)}
+          {/* Left group - flex:1 keeps the centered nav truly centered. */}
+          <div
             style={{
-              display: "none",
-              width: 40,
-              height: 40,
-              alignItems: "center",
-              justifyContent: "center",
-              borderRadius: 10,
-              background: "transparent",
-              border: "none",
-              cursor: "pointer",
-              color: "var(--ink-700)",
-              padding: 0,
-              flexShrink: 0,
-            }}
-          >
-            <BurgerIcon />
-          </button>
-
-          <Link
-            href={homeHref}
-            style={{
+              flex: "1 1 0",
               display: "flex",
               alignItems: "center",
               gap: 10,
-              textDecoration: "none",
-              flexShrink: 0,
+              minWidth: 0,
             }}
           >
-            <span
+            {/* Mobile hamburger - hidden ≥ 860px via CSS. */}
+            <button
+              type="button"
+              className="dash-nav-burger"
+              aria-label="Ouvrir le menu"
+              aria-expanded={drawerOpen}
+              onClick={() => setDrawerOpen(true)}
               style={{
-                fontFamily: "var(--font-brand), system-ui, sans-serif",
-                fontSize: 22,
-                letterSpacing: "0.02em",
-                color: "var(--coral-600)",
-                lineHeight: 1,
-              }}
-            >
-              ARKO
-            </span>
-            <span
-              className="dash-nav-badge"
-              style={{
-                fontFamily: "var(--font-mono)",
-                fontSize: 11,
-                fontWeight: 600,
-                letterSpacing: "0.06em",
-                textTransform: "uppercase",
-                color: "var(--coral-700)",
-                background: "var(--coral-50)",
-                padding: "3px 8px",
+                display: "none",
+                width: 40,
+                height: 40,
+                alignItems: "center",
+                justifyContent: "center",
                 borderRadius: 999,
+                background: "transparent",
+                border: "none",
+                cursor: "pointer",
+                color: "var(--ink-800)",
+                padding: 0,
+                flexShrink: 0,
               }}
             >
-              {roleLabel}
-            </span>
-          </Link>
+              <BurgerIcon />
+            </button>
 
-          {/* Desktop nav - hidden < 860px via CSS. */}
+            <Link
+              href={homeHref}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
+                textDecoration: "none",
+                flexShrink: 0,
+              }}
+            >
+              <span
+                style={{
+                  fontFamily: "var(--font-brand), system-ui, sans-serif",
+                  fontSize: 26,
+                  letterSpacing: "0.02em",
+                  color: "var(--coral-700)",
+                  lineHeight: 1,
+                }}
+              >
+                ARKO
+              </span>
+            </Link>
+          </div>
+
+          {/* Centered nav links - hidden < 860px via CSS. */}
           <nav
             className="dash-nav-links"
-            aria-label={`Navigation ${roleLabel.toLowerCase()}`}
+            aria-label="Navigation principale"
             style={{
               display: "flex",
-              gap: 4,
-              marginLeft: 24,
+              gap: 2,
               ...NAV_FONT,
             }}
           >
@@ -189,13 +183,15 @@ export function DashboardHeader({
                   key={link.href}
                   href={link.href}
                   onClick={closeAll}
+                  aria-current={active ? "page" : undefined}
                   style={{
                     padding: "8px 14px",
                     borderRadius: 999,
-                    color: active ? "var(--coral-700)" : "var(--ink-700)",
-                    background: active ? "var(--coral-50)" : "transparent",
+                    color: active ? "var(--ink-900)" : "var(--ink-700)",
+                    background: active ? "white" : "transparent",
                     textDecoration: "none",
-                    transition: "background 0.15s, color 0.15s",
+                    whiteSpace: "nowrap",
+                    transition: "background 160ms ease, color 160ms ease",
                   }}
                 >
                   {link.label}
@@ -204,18 +200,28 @@ export function DashboardHeader({
             })}
           </nav>
 
-          <div style={{ flex: 1 }} />
-
-          {/* Desktop user dropdown - hidden < 860px via CSS. Shared with the
-              public marketing nav via UserMenu. */}
-          <div className="dash-nav-user" style={{ display: "flex" }}>
-            <UserMenu
-              fullName={fullName}
-              email={email}
-              avatarUrl={avatarUrl}
-              settingsHref={settingsHref}
-              profileHref={profileHref}
-            />
+          {/* Right group - flex:1 mirrors the left for symmetric centering. */}
+          <div
+            style={{
+              flex: "1 1 0",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "flex-end",
+              gap: 8,
+              minWidth: 0,
+            }}
+          >
+            {/* Desktop user dropdown - hidden < 860px via CSS. The mobile
+                drawer carries the user block + logout instead. */}
+            <div className="dash-nav-user" style={{ display: "flex" }}>
+              <UserMenu
+                fullName={fullName}
+                email={email}
+                avatarUrl={avatarUrl}
+                settingsHref={settingsHref}
+                profileHref={profileHref}
+              />
+            </div>
           </div>
         </div>
       </header>
@@ -240,7 +246,7 @@ export function DashboardHeader({
       <aside
         role="dialog"
         aria-modal="true"
-        aria-label={`Menu ${roleLabel.toLowerCase()}`}
+        aria-label="Menu utilisateur"
         style={{
           position: "fixed",
           top: 0,
@@ -258,7 +264,6 @@ export function DashboardHeader({
           gap: 18,
           transform: drawerOpen ? "translateX(0)" : "translateX(-105%)",
           transition: "transform 260ms cubic-bezier(0.32, 0.72, 0, 1)",
-          boxShadow: "8px 0 32px rgba(15, 19, 16, 0.12)",
         }}
       >
         <div
@@ -377,20 +382,21 @@ export function DashboardHeader({
 
         <div style={{ flex: 1 }} />
 
-        <form action={signOutAction}>
+        <form action={signOutAction} style={{ textAlign: "center", marginTop: 4 }}>
           <button
             type="submit"
-            className="btn btn-outline"
             style={{
-              width: "100%",
-              height: 48,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: 8,
+              background: "transparent",
+              border: "none",
+              padding: "8px 4px",
+              fontFamily: "var(--font-mono)",
+              fontSize: 13,
+              color: "var(--ink-600)",
+              textDecoration: "underline",
+              textUnderlineOffset: 4,
+              cursor: "pointer",
             }}
           >
-            <LogoutIcon />
             Déconnexion
           </button>
         </form>

@@ -26,7 +26,6 @@ export default async function CompteLayout({ children }: { children: React.React
       }}
     >
       <DashboardHeader
-        roleLabel="Client"
         homeHref="/compte"
         navLinks={[
           { href: "/compte", label: "Mon compte" },
@@ -44,7 +43,9 @@ export default async function CompteLayout({ children }: { children: React.React
           maxWidth: 960,
           width: "100%",
           margin: "0 auto",
-          padding: "var(--space-10) var(--space-6)",
+          // Top padding clears the floating fixed pill (top:16 + ~56px)
+          // and adds breathing room before page content.
+          padding: "120px var(--space-6) var(--space-10)",
         }}
       >
         {children}

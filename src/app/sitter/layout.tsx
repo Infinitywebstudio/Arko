@@ -8,7 +8,6 @@ export default async function SitterLayout({ children }: { children: React.React
   return (
     <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: "var(--ink-50)" }}>
       <DashboardHeader
-        roleLabel="Sitter"
         homeHref="/sitter"
         navLinks={[
           { href: "/sitter", label: "Aujourd'hui" },
@@ -23,7 +22,17 @@ export default async function SitterLayout({ children }: { children: React.React
         email={session.email}
         avatarUrl={session.profile.avatar_url}
       />
-      <main style={{ flex: 1, maxWidth: 960, width: "100%", margin: "0 auto", padding: "var(--space-10) var(--space-6)" }}>
+      <main
+        style={{
+          flex: 1,
+          maxWidth: 960,
+          width: "100%",
+          margin: "0 auto",
+          // Top padding clears the floating fixed pill (top:16 + ~56px)
+          // and adds breathing room before page content.
+          padding: "120px var(--space-6) var(--space-10)",
+        }}
+      >
         {children}
       </main>
     </div>
