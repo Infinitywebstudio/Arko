@@ -98,7 +98,7 @@ export async function sendSitterBookingNotification(bookingId: string): Promise<
   const optionsLabel = [
     booking.dangerous_breed ? "chien cat. 1/2 (+5€)" : null,
     booking.urgent ? "urgente (+7€)" : null,
-    booking.late ? "tardive (+7€)" : null,
+    booking.late ? "tardive (+8€)" : null,
   ]
     .filter(Boolean)
     .join(" · ");

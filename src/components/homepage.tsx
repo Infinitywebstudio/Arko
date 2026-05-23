@@ -332,7 +332,7 @@ export function HomeHowItWorks() {
 // Pricing for the homepage card preview. Real billing happens server-side
 // from the same source of truth (booking flow line item).
 const HOME_CARD_DURATION_HOURS = 2;
-const HOME_CARD_PRICE_EUR = 32;
+const HOME_CARD_PRICE_EUR = 35;
 
 // Tints for the gradient placeholder behind a sitter card when it has no photo.
 const FALLBACK_COLLARS = ["#3C582E", "#1B2A49", "#2E7D5B", "#F4A261"];

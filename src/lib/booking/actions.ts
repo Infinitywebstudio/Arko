@@ -20,8 +20,9 @@ const MAX_DAYS_AHEAD = 30;
 // "Urgent" surcharge applies when the client books less than 30 minutes before
 // start. Same threshold the UI uses to label the booking as urgent.
 const URGENT_THRESHOLD_MS = 30 * 60 * 1000;
-// "Late" surcharge applies when the garde starts at or after 19:00 local time.
-const LATE_HOUR_THRESHOLD = 19;
+// "Late" surcharge applies when the garde starts at or after 19h30 Paris time.
+// Threshold lives in minutes-since-midnight to accommodate the half-hour grid.
+const LATE_MINUTES_THRESHOLD = 19 * 60 + 30;
 const PARIS_TZ = "Europe/Paris";
 
 function fieldErrorsFromZod(err: z.ZodError): Record<string, string> {
@@ -34,12 +35,12 @@ function fieldErrorsFromZod(err: z.ZodError): Record<string, string> {
 }
 
 /**
- * Compute the UTC instant for "<dateStr> at <hour>:00 in Europe/Paris". DST is
- * handled by probing the timezone's offset for that calendar date.
+ * Compute the UTC instant for "<dateStr> at <hour>:<minute> in Europe/Paris".
+ * DST is handled by probing the timezone's offset for that calendar date.
  */
-function parisDateTimeToUtc(dateStr: string, hour: number): Date {
+function parisDateTimeToUtc(dateStr: string, hour: number, minute: number): Date {
   const naiveUtc = new Date(
-    `${dateStr}T${String(hour).padStart(2, "0")}:00:00Z`,
+    `${dateStr}T${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}:00Z`,
   );
   const offsetMs = parisOffsetMs(naiveUtc);
   return new Date(naiveUtc.getTime() - offsetMs);
@@ -91,6 +92,7 @@ export async function createBookingAction(
     sitter_id: formData.get("sitter_id"),
     start_date: formData.get("start_date"),
     start_hour: formData.get("start_hour"),
+    start_minute: formData.get("start_minute") ?? 0,
     duration_hours: formData.get("duration_hours"),
     dangerous_breed:
       formData.get("dangerous_breed") === "on" ||
@@ -109,7 +111,7 @@ export async function createBookingAction(
   const input = parsed.data;
 
   // ---------- Time gates ----------------------------------
-  const startAt = parisDateTimeToUtc(input.start_date, input.start_hour);
+  const startAt = parisDateTimeToUtc(input.start_date, input.start_hour, input.start_minute);
   const now = new Date();
 
   if (startAt.getTime() <= now.getTime()) {
@@ -139,7 +141,7 @@ export async function createBookingAction(
   if (slotsErr) {
     return { ok: false, error: "Impossible de vérifier les disponibilités." };
   }
-  const startMin = input.start_hour * 60;
+  const startMin = input.start_hour * 60 + input.start_minute;
   const endMin = startMin + input.duration_hours * 60;
   const fits =
     slots?.some(
@@ -171,7 +173,7 @@ export async function createBookingAction(
 
   // ---------- Server-side derivation ----------------------
   const urgent = startAt.getTime() - now.getTime() < URGENT_THRESHOLD_MS;
-  const late = input.start_hour >= LATE_HOUR_THRESHOLD;
+  const late = startMin >= LATE_MINUTES_THRESHOLD;
 
   const breakdown = calculatePrice({
     duration: input.duration_hours as Duration,
@@ -247,7 +249,7 @@ export async function createBookingAction(
     meetingLabel ? `Lieu : ${meetingLabel}` : null,
     input.dangerous_breed ? "Chien cat. 1/2 (+5€)" : null,
     urgent ? "Réservation urgente (+7€)" : null,
-    late ? "Garde tardive (+7€)" : null,
+    late ? "Garde tardive (+8€)" : null,
   ]
     .filter(Boolean)
     .join(" · ") || "ARKO - garde de chien";

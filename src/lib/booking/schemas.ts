@@ -18,7 +18,7 @@ export const createBookingSchema = z.object({
   start_date: z
     .string()
     .regex(/^\d{4}-\d{2}-\d{2}$/, { message: "Date invalide" }),
-  // 0–23 inclusive (hour-pile granularity per MVP scope).
+  // 0–23 inclusive (hour granularity per MVP scope).
   start_hour: z
     .union([z.string(), z.number()])
     .transform((v) => Number(v))
@@ -28,6 +28,18 @@ export const createBookingSchema = z.object({
         .int({ message: "Heure invalide" })
         .min(0, { message: "Heure invalide" })
         .max(23, { message: "Heure invalide" }),
+    ),
+  // 0 or 30 - half-hour granularity for the start minute. Needed so the "late"
+  // threshold (≥ 19h30) can be applied to a 19:30 start.
+  start_minute: z
+    .union([z.string(), z.number()])
+    .optional()
+    .transform((v) => (v === undefined || v === "" ? 0 : Number(v)))
+    .pipe(
+      z
+        .number()
+        .int({ message: "Minute invalide" })
+        .refine((v) => v === 0 || v === 30, { message: "Minute invalide" }),
     ),
   duration_hours: z
     .union([z.string(), z.number()])

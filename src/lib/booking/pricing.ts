@@ -1,14 +1,14 @@
 /**
  * Server-side booking pricing. Hardcoded per the validated tariff sheet:
  *
- *   1h → client pays 18€   sitter gets 12€   platform keeps  6€
- *   2h → client pays 32€   sitter gets 21€   platform keeps 11€
- *   3h → client pays 45€   sitter gets 29€   platform keeps 16€
+ *   1h → client pays 19€   sitter gets 13€   platform keeps  6€
+ *   2h → client pays 35€   sitter gets 23€   platform keeps 12€
+ *   3h → client pays 50€   sitter gets 33€   platform keeps 17€
  *
  * Options (added on top of the base tariff):
  *   - dangerous_breed (cat. 1/2 dog):     +5€
  *   - urgent (RDV dans < 30 min):         +7€
- *   - late (after 19h):                   +7€
+ *   - late (start ≥ 19h30 Paris time):    +8€
  *
  * IMPORTANT: clients NEVER send a price. The action layer always re-derives
  * the price from these constants - the booking row is then validated by a
@@ -25,15 +25,15 @@
 export type Duration = 1 | 2 | 3;
 
 const BASE_TARIFF: Record<Duration, { price_cents: number; sitter_payout_cents: number; platform_fee_cents: number }> = {
-  1: { price_cents: 1800, sitter_payout_cents: 1200, platform_fee_cents: 600 },
-  2: { price_cents: 3200, sitter_payout_cents: 2100, platform_fee_cents: 1100 },
-  3: { price_cents: 4500, sitter_payout_cents: 2900, platform_fee_cents: 1600 },
+  1: { price_cents: 1900, sitter_payout_cents: 1300, platform_fee_cents: 600 },
+  2: { price_cents: 3500, sitter_payout_cents: 2300, platform_fee_cents: 1200 },
+  3: { price_cents: 5000, sitter_payout_cents: 3300, platform_fee_cents: 1700 },
 };
 
 const OPTION_SURCHARGES_CENTS = {
   dangerous_breed: 500,
   urgent: 700,
-  late: 700,
+  late: 800,
 } as const;
 
 const OPTION_RECIPIENT: "platform" | "sitter" = "platform";

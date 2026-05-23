@@ -115,11 +115,11 @@ La plateforme **n'utilise pas Stripe Connect**. Conséquences :
 
 | Durée | Client paie | Sitter reçoit | ARKO garde |
 |---|---|---|---|
-| 1h | 18,00 € | 12,00 € | 6,00 € |
-| 2h | 32,00 € | 21,00 € | 11,00 € |
-| 3h | 45,00 € | 29,00 € | 16,00 € |
+| 1h | 19,00 € | 13,00 € | 6,00 € |
+| 2h | 35,00 € | 23,00 € | 12,00 € |
+| 3h | 50,00 € | 33,00 € | 17,00 € |
 
-**Options** (+addons sur le total client) : chien cat. 1/2 +5 €, urgent (<30 min) +7 €, tardive (≥19 h) +7 €. La répartition options vs base est documentée dans le code (constante `OPTION_RECIPIENT`, par défaut 100 % plateforme — à valider avec le client).
+**Options** (+addons sur le total client) : chien cat. 1/2 +5 €, urgent (<30 min) +7 €, tardive (début ≥ 19 h 30) +8 €. La répartition options vs base est documentée dans le code (constante `OPTION_RECIPIENT`, par défaut 100 % plateforme — à valider avec le client).
 
 ### 4.3 Flow technique
 
