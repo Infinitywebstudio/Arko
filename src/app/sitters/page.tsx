@@ -4,6 +4,8 @@ import Link from "next/link";
 import { Initials } from "@/components/Initials";
 import { listAllSitters } from "@/lib/sitter/helpers";
 import { calculatePrice, formatEuros } from "@/lib/booking/pricing";
+import { HomeNav } from "@/components/homepage";
+import { getCurrentUser, navUserFrom } from "@/lib/auth/helpers";
 
 export const metadata: Metadata = {
   title: "Tous les dog-sitters · ARKO",
@@ -23,9 +25,12 @@ function displayName(full: string | null): string {
 
 export default async function SittersListPage() {
   const sitters = await listAllSitters();
+  const navUser = navUserFrom(await getCurrentUser());
 
   return (
-    <article style={{ maxWidth: 1280, margin: "0 auto", padding: "var(--space-5) var(--space-6) var(--space-12)" }}>
+    <>
+      <HomeNav user={navUser} />
+      <article style={{ maxWidth: 1280, margin: "0 auto", padding: "120px var(--space-6) var(--space-12)" }}>
       <header style={{ marginBottom: "var(--space-10)" }}>
         <h1
           style={{
@@ -72,7 +77,8 @@ export default async function SittersListPage() {
           ))}
         </div>
       )}
-    </article>
+      </article>
+    </>
   );
 }
 

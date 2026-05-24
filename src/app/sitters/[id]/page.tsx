@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-import { createClient } from "@/lib/supabase/server";
 import {
   getSitterAvailability,
   getSitterBadges,
@@ -10,6 +9,8 @@ import {
 } from "@/lib/sitter/helpers";
 import { Icon } from "@/components/mascot";
 import { Initials } from "@/components/Initials";
+import { HomeNav } from "@/components/homepage";
+import { getCurrentUser, navUserFrom } from "@/lib/auth/helpers";
 import type { Database } from "@/lib/supabase/database.types";
 
 type BadgeKind = Database["public"]["Enums"]["sitter_badge_kind"];
@@ -58,23 +59,23 @@ export default async function SitterProfilePage({
   ]);
   const verifiedBadges = badges.filter((b) => b.verified_at !== null);
 
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  const isOwner = user?.id === sitter.id;
+  const session = await getCurrentUser();
+  const isOwner = session?.userId === sitter.id;
+  const navUser = navUserFrom(session);
 
   return (
-    <article
-      style={{
-        maxWidth: 960,
-        margin: "0 auto",
-        padding: "var(--space-5) var(--space-6) var(--space-12)",
-        display: "flex",
-        flexDirection: "column",
-        gap: "var(--space-10)",
-      }}
-    >
+    <>
+      <HomeNav user={navUser} />
+      <article
+        style={{
+          maxWidth: 960,
+          margin: "0 auto",
+          padding: "120px var(--space-6) var(--space-12)",
+          display: "flex",
+          flexDirection: "column",
+          gap: "var(--space-10)",
+        }}
+      >
       {/* Hero */}
       <header
         style={{
@@ -258,7 +259,8 @@ export default async function SitterProfilePage({
         )}
       </section>
 
-    </article>
+      </article>
+    </>
   );
 }
 
