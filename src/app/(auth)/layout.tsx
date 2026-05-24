@@ -10,42 +10,6 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
         background: "var(--peach-50)",
       }}
     >
-      <header
-        style={{
-          borderBottom: "1px solid var(--ink-200)",
-          background: "var(--ink-50)",
-        }}
-      >
-        <div
-          style={{
-            maxWidth: 1280,
-            margin: "0 auto",
-            padding: "16px 24px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-          }}
-        >
-          <Link
-            href="/"
-            style={{ display: "flex", alignItems: "center", gap: 10 }}
-            aria-label="Retour à l'accueil ARKO"
-          >
-            <span
-              style={{
-                fontFamily: "var(--font-brand), system-ui, sans-serif",
-                fontSize: 22,
-                letterSpacing: "0.02em",
-                color: "var(--coral-600)",
-                lineHeight: 1,
-              }}
-            >
-              ARKO
-            </span>
-          </Link>
-        </div>
-      </header>
-
       <main
         style={{
           flex: 1,
