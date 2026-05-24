@@ -38,7 +38,7 @@ export default async function ReservationPage({
   return (
     <article
       style={{
-        maxWidth: 720,
+        maxWidth: 960,
         margin: "0 auto",
         padding: "var(--space-5) var(--space-6) var(--space-12)",
       }}

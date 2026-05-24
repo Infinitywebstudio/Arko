@@ -163,6 +163,12 @@ img { max-width: 100%; display: block; }
   white-space: nowrap;
 }
 .btn:active { transform: translateY(1px); }
+.btn:disabled,
+.btn[aria-disabled="true"] {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
 
 .btn-primary {
   background: var(--coral-500);
@@ -227,6 +233,17 @@ img { max-width: 100%; display: block; }
 }
 .arrow-link:hover { text-decoration: underline; text-underline-offset: 4px; }
 
+/* === BOOKING === */
+.booking-datetime-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(220px, 280px);
+  gap: var(--space-5);
+  align-items: start;
+}
+.booking-calendar-card {
+  padding: var(--space-5);
+}
+
 /* === RESPONSIVE === */
 @media (max-width: 860px) {
   .home-hero-grid,
@@ -234,6 +251,8 @@ img { max-width: 100%; display: block; }
   .home-stats-grid { grid-template-columns: repeat(2, 1fr) !important; }
   .home-steps-grid { grid-template-columns: 1fr !important; }
   .home-sitters-grid { grid-template-columns: repeat(2, 1fr) !important; }
+  .booking-datetime-grid { grid-template-columns: 1fr !important; }
+  .booking-calendar-card { padding: var(--space-3) !important; }
   .home-footer-grid { grid-template-columns: 1fr 1fr !important; }
   /* Mobile chrome swap: drop the desktop link row + the inline CTAs,
      surface the hamburger trigger on the left + a person icon on the

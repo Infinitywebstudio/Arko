@@ -23,12 +23,13 @@ type Props = {
   clientName: string;
 };
 
-type Step = 1 | 2 | 3;
+type Step = 1 | 2 | 3 | 4;
 
 const STEP_LABELS: Record<Step, string> = {
-  1: "Date",
-  2: "Options",
-  3: "Récap",
+  1: "Durée",
+  2: "Date",
+  3: "Options",
+  4: "Récap",
 };
 
 const labelStyle: React.CSSProperties = {
@@ -97,8 +98,8 @@ function maxDateInParis(daysAhead: number): string {
   }).format(new Date(Date.now() + daysAhead * 24 * 60 * 60 * 1000));
 }
 
+// Sun=0…Sat=6 to match sitter_availability.weekday.
 function weekdayOfDateString(dateStr: string): number {
-  // Using noon avoids any DST edge - we only care about the calendar day in Paris.
   const d = new Date(`${dateStr}T12:00:00Z`);
   const name = new Intl.DateTimeFormat("en-US", {
     timeZone: PARIS_TZ,
@@ -138,8 +139,20 @@ function formatDateLong(dateStr: string): string {
   }).format(d);
 }
 
+/** "07:00" -> "Tôt le matin", "09:30" -> "Matinée", etc. */
+function periodLabel(startMin: number): string {
+  if (startMin < 9 * 60) return "Tôt le matin";
+  if (startMin < 12 * 60) return "Matinée";
+  if (startMin < 14 * 60) return "Midi";
+  if (startMin < 18 * 60) return "Après-midi";
+  return "Soirée";
+}
+
 const DURATIONS: Duration[] = [1, 2, 3];
 
+// =============================================================
+// Component
+// =============================================================
 export default function ReservationForm({ sitter, slots, clientName }: Props) {
   const today = todayInParis();
   const maxDate = maxDateInParis(30);
@@ -160,23 +173,7 @@ export default function ReservationForm({ sitter, slots, clientName }: Props) {
   // Half-hour start slots the sitter actually offers on the chosen date for
   // the chosen duration. Computed locally - server re-validates the same rule.
   const validStartMins = useMemo(() => {
-    const weekday = weekdayOfDateString(date);
-    const slotsForDay = slots.filter((s) => s.weekday === weekday);
-    if (slotsForDay.length === 0) return [];
-    // For today, only propose slots starting strictly after "now + 1 min" -
-    // matches the spirit of the previous "next full hour" guard while
-    // supporting the finer 30-min grid.
-    const earliest = date === today ? currentMinutesInParis() + 1 : 0;
-    const result: number[] = [];
-    for (let m = 0; m <= 23 * 60 + 30; m += 30) {
-      if (m < earliest) continue;
-      const endMin = m + duration * 60;
-      const fits = slotsForDay.some(
-        (s) => timeToMinutes(s.start_time) <= m && timeToMinutes(s.end_time) >= endMin,
-      );
-      if (fits) result.push(m);
-    }
-    return result;
+    return computeValidStartMins({ date, duration, slots, today });
   }, [date, duration, slots, today]);
 
   // Live pricing preview. Server is authoritative; this is purely for UX.
@@ -186,31 +183,27 @@ export default function ReservationForm({ sitter, slots, clientName }: Props) {
       duration,
       dangerous_breed: dangerous,
       late,
-      // Urgent isn't shown live (the threshold is 30min and we'd need a tick) -
-      // we lean on server to apply it. UI stays calm.
       urgent: false,
     });
   }, [duration, dangerous, startMin]);
 
   // Drop the selected start time if it's no longer valid after a date/duration change.
   if (startMin !== null && !validStartMins.includes(startMin)) {
-    // setState during render is acceptable here: it self-converges in one extra
-    // render and no effect/event would land before the user's next interaction.
     setStartMin(null);
   }
 
   const dangerousAvailable = sitter.accepts_dangerous_breeds;
   const zoneOptions = ZONES;
 
-  const canLeaveStep1 = startMin !== null;
+  const canLeaveStep2 = startMin !== null;
 
   const goNext = () => {
     setError(null);
-    if (step === 1 && !canLeaveStep1) {
+    if (step === 2 && !canLeaveStep2) {
       setError("Choisis une heure de début.");
       return;
     }
-    setStep((s) => (s < 3 ? ((s + 1) as Step) : s));
+    setStep((s) => (s < 4 ? ((s + 1) as Step) : s));
   };
 
   const goPrev = () => {
@@ -226,7 +219,7 @@ export default function ReservationForm({ sitter, slots, clientName }: Props) {
     if (startMin === null) {
       setError("Choisis une heure de début.");
       setFieldErrors({ start_hour: "Heure requise" });
-      setStep(1);
+      setStep(2);
       return;
     }
 
@@ -243,7 +236,6 @@ export default function ReservationForm({ sitter, slots, clientName }: Props) {
     startTransition(async () => {
       const result = await createBookingAction(fd);
       if (result.ok) {
-        // Hard redirect to Stripe - leaves the SPA cleanly.
         window.location.href = result.redirectTo;
       } else {
         setError(result.error);
@@ -311,101 +303,95 @@ export default function ReservationForm({ sitter, slots, clientName }: Props) {
 
       {step === 1 && (
         <section style={cardStyle} aria-labelledby="step-1-title">
-          <h2 id="step-1-title" style={stepTitleStyle}>Date de garde</h2>
-          <div>
-            <label htmlFor="start_date" style={labelStyle}>
-              Date
-            </label>
-            <input
-              id="start_date"
-              type="date"
-              value={date}
-              min={today}
-              max={maxDate}
-              onChange={(e) => setDate(e.target.value)}
-              style={inputStyle(!!fieldErrors.start_date)}
-              disabled={isPending}
-              required
-            />
-            {fieldErrors.start_date && <FieldError>{fieldErrors.start_date}</FieldError>}
-          </div>
-
-          <div>
-            <label style={labelStyle}>Durée</label>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8 }}>
-              {DURATIONS.map((d) => {
-                const on = d === duration;
-                return (
-                  <button
-                    type="button"
-                    key={d}
-                    aria-pressed={on}
-                    onClick={() => setDuration(d)}
-                    disabled={isPending}
-                    style={{
-                      padding: "12px 8px",
-                      borderRadius: 12,
-                      border: `1.5px solid ${on ? "var(--coral-500)" : "var(--ink-300)"}`,
-                      background: on ? "var(--coral-50)" : "white",
-                      color: on ? "var(--coral-700)" : "var(--ink-700)",
-                      fontFamily: "var(--font-mono)",
-                      fontSize: 13,
-                      fontWeight: 700,
-                      cursor: isPending ? "not-allowed" : "pointer",
-                    }}
-                  >
+          <h2 id="step-1-title" style={stepTitleStyle}>Durée</h2>
+          <p
+            style={{
+              fontFamily: "var(--font-mono)",
+              fontSize: 13,
+              color: "var(--ink-600)",
+              margin: 0,
+              lineHeight: 1.5,
+            }}
+          >
+            Combien de temps la garde doit-elle durer ?
+          </p>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10 }}>
+            {DURATIONS.map((d) => {
+              const on = d === duration;
+              const price = calculatePrice({ duration: d }).price_cents;
+              return (
+                <button
+                  type="button"
+                  key={d}
+                  aria-pressed={on}
+                  onClick={() => setDuration(d)}
+                  disabled={isPending}
+                  style={{
+                    padding: "18px 8px",
+                    borderRadius: 14,
+                    border: `2px solid ${on ? "var(--coral-500)" : "var(--ink-200)"}`,
+                    background: on ? "var(--coral-50)" : "white",
+                    color: on ? "var(--coral-700)" : "var(--ink-900)",
+                    fontFamily: "var(--font-mono)",
+                    fontWeight: 700,
+                    cursor: isPending ? "not-allowed" : "pointer",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    gap: 6,
+                  }}
+                >
+                  <span style={{ fontFamily: "var(--font-display)", fontSize: 28, fontWeight: 400, lineHeight: 1 }}>
                     {d}h
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          <div>
-            <label htmlFor="start_hour" style={labelStyle}>
-              Heure de début
-            </label>
-            {validStartMins.length === 0 ? (
-              <div
-                style={{
-                  fontFamily: "var(--font-mono)",
-                  fontSize: 12,
-                  color: "var(--ink-500)",
-                  padding: "10px 14px",
-                  background: "var(--ink-50)",
-                  border: "1px dashed var(--ink-300)",
-                  borderRadius: 12,
-                }}
-              >
-                Aucun créneau disponible ce jour pour {duration}h.
-              </div>
-            ) : (
-              <select
-                id="start_hour"
-                value={startMin ?? ""}
-                onChange={(e) => setStartMin(e.target.value === "" ? null : Number(e.target.value))}
-                style={inputStyle(!!fieldErrors.start_hour)}
-                disabled={isPending}
-                required
-              >
-                <option value="" disabled>
-                  Choisir…
-                </option>
-                {validStartMins.map((m) => (
-                  <option key={m} value={m}>
-                    {formatHHMM(m)} – {formatHHMM(m + duration * 60)}
-                  </option>
-                ))}
-              </select>
-            )}
-            {fieldErrors.start_hour && <FieldError>{fieldErrors.start_hour}</FieldError>}
+                  </span>
+                  <span style={{ fontSize: 12, color: on ? "var(--coral-700)" : "var(--ink-500)" }}>
+                    {formatEuros(price)}
+                  </span>
+                </button>
+              );
+            })}
           </div>
         </section>
       )}
 
       {step === 2 && (
         <section style={cardStyle} aria-labelledby="step-2-title">
-          <h2 id="step-2-title" style={stepTitleStyle}>Options</h2>
+          <h2 id="step-2-title" style={stepTitleStyle}>Date &amp; heure</h2>
+          <p
+            style={{
+              fontFamily: "var(--font-mono)",
+              fontSize: 13,
+              color: "var(--ink-600)",
+              margin: 0,
+              lineHeight: 1.5,
+            }}
+          >
+            Quand veux-tu que la garde commence ? Les jours grisés sont indisponibles pour {duration}h.
+          </p>
+
+          <div className="booking-datetime-grid">
+            <BookingCalendar
+              selectedDate={date}
+              onSelect={setDate}
+              today={today}
+              maxDate={maxDate}
+              duration={duration}
+              slots={slots}
+            />
+            <SlotList
+              validStartMins={validStartMins}
+              selected={startMin}
+              onSelect={setStartMin}
+              duration={duration}
+              date={date}
+            />
+          </div>
+        </section>
+      )}
+
+      {step === 3 && (
+        <section style={cardStyle} aria-labelledby="step-3-title">
+          <h2 id="step-3-title" style={stepTitleStyle}>Options</h2>
           <div>
             <label style={labelStyle}>Catégorie du chien</label>
             <label
@@ -497,10 +483,10 @@ export default function ReservationForm({ sitter, slots, clientName }: Props) {
         </section>
       )}
 
-      {step === 3 && (
+      {step === 4 && (
         <>
-          <section style={cardStyle} aria-labelledby="step-3-title">
-            <h2 id="step-3-title" style={stepTitleStyle}>Récapitulatif</h2>
+          <section style={cardStyle} aria-labelledby="step-4-title">
+            <h2 id="step-4-title" style={stepTitleStyle}>Récapitulatif</h2>
             <dl style={recapListStyle}>
               <RecapRow label="Date" value={date ? formatDateLong(date) : "—"} />
               <RecapRow
@@ -595,12 +581,12 @@ export default function ReservationForm({ sitter, slots, clientName }: Props) {
               Précédent
             </button>
           )}
-          {step < 3 ? (
+          {step < 4 ? (
             <button
               type="button"
               className="btn btn-primary btn-lg"
               onClick={goNext}
-              disabled={isPending || (step === 1 && !canLeaveStep1)}
+              disabled={isPending || (step === 2 && !canLeaveStep2)}
               style={{ flex: 1 }}
             >
               Suivant
@@ -618,7 +604,7 @@ export default function ReservationForm({ sitter, slots, clientName }: Props) {
             </button>
           )}
         </div>
-        {step === 3 && (
+        {step === 4 && (
           <div
             style={{
               fontFamily: "var(--font-mono)",
@@ -634,6 +620,430 @@ export default function ReservationForm({ sitter, slots, clientName }: Props) {
     </form>
   );
 }
+
+// =============================================================
+// Calendar
+// =============================================================
+
+// Returns YYYY-MM-DD using Paris semantics (we only care about calendar date).
+function isoFromYMD(y: number, m0: number, d: number): string {
+  return `${y}-${String(m0 + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+}
+
+function computeValidStartMins({
+  date,
+  duration,
+  slots,
+  today,
+}: {
+  date: string;
+  duration: Duration;
+  slots: Slot[];
+  today: string;
+}): number[] {
+  const weekday = weekdayOfDateString(date);
+  const slotsForDay = slots.filter((s) => s.weekday === weekday);
+  if (slotsForDay.length === 0) return [];
+  const earliest = date === today ? currentMinutesInParis() + 1 : 0;
+  const result: number[] = [];
+  for (let m = 0; m <= 23 * 60 + 30; m += 30) {
+    if (m < earliest) continue;
+    const endMin = m + duration * 60;
+    const fits = slotsForDay.some(
+      (s) => timeToMinutes(s.start_time) <= m && timeToMinutes(s.end_time) >= endMin,
+    );
+    if (fits) result.push(m);
+  }
+  return result;
+}
+
+const MONTH_NAMES = [
+  "Janvier", "Février", "Mars", "Avril", "Mai", "Juin",
+  "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre",
+];
+const WEEKDAY_LABELS = ["Lu", "Ma", "Me", "Je", "Ve", "Sa", "Di"];
+
+function BookingCalendar({
+  selectedDate,
+  onSelect,
+  today,
+  maxDate,
+  duration,
+  slots,
+}: {
+  selectedDate: string;
+  onSelect: (date: string) => void;
+  today: string;
+  maxDate: string;
+  duration: Duration;
+  slots: Slot[];
+}) {
+  // Open the calendar on the month of the currently selected date.
+  const [year, month0] = useMemo(() => {
+    const [y, m] = selectedDate.split("-").map(Number);
+    return [y ?? new Date().getFullYear(), (m ?? 1) - 1];
+  }, [selectedDate]);
+  const [viewYear, setViewYear] = useState(year);
+  const [viewMonth0, setViewMonth0] = useState(month0);
+
+  const { cells, canPrev, canNext } = useMemo(() => {
+    return buildCalendarCells({ viewYear, viewMonth0, today, maxDate, duration, slots });
+  }, [viewYear, viewMonth0, today, maxDate, duration, slots]);
+
+  const goPrev = () => {
+    if (!canPrev) return;
+    const next0 = viewMonth0 - 1;
+    if (next0 < 0) {
+      setViewMonth0(11);
+      setViewYear(viewYear - 1);
+    } else {
+      setViewMonth0(next0);
+    }
+  };
+  const goNext = () => {
+    if (!canNext) return;
+    const next0 = viewMonth0 + 1;
+    if (next0 > 11) {
+      setViewMonth0(0);
+      setViewYear(viewYear + 1);
+    } else {
+      setViewMonth0(next0);
+    }
+  };
+
+  return (
+    <div
+      className="booking-calendar-card"
+      style={{
+        border: "1px solid var(--ink-200)",
+        borderRadius: 18,
+        background: "white",
+        display: "flex",
+        flexDirection: "column",
+        gap: 12,
+      }}
+    >
+      {/* Header */}
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
+        <button
+          type="button"
+          aria-label="Mois précédent"
+          onClick={goPrev}
+          disabled={!canPrev}
+          style={calendarNavBtn}
+        >
+          ‹
+        </button>
+        <div
+          style={{
+            fontFamily: "var(--font-mono)",
+            fontSize: 14,
+            fontWeight: 700,
+            color: "var(--ink-900)",
+            textAlign: "center",
+            flex: 1,
+          }}
+        >
+          {MONTH_NAMES[viewMonth0]} {viewYear}
+        </div>
+        <button
+          type="button"
+          aria-label="Mois suivant"
+          onClick={goNext}
+          disabled={!canNext}
+          style={calendarNavBtn}
+        >
+          ›
+        </button>
+      </div>
+
+      {/* Weekday header */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 2 }}>
+        {WEEKDAY_LABELS.map((w) => (
+          <div
+            key={w}
+            style={{
+              fontFamily: "var(--font-mono)",
+              fontSize: 11,
+              fontWeight: 600,
+              color: "var(--ink-500)",
+              textAlign: "center",
+              padding: "4px 0",
+            }}
+          >
+            {w}
+          </div>
+        ))}
+      </div>
+
+      {/* Day grid */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 2 }}>
+        {cells.map((c) => {
+          const isSelected = c.date === selectedDate;
+          const clickable = c.isAvailable;
+          // Visual states:
+          //  - selected (filled coral circle)
+          //  - today (coral text, ring)
+          //  - available (default ink)
+          //  - faded (out of range or no slot)
+          //  - out-of-month (very faded)
+          const color = isSelected
+            ? "white"
+            : !c.inMonth
+              ? "var(--ink-300)"
+              : !clickable
+                ? "var(--ink-300)"
+                : c.isToday
+                  ? "var(--coral-600)"
+                  : "var(--ink-900)";
+          return (
+            <div key={c.date} style={{ display: "flex", justifyContent: "center", padding: "2px 0", minWidth: 0 }}>
+              <button
+                type="button"
+                onClick={() => clickable && onSelect(c.date)}
+                disabled={!clickable}
+                aria-pressed={isSelected}
+                aria-label={c.date}
+                style={{
+                  width: "100%",
+                  maxWidth: 44,
+                  aspectRatio: "1 / 1",
+                  borderRadius: "50%",
+                  border: c.isToday && !isSelected ? "1.5px solid var(--coral-500)" : "1.5px solid transparent",
+                  background: isSelected ? "var(--coral-500)" : "transparent",
+                  color,
+                  fontFamily: "var(--font-mono)",
+                  fontSize: 14,
+                  fontWeight: isSelected || c.isToday ? 700 : 500,
+                  cursor: clickable ? "pointer" : "not-allowed",
+                  padding: 0,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  transition: "background 120ms ease",
+                }}
+              >
+                {c.dayOfMonth}
+              </button>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+const calendarNavBtn: React.CSSProperties = {
+  width: 32,
+  height: 32,
+  borderRadius: 16,
+  border: "1.5px solid var(--ink-200)",
+  background: "white",
+  color: "var(--ink-700)",
+  fontSize: 18,
+  fontWeight: 700,
+  cursor: "pointer",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  lineHeight: 1,
+  padding: 0,
+};
+
+type CalendarCell = {
+  date: string;
+  dayOfMonth: number;
+  inMonth: boolean;
+  isToday: boolean;
+  isAvailable: boolean;
+};
+
+function buildCalendarCells({
+  viewYear,
+  viewMonth0,
+  today,
+  maxDate,
+  duration,
+  slots,
+}: {
+  viewYear: number;
+  viewMonth0: number;
+  today: string;
+  maxDate: string;
+  duration: Duration;
+  slots: Slot[];
+}): { cells: CalendarCell[]; canPrev: boolean; canNext: boolean } {
+  // First day of the displayed month (UTC noon to avoid DST shifts).
+  const firstOfMonth = new Date(Date.UTC(viewYear, viewMonth0, 1, 12, 0, 0));
+  // JS getUTCDay: Sun=0..Sat=6. Calendar is Monday-first, so shift.
+  const jsDay = firstOfMonth.getUTCDay();
+  const offsetToMonday = (jsDay + 6) % 7;
+  // Start = Monday on or before the 1st.
+  const start = new Date(firstOfMonth);
+  start.setUTCDate(firstOfMonth.getUTCDate() - offsetToMonday);
+
+  const cells: CalendarCell[] = [];
+  for (let i = 0; i < 42; i++) {
+    const d = new Date(start);
+    d.setUTCDate(start.getUTCDate() + i);
+    const y = d.getUTCFullYear();
+    const m0 = d.getUTCMonth();
+    const dom = d.getUTCDate();
+    const date = isoFromYMD(y, m0, dom);
+    const inMonth = m0 === viewMonth0 && y === viewYear;
+    const inRange = date >= today && date <= maxDate;
+    const isToday = date === today;
+    let isAvailable = false;
+    if (inRange) {
+      // Cheap day-level check: does the sitter have ANY weekly slot for this
+      // weekday that can fit the chosen duration? For today, also require at
+      // least one half-hour increment ≥ now.
+      const weekday = weekdayOfDateString(date);
+      const slotsForDay = slots.filter((s) => s.weekday === weekday);
+      if (slotsForDay.length > 0) {
+        const earliest = date === today ? currentMinutesInParis() + 1 : 0;
+        outer: for (let mins = 0; mins <= 23 * 60 + 30; mins += 30) {
+          if (mins < earliest) continue;
+          const endMin = mins + duration * 60;
+          for (const s of slotsForDay) {
+            if (timeToMinutes(s.start_time) <= mins && timeToMinutes(s.end_time) >= endMin) {
+              isAvailable = true;
+              break outer;
+            }
+          }
+        }
+      }
+    }
+    cells.push({ date, dayOfMonth: dom, inMonth, isToday, isAvailable });
+  }
+
+  // Prev/next month navigation gates: don't go past today's month, nor past
+  // the maxDate month.
+  const [ty, tm0] = parseYearMonth(today);
+  const [xy, xm0] = parseYearMonth(maxDate);
+  const canPrev = viewYear > ty || (viewYear === ty && viewMonth0 > tm0);
+  const canNext = viewYear < xy || (viewYear === xy && viewMonth0 < xm0);
+
+  return { cells, canPrev, canNext };
+}
+
+function parseYearMonth(iso: string): [number, number] {
+  const [y, m] = iso.split("-").map(Number);
+  return [y ?? 0, (m ?? 1) - 1];
+}
+
+// =============================================================
+// Slot list
+// =============================================================
+
+function SlotList({
+  validStartMins,
+  selected,
+  onSelect,
+  duration,
+  date,
+}: {
+  validStartMins: number[];
+  selected: number | null;
+  onSelect: (m: number) => void;
+  duration: Duration;
+  date: string;
+}) {
+  if (validStartMins.length === 0) {
+    return (
+      <div
+        style={{
+          border: "1px dashed var(--ink-300)",
+          borderRadius: 18,
+          padding: "var(--space-6)",
+          background: "var(--ink-50)",
+          fontFamily: "var(--font-mono)",
+          fontSize: 13,
+          color: "var(--ink-600)",
+          lineHeight: 1.5,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          textAlign: "center",
+        }}
+      >
+        Aucun créneau pour {duration}h le {formatDateLong(date)}. Choisis une autre date.
+      </div>
+    );
+  }
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+      {validStartMins.map((m) => {
+        const on = selected === m;
+        const late = m >= LATE_MINUTES_THRESHOLD;
+        return (
+          <button
+            key={m}
+            type="button"
+            onClick={() => onSelect(m)}
+            aria-pressed={on}
+            style={{
+              border: `2px solid ${on ? "var(--coral-500)" : "var(--ink-200)"}`,
+              borderRadius: 14,
+              background: on ? "var(--coral-50)" : "white",
+              padding: "14px 16px",
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              gap: 12,
+              textAlign: "left",
+              transition: "border-color 120ms ease, background 120ms ease",
+            }}
+          >
+            <div style={{ display: "flex", flexDirection: "column", gap: 2, minWidth: 0 }}>
+              <span
+                style={{
+                  fontFamily: "var(--font-mono)",
+                  fontSize: 16,
+                  fontWeight: 700,
+                  color: on ? "var(--coral-700)" : "var(--ink-900)",
+                }}
+              >
+                {formatHHMM(m)} – {formatHHMM(m + duration * 60)}
+              </span>
+              <span
+                style={{
+                  fontFamily: "var(--font-mono)",
+                  fontSize: 11,
+                  color: "var(--ink-500)",
+                }}
+              >
+                {periodLabel(m)}
+              </span>
+            </div>
+            {late && (
+              <span
+                style={{
+                  fontFamily: "var(--font-mono)",
+                  fontSize: 10,
+                  fontWeight: 700,
+                  color: "var(--coral-700)",
+                  background: "var(--peach-100)",
+                  borderRadius: 999,
+                  padding: "4px 10px",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                +8€
+              </span>
+            )}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+// =============================================================
+// Small helpers (recap row, step indicator, field error)
+// =============================================================
 
 const stepTitleStyle: React.CSSProperties = {
   fontFamily: "var(--font-display)",
@@ -701,13 +1111,13 @@ function RecapRow({
 }
 
 function StepIndicator({ current }: { current: Step }) {
-  const steps: Step[] = [1, 2, 3];
+  const steps: Step[] = [1, 2, 3, 4];
   return (
     <ol
       style={{
         display: "flex",
         alignItems: "center",
-        gap: 8,
+        gap: 6,
         listStyle: "none",
         padding: 0,
         margin: 0,
@@ -721,27 +1131,27 @@ function StepIndicator({ current }: { current: Step }) {
         return (
           <li
             key={s}
-            style={{ display: "flex", alignItems: "center", flex: 1, gap: 8 }}
+            style={{ display: "flex", alignItems: "center", flex: 1, gap: 6, minWidth: 0 }}
             aria-current={isCurrent ? "step" : undefined}
           >
             <div
               style={{
                 display: "flex",
                 alignItems: "center",
-                gap: 8,
+                gap: 6,
                 flex: "0 0 auto",
               }}
             >
               <span
                 style={{
-                  width: 24,
-                  height: 24,
-                  borderRadius: 12,
+                  width: 22,
+                  height: 22,
+                  borderRadius: 11,
                   display: "inline-flex",
                   alignItems: "center",
                   justifyContent: "center",
                   fontFamily: "var(--font-mono)",
-                  fontSize: 11,
+                  fontSize: 10,
                   fontWeight: 700,
                   background: isDone || isCurrent ? "var(--coral-500)" : "white",
                   color: isDone || isCurrent ? "white" : "var(--ink-500)",
@@ -753,11 +1163,12 @@ function StepIndicator({ current }: { current: Step }) {
               <span
                 style={{
                   fontFamily: "var(--font-mono)",
-                  fontSize: 11,
+                  fontSize: 10,
                   fontWeight: 600,
                   letterSpacing: "0.06em",
                   textTransform: "uppercase",
                   color: isCurrent ? "var(--coral-600)" : "var(--ink-500)",
+                  whiteSpace: "nowrap",
                 }}
               >
                 {STEP_LABELS[s]}
@@ -771,6 +1182,7 @@ function StepIndicator({ current }: { current: Step }) {
                   height: 1.5,
                   background: isDone ? "var(--coral-500)" : "var(--ink-200)",
                   borderRadius: 1,
+                  minWidth: 8,
                 }}
               />
             )}
