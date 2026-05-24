@@ -26,8 +26,8 @@ type Props = {
 type Step = 1 | 2 | 3 | 4;
 
 const STEP_LABELS: Record<Step, string> = {
-  1: "Durée",
-  2: "Date",
+  1: "Date",
+  2: "Durée",
   3: "Options",
   4: "Récap",
 };
@@ -170,11 +170,29 @@ export default function ReservationForm({ sitter, slots, clientName }: Props) {
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [isPending, startTransition] = useTransition();
 
-  // Half-hour start slots the sitter actually offers on the chosen date for
-  // the chosen duration. Computed locally - server re-validates the same rule.
+  // Step 1 picks date + start time using the most permissive filter (1h),
+  // so the client sees every viable starting point before committing to a
+  // duration. Duration is picked in step 2 where impossible options are
+  // disabled per the actually-available window at the chosen start.
   const validStartMins = useMemo(() => {
-    return computeValidStartMins({ date, duration, slots, today });
-  }, [date, duration, slots, today]);
+    return computeValidStartMins({ date, duration: 1, slots, today });
+  }, [date, slots, today]);
+
+  // Max duration (1/2/3 h) that fits the sitter's weekly slots at the
+  // currently selected start. 0 means nothing fits (shouldn't happen since
+  // validStartMins guarantees ≥ 1h).
+  const maxDuration = useMemo<Duration | 0>(() => {
+    if (startMin === null) return 0;
+    const weekday = weekdayOfDateString(date);
+    const slotsForDay = slots.filter((s) => s.weekday === weekday);
+    for (const d of [3, 2, 1] as const) {
+      const fits = slotsForDay.some(
+        (s) => timeToMinutes(s.start_time) <= startMin && timeToMinutes(s.end_time) >= startMin + d * 60,
+      );
+      if (fits) return d;
+    }
+    return 0;
+  }, [date, slots, startMin]);
 
   // Live pricing preview. Server is authoritative; this is purely for UX.
   const breakdown = useMemo(() => {
@@ -187,19 +205,23 @@ export default function ReservationForm({ sitter, slots, clientName }: Props) {
     });
   }, [duration, dangerous, startMin]);
 
-  // Drop the selected start time if it's no longer valid after a date/duration change.
+  // Drop the selected start time if it's no longer valid after a date change.
   if (startMin !== null && !validStartMins.includes(startMin)) {
     setStartMin(null);
+  }
+  // Snap duration down if it no longer fits the chosen start.
+  if (maxDuration !== 0 && duration > maxDuration) {
+    setDuration(maxDuration);
   }
 
   const dangerousAvailable = sitter.accepts_dangerous_breeds;
   const zoneOptions = ZONES;
 
-  const canLeaveStep2 = startMin !== null;
+  const canLeaveStep1 = startMin !== null;
 
   const goNext = () => {
     setError(null);
-    if (step === 2 && !canLeaveStep2) {
+    if (step === 1 && !canLeaveStep1) {
       setError("Choisis une heure de début.");
       return;
     }
@@ -219,7 +241,7 @@ export default function ReservationForm({ sitter, slots, clientName }: Props) {
     if (startMin === null) {
       setError("Choisis une heure de début.");
       setFieldErrors({ start_hour: "Heure requise" });
-      setStep(2);
+      setStep(1);
       return;
     }
 
@@ -244,11 +266,46 @@ export default function ReservationForm({ sitter, slots, clientName }: Props) {
     });
   };
 
+  const onBackArrow = () => {
+    if (step > 1) {
+      goPrev();
+    } else if (typeof window !== "undefined") {
+      window.location.href = `/sitters/${sitter.id}`;
+    }
+  };
+
   return (
     <form
       onSubmit={handleSubmit}
       style={{ display: "flex", flexDirection: "column", gap: "var(--space-6)" }}
     >
+      {/* Back arrow (top-left): goes to previous step, or sitter profile on step 1 */}
+      <button
+        type="button"
+        onClick={onBackArrow}
+        aria-label={step > 1 ? "Étape précédente" : "Retour au profil du sitter"}
+        disabled={isPending}
+        style={{
+          width: 40,
+          height: 40,
+          borderRadius: 20,
+          border: "1.5px solid var(--ink-200)",
+          background: "white",
+          color: "var(--ink-700)",
+          fontSize: 20,
+          fontWeight: 700,
+          cursor: "pointer",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          padding: 0,
+          lineHeight: 1,
+          alignSelf: "flex-start",
+        }}
+      >
+        ‹
+      </button>
+
       {/* Sitter banner */}
       <header style={{ display: "flex", alignItems: "center", gap: 16 }}>
         <div
@@ -303,7 +360,7 @@ export default function ReservationForm({ sitter, slots, clientName }: Props) {
 
       {step === 1 && (
         <section style={cardStyle} aria-labelledby="step-1-title">
-          <h2 id="step-1-title" style={stepTitleStyle}>Durée</h2>
+          <h2 id="step-1-title" style={stepTitleStyle}>Date &amp; heure</h2>
           <p
             style={{
               fontFamily: "var(--font-mono)",
@@ -313,11 +370,50 @@ export default function ReservationForm({ sitter, slots, clientName }: Props) {
               lineHeight: 1.5,
             }}
           >
-            Combien de temps la garde doit-elle durer ?
+            Quand veux-tu que la garde commence ? Tu choisiras la durée juste après.
+          </p>
+
+          <div className="booking-datetime-grid">
+            <BookingCalendar
+              selectedDate={date}
+              onSelect={setDate}
+              today={today}
+              maxDate={maxDate}
+              slots={slots}
+            />
+            <SlotList
+              validStartMins={validStartMins}
+              selected={startMin}
+              onSelect={setStartMin}
+              date={date}
+            />
+          </div>
+        </section>
+      )}
+
+      {step === 2 && (
+        <section style={cardStyle} aria-labelledby="step-2-title">
+          <h2 id="step-2-title" style={stepTitleStyle}>Durée</h2>
+          <p
+            style={{
+              fontFamily: "var(--font-mono)",
+              fontSize: 13,
+              color: "var(--ink-600)",
+              margin: 0,
+              lineHeight: 1.5,
+            }}
+          >
+            Combien de temps la garde doit-elle durer ?{" "}
+            {maxDuration > 0 && maxDuration < 3 && (
+              <span style={{ color: "var(--ink-500)" }}>
+                À partir de {startMin !== null ? formatHHMM(startMin) : "ce créneau"}, jusqu'à {maxDuration}h possible.
+              </span>
+            )}
           </p>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10 }}>
             {DURATIONS.map((d) => {
               const on = d === duration;
+              const disabled = isPending || (maxDuration > 0 && d > maxDuration);
               const price = calculatePrice({ duration: d }).price_cents;
               return (
                 <button
@@ -325,7 +421,8 @@ export default function ReservationForm({ sitter, slots, clientName }: Props) {
                   key={d}
                   aria-pressed={on}
                   onClick={() => setDuration(d)}
-                  disabled={isPending}
+                  disabled={disabled}
+                  title={disabled && !isPending ? "Ne rentre pas dans le créneau choisi" : undefined}
                   style={{
                     padding: "18px 8px",
                     borderRadius: 14,
@@ -334,7 +431,8 @@ export default function ReservationForm({ sitter, slots, clientName }: Props) {
                     color: on ? "var(--coral-700)" : "var(--ink-900)",
                     fontFamily: "var(--font-mono)",
                     fontWeight: 700,
-                    cursor: isPending ? "not-allowed" : "pointer",
+                    cursor: disabled ? "not-allowed" : "pointer",
+                    opacity: disabled && !on ? 0.4 : 1,
                     display: "flex",
                     flexDirection: "column",
                     alignItems: "center",
@@ -350,41 +448,6 @@ export default function ReservationForm({ sitter, slots, clientName }: Props) {
                 </button>
               );
             })}
-          </div>
-        </section>
-      )}
-
-      {step === 2 && (
-        <section style={cardStyle} aria-labelledby="step-2-title">
-          <h2 id="step-2-title" style={stepTitleStyle}>Date &amp; heure</h2>
-          <p
-            style={{
-              fontFamily: "var(--font-mono)",
-              fontSize: 13,
-              color: "var(--ink-600)",
-              margin: 0,
-              lineHeight: 1.5,
-            }}
-          >
-            Quand veux-tu que la garde commence ? Les jours grisés sont indisponibles pour {duration}h.
-          </p>
-
-          <div className="booking-datetime-grid">
-            <BookingCalendar
-              selectedDate={date}
-              onSelect={setDate}
-              today={today}
-              maxDate={maxDate}
-              duration={duration}
-              slots={slots}
-            />
-            <SlotList
-              validStartMins={validStartMins}
-              selected={startMin}
-              onSelect={setStartMin}
-              duration={duration}
-              date={date}
-            />
           </div>
         </section>
       )}
@@ -567,43 +630,28 @@ export default function ReservationForm({ sitter, slots, clientName }: Props) {
         </div>
       )}
 
-      {/* Nav */}
+      {/* Nav (Précédent now lives in the top-left arrow above) */}
       <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-        <div style={{ display: "flex", gap: 10 }}>
-          {step > 1 && (
-            <button
-              type="button"
-              className="btn btn-outline btn-lg"
-              onClick={goPrev}
-              disabled={isPending}
-              style={{ flex: "0 0 auto" }}
-            >
-              Précédent
-            </button>
-          )}
-          {step < 4 ? (
-            <button
-              type="button"
-              className="btn btn-primary btn-lg"
-              onClick={goNext}
-              disabled={isPending || (step === 2 && !canLeaveStep2)}
-              style={{ flex: 1 }}
-            >
-              Suivant
-              <Icon name="arrow" size={16} color="white" />
-            </button>
-          ) : (
-            <button
-              type="submit"
-              className="btn btn-primary btn-lg"
-              disabled={isPending || startMin === null || validStartMins.length === 0}
-              style={{ flex: 1 }}
-            >
-              {isPending ? "Redirection…" : "Payer et confirmer"}
-              <Icon name="arrow" size={16} color="white" />
-            </button>
-          )}
-        </div>
+        {step < 4 ? (
+          <button
+            type="button"
+            className="btn btn-primary btn-lg btn-block"
+            onClick={goNext}
+            disabled={isPending || (step === 1 && !canLeaveStep1)}
+          >
+            Suivant
+            <Icon name="arrow" size={16} color="white" />
+          </button>
+        ) : (
+          <button
+            type="submit"
+            className="btn btn-primary btn-lg btn-block"
+            disabled={isPending || startMin === null || validStartMins.length === 0}
+          >
+            {isPending ? "Redirection…" : "Payer et confirmer"}
+            <Icon name="arrow" size={16} color="white" />
+          </button>
+        )}
         {step === 4 && (
           <div
             style={{
@@ -668,14 +716,12 @@ function BookingCalendar({
   onSelect,
   today,
   maxDate,
-  duration,
   slots,
 }: {
   selectedDate: string;
   onSelect: (date: string) => void;
   today: string;
   maxDate: string;
-  duration: Duration;
   slots: Slot[];
 }) {
   // Open the calendar on the month of the currently selected date.
@@ -686,9 +732,11 @@ function BookingCalendar({
   const [viewYear, setViewYear] = useState(year);
   const [viewMonth0, setViewMonth0] = useState(month0);
 
+  // Step 1 only filters days that have at least 1h available - duration is
+  // picked in step 2 so we stay permissive here.
   const { cells, canPrev, canNext } = useMemo(() => {
-    return buildCalendarCells({ viewYear, viewMonth0, today, maxDate, duration, slots });
-  }, [viewYear, viewMonth0, today, maxDate, duration, slots]);
+    return buildCalendarCells({ viewYear, viewMonth0, today, maxDate, duration: 1, slots });
+  }, [viewYear, viewMonth0, today, maxDate, slots]);
 
   const goPrev = () => {
     if (!canPrev) return;
@@ -940,13 +988,11 @@ function SlotList({
   validStartMins,
   selected,
   onSelect,
-  duration,
   date,
 }: {
   validStartMins: number[];
   selected: number | null;
   onSelect: (m: number) => void;
-  duration: Duration;
   date: string;
 }) {
   if (validStartMins.length === 0) {
@@ -967,7 +1013,7 @@ function SlotList({
           textAlign: "center",
         }}
       >
-        Aucun créneau pour {duration}h le {formatDateLong(date)}. Choisis une autre date.
+        Aucun créneau disponible le {formatDateLong(date)}. Choisis une autre date.
       </div>
     );
   }
@@ -1006,7 +1052,7 @@ function SlotList({
                   color: on ? "var(--coral-700)" : "var(--ink-900)",
                 }}
               >
-                {formatHHMM(m)} – {formatHHMM(m + duration * 60)}
+                {formatHHMM(m)}
               </span>
               <span
                 style={{
