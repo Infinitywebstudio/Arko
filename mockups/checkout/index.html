@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ARKO — Paiement</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <a href="#" class="back" aria-label="Retour">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+    </a>
+  </header>
+
+  <main class="page">
+    <h1 class="page-title">Validation de la réservation</h1>
+
+    <!-- Mobile-only compact summary at top (collapsible) -->
+    <details class="recap-mobile">
+      <summary>
+        <span class="recap-mobile-left">
+          <span class="recap-mobile-total-label">Récapitulatif</span>
+          <strong class="recap-mobile-total">27,00 €</strong>
+        </span>
+        <span class="recap-mobile-toggle">
+          Détails
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+        </span>
+      </summary>
+      <div class="recap-mobile-body">
+        <!-- mobile recap content is mirrored from the desktop recap via JS-free duplication -->
+        <div class="recap-row">
+          <div class="recap-sitter">
+            <div class="recap-avatar">SL</div>
+            <div>
+              <div class="recap-sitter-name">Sophie L.</div>
+              <div class="recap-sitter-meta">Sitter vérifiée</div>
+            </div>
+          </div>
+        </div>
+        <div class="recap-sep"></div>
+        <div class="recap-row recap-info-row">
+          <span class="recap-label">Date</span>
+          <span class="recap-value">Mer. 27 mai · 14h00</span>
+        </div>
+        <div class="recap-row recap-info-row">
+          <span class="recap-label">Durée</span>
+          <span class="recap-value">2 heures</span>
+        </div>
+        <div class="recap-row recap-info-row">
+          <span class="recap-label">Lieu de rdv</span>
+          <span class="recap-value">Vieux-Port</span>
+        </div>
+        <div class="recap-sep"></div>
+        <div class="recap-row recap-price-row">
+          <span>Garde 2h</span>
+          <span>22,00 €</span>
+        </div>
+        <div class="recap-row recap-price-row">
+          <span>Chien cat. 1/2</span>
+          <span>+5,00 €</span>
+        </div>
+        <div class="recap-sep"></div>
+        <div class="recap-row recap-total-row">
+          <span>Total</span>
+          <strong>27,00 €</strong>
+        </div>
+      </div>
+    </details>
+
+    <div class="grid">
+      <!-- ============ PAYMENT COLUMN ============ -->
+      <section class="card payment-card">
+        <div class="card-head">
+          <h2 class="card-title">Mode de paiement</h2>
+          <div class="secure-pill">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+            <span>Paiement sécurisé</span>
+          </div>
+        </div>
+
+        <div class="methods" role="tablist">
+          <button class="method method--active" data-method="card" role="tab" aria-selected="true">
+            <svg class="method-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"></rect><line x1="2" y1="10" x2="22" y2="10"></line></svg>
+            <span>Carte</span>
+          </button>
+          <button class="method" data-method="apple" role="tab" aria-selected="false">
+            <svg class="method-icon" width="20" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M17.6 12.5c0-2.4 2-3.6 2.1-3.6-1.1-1.7-2.9-1.9-3.5-1.9-1.5-.2-2.9.9-3.6.9-.8 0-1.9-.9-3.1-.8-1.6 0-3.1.9-3.9 2.4-1.7 2.9-.4 7.2 1.2 9.5.8 1.1 1.7 2.4 3 2.3 1.2-.1 1.7-.8 3.1-.8 1.5 0 1.9.8 3.1.8 1.3 0 2.1-1.1 2.9-2.3.9-1.3 1.3-2.6 1.3-2.7-.1-.1-2.6-1-2.6-3.8zM15.2 5.4c.7-.8 1.1-1.9 1-3-1 .1-2.1.7-2.8 1.5-.6.7-1.2 1.8-1 2.9 1.1 0 2.2-.6 2.8-1.4z"/></svg>
+            <span>Apple Pay</span>
+          </button>
+          <button class="method" data-method="gpay" role="tab" aria-selected="false">
+            <svg class="method-icon" width="22" height="22" viewBox="0 0 24 24" fill="none">
+              <path d="M21.35 11.1H12v2.8h5.35c-.25 1.4-1.5 4.1-5.35 4.1-3.2 0-5.85-2.65-5.85-5.95 0-3.3 2.65-5.95 5.85-5.95 1.85 0 3.05.8 3.75 1.5l2.55-2.45C16.9 3.55 14.7 2.6 12 2.6 6.85 2.6 2.65 6.8 2.65 12s4.2 9.4 9.35 9.4c5.4 0 8.95-3.8 8.95-9.15 0-.6-.05-1.1-.15-1.55z" fill="#4285F4"/>
+            </svg>
+            <span>Google Pay</span>
+          </button>
+        </div>
+
+        <!-- Card form (default) -->
+        <div class="form" data-form="card">
+          <div class="field">
+            <label class="field-label" for="email">E-mail</label>
+            <input id="email" class="field-input" type="email" placeholder="jean@exemple.com" value="jean.dupont@exemple.com" />
+          </div>
+
+          <div class="field">
+            <label class="field-label" for="card-number">Numéro de carte</label>
+            <div class="field-with-suffix">
+              <input id="card-number" class="field-input" type="text" inputmode="numeric" placeholder="1234 1234 1234 1234" autocomplete="cc-number" maxlength="19" />
+              <div class="card-brands">
+                <span class="brand-pill brand-visa">VISA</span>
+                <span class="brand-pill brand-mc">
+                  <span class="mc-dot mc-red"></span><span class="mc-dot mc-yellow"></span>
+                </span>
+                <span class="brand-pill brand-amex">AMEX</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="field-row">
+            <div class="field">
+              <label class="field-label" for="exp">Date d'expiration</label>
+              <input id="exp" class="field-input" type="text" inputmode="numeric" placeholder="MM / AA" maxlength="7" />
+            </div>
+            <div class="field">
+              <label class="field-label" for="cvc">Cryptogramme</label>
+              <div class="field-with-suffix">
+                <input id="cvc" class="field-input" type="text" inputmode="numeric" placeholder="CVC" maxlength="4" />
+                <svg class="cvc-hint" width="22" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"></rect><line x1="2" y1="10" x2="22" y2="10"></line><line x1="14" y1="15" x2="18" y2="15"></line></svg>
+              </div>
+            </div>
+          </div>
+
+          <div class="field">
+            <label class="field-label" for="holder">Titulaire de la carte</label>
+            <input id="holder" class="field-input" type="text" placeholder="Jean Dupont" autocomplete="cc-name" />
+          </div>
+
+          <button class="cta" type="button">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+            <span class="cta-text">Payer 27,00 €</span>
+          </button>
+        </div>
+
+        <!-- Apple Pay state (hidden by default) -->
+        <div class="form form-wallet" data-form="apple" hidden>
+          <p class="wallet-intro">Confirmez avec Touch ID, Face ID ou votre code.</p>
+          <button class="cta cta-dark" type="button">
+            <svg width="18" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M17.6 12.5c0-2.4 2-3.6 2.1-3.6-1.1-1.7-2.9-1.9-3.5-1.9-1.5-.2-2.9.9-3.6.9-.8 0-1.9-.9-3.1-.8-1.6 0-3.1.9-3.9 2.4-1.7 2.9-.4 7.2 1.2 9.5.8 1.1 1.7 2.4 3 2.3 1.2-.1 1.7-.8 3.1-.8 1.5 0 1.9.8 3.1.8 1.3 0 2.1-1.1 2.9-2.3.9-1.3 1.3-2.6 1.3-2.7-.1-.1-2.6-1-2.6-3.8zM15.2 5.4c.7-.8 1.1-1.9 1-3-1 .1-2.1.7-2.8 1.5-.6.7-1.2 1.8-1 2.9 1.1 0 2.2-.6 2.8-1.4z"/></svg>
+            <span>Payer avec Apple Pay</span>
+          </button>
+        </div>
+
+        <!-- Google Pay state (hidden by default) -->
+        <div class="form form-wallet" data-form="gpay" hidden>
+          <p class="wallet-intro">Sélectionnez votre carte dans Google Pay.</p>
+          <button class="cta cta-dark" type="button">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M21.35 11.1H12v2.8h5.35c-.25 1.4-1.5 4.1-5.35 4.1-3.2 0-5.85-2.65-5.85-5.95 0-3.3 2.65-5.95 5.85-5.95 1.85 0 3.05.8 3.75 1.5l2.55-2.45C16.9 3.55 14.7 2.6 12 2.6 6.85 2.6 2.65 6.8 2.65 12s4.2 9.4 9.35 9.4c5.4 0 8.95-3.8 8.95-9.15 0-.6-.05-1.1-.15-1.55z" fill="#4285F4"/></svg>
+            <span>Payer avec Google Pay</span>
+          </button>
+        </div>
+
+        <div class="trust">
+          <div class="trust-row">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+            <span>Paiement chiffré · traitement par <strong>Stripe</strong></span>
+          </div>
+          <div class="trust-row">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            <span>Annulation gratuite jusqu'au début de la garde</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ RECAP COLUMN (desktop sticky) ============ -->
+      <aside class="recap">
+        <div class="recap-card">
+          <div class="recap-sitter">
+            <div class="recap-avatar">SL</div>
+            <div>
+              <div class="recap-sitter-name">Sophie L.</div>
+              <div class="recap-sitter-meta">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8l-6.2 4.5 2.4-7.4L2 9.4h7.6L12 2z"/></svg>
+                <span>Sitter vérifiée</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="recap-sep"></div>
+
+          <div class="recap-info">
+            <div class="recap-info-line">
+              <span class="recap-info-label">Date</span>
+              <span class="recap-info-value">Mer. 27 mai · 14h00</span>
+            </div>
+            <div class="recap-info-line">
+              <span class="recap-info-label">Durée</span>
+              <span class="recap-info-value">2 heures</span>
+            </div>
+            <div class="recap-info-line">
+              <span class="recap-info-label">Lieu de rdv</span>
+              <span class="recap-info-value">Vieux-Port</span>
+            </div>
+          </div>
+
+          <div class="recap-sep"></div>
+
+          <div class="recap-price">
+            <h3 class="recap-h">Détail du prix</h3>
+            <div class="recap-price-line">
+              <span>Garde 2h</span>
+              <span>22,00 €</span>
+            </div>
+            <div class="recap-price-line">
+              <span>Chien cat. 1/2</span>
+              <span>+5,00 €</span>
+            </div>
+          </div>
+
+          <div class="recap-sep"></div>
+
+          <div class="recap-total">
+            <span>Total</span>
+            <strong>27,00 €</strong>
+          </div>
+
+          <div class="recap-reassure">
+            <div class="reassure-line">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              <span><strong>Annulation gratuite</strong> jusqu'au début de la garde.</span>
+            </div>
+            <div class="reassure-line">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+              <span>Paiement sécurisé Stripe.</span>
+            </div>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>

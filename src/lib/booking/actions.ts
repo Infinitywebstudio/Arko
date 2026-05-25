@@ -20,9 +20,10 @@ const MAX_DAYS_AHEAD = 30;
 // "Urgent" surcharge applies when the client books less than 30 minutes before
 // start. Same threshold the UI uses to label the booking as urgent.
 const URGENT_THRESHOLD_MS = 30 * 60 * 1000;
-// "Late" surcharge applies when the garde starts at or after 19h30 Paris time.
-// Threshold lives in minutes-since-midnight to accommodate the half-hour grid.
-const LATE_MINUTES_THRESHOLD = 19 * 60 + 30;
+// "Late" surcharge applies when the garde starts at or after 19h00 Paris time.
+// Threshold lives in minutes-since-midnight to stay consistent with the
+// half-hour grid the UI exposes.
+const LATE_MINUTES_THRESHOLD = 19 * 60;
 const PARIS_TZ = "Europe/Paris";
 
 function fieldErrorsFromZod(err: z.ZodError): Record<string, string> {
@@ -76,9 +77,10 @@ function timeToMinutes(t: string): number {
 }
 
 /**
- * Create a booking and a Stripe Checkout session for it. On success returns a
- * redirect URL pointing at Stripe's hosted page. The booking row stays at
- * `pending_payment` until the Stripe webhook flips it to `confirmed`.
+ * Create a booking and a Stripe PaymentIntent for it. On success returns a
+ * redirect URL pointing at our embedded checkout page (/reservations/[id]/paiement).
+ * The booking row stays at `pending_payment` until the Stripe webhook flips it to
+ * `confirmed` on `payment_intent.succeeded`.
  */
 export async function createBookingAction(
   formData: FormData,
@@ -231,7 +233,13 @@ export async function createBookingAction(
     return { ok: true, redirectTo: `${siteUrl}/reservations/${booking.id}/merci` };
   }
 
-  // ---------- Stripe Checkout session ---------------------
+  // ---------- Stripe PaymentIntent ------------------------
+  // We embed the payment UI in our own /paiement page via Stripe Elements, so
+  // we need a PaymentIntent (not a Checkout Session). `automatic_payment_methods`
+  // lets Stripe pick which methods to show based on what's enabled on the
+  // account (card always; Apple Pay / Google Pay when wallets are configured
+  // and the device supports them). The client_secret is fetched fresh on the
+  // /paiement page from this PI's ID, so we don't need to persist it.
   const stripe = getStripe();
 
   const dateLabel = new Intl.DateTimeFormat("fr-FR", {
@@ -243,7 +251,7 @@ export async function createBookingAction(
     minute: "2-digit",
   }).format(startAt);
 
-  const productName = `Garde ${input.duration_hours}h · ${dateLabel}`;
+  const productName = `ARKO · Garde ${input.duration_hours}h · ${dateLabel}`;
   const meetingLabel = input.meeting_zone_id ? zoneLabel(input.meeting_zone_id) : null;
   const productDescription = [
     meetingLabel ? `Lieu : ${meetingLabel}` : null,
@@ -252,36 +260,19 @@ export async function createBookingAction(
     late ? "Garde tardive (+8€)" : null,
   ]
     .filter(Boolean)
-    .join(" · ") || "ARKO - garde de chien";
+    .join(" · ") || productName;
 
-  let checkoutUrl: string | null;
+  let paymentIntentId: string | null = null;
   try {
-    const checkout = await stripe.checkout.sessions.create({
-      mode: "payment",
-      payment_method_types: ["card"],
-      line_items: [
-        {
-          quantity: 1,
-          price_data: {
-            currency: "eur",
-            unit_amount: booking.price_cents,
-            product_data: {
-              name: productName,
-              description: productDescription,
-            },
-          },
-        },
-      ],
-      customer_email: session.email,
+    const pi = await stripe.paymentIntents.create({
+      amount: booking.price_cents,
+      currency: "eur",
+      automatic_payment_methods: { enabled: true },
+      receipt_email: session.email,
+      description: productDescription,
       metadata: { booking_id: booking.id },
-      payment_intent_data: { metadata: { booking_id: booking.id } },
-      success_url: `${siteUrl}/reservations/${booking.id}/merci`,
-      cancel_url: `${siteUrl}/sitters/${input.sitter_id}`,
-      // Auto-expire after 30 min of inactivity - caps the time a slot stays held
-      // in pending_payment without payment.
-      expires_at: Math.floor(Date.now() / 1000) + 30 * 60,
     });
-    checkoutUrl = checkout.url;
+    paymentIntentId = pi.id;
   } catch (e) {
     // Roll back the booking so the user can retry. Deletion is allowed because
     // the row is still pending_payment and owned by this user (RLS).
@@ -289,12 +280,26 @@ export async function createBookingAction(
     const message = e instanceof Error ? e.message : "Erreur Stripe inconnue.";
     return { ok: false, error: `Paiement non initialisé : ${message}` };
   }
-  if (!checkoutUrl) {
+
+  // Persist the PI id so the /paiement page can retrieve the client_secret
+  // and the webhook + cancellation flows can act on the right intent.
+  const { error: updateErr } = await supabase
+    .from("bookings")
+    .update({ stripe_payment_intent_id: paymentIntentId })
+    .eq("id", booking.id);
+  if (updateErr) {
+    // The PaymentIntent exists but isn't linked to a booking row anymore.
+    // Cancel the intent so we don't leave dangling intents in Stripe.
+    try {
+      await stripe.paymentIntents.cancel(paymentIntentId);
+    } catch {
+      // Best effort - the intent will auto-expire on its own.
+    }
     await supabase.from("bookings").delete().eq("id", booking.id);
     return { ok: false, error: "Paiement non initialisé." };
   }
 
-  return { ok: true, redirectTo: checkoutUrl };
+  return { ok: true, redirectTo: `${siteUrl}/reservations/${booking.id}/paiement` };
 }
 
 /**
@@ -363,6 +368,13 @@ export async function cancelBookingAction(
   if (updErr) {
     return { ok: false, error: "Mise à jour impossible. Contacte le support." };
   }
+
+  const {
+    sendSitterBookingCancelledByClientNotification,
+    sendClientBookingCancellationConfirmedNotification,
+  } = await import("@/lib/email/booking");
+  void sendSitterBookingCancelledByClientNotification(bookingId);
+  void sendClientBookingCancellationConfirmedNotification(bookingId);
 
   revalidatePath("/compte/bookings");
   return { ok: true };

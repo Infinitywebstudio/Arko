@@ -29,8 +29,8 @@ export const createBookingSchema = z.object({
         .min(0, { message: "Heure invalide" })
         .max(23, { message: "Heure invalide" }),
     ),
-  // 0 or 30 - half-hour granularity for the start minute. Needed so the "late"
-  // threshold (≥ 19h30) can be applied to a 19:30 start.
+  // 0 or 30 - half-hour granularity for the start minute, so the booking grid
+  // can offer 09:30, 10:30, etc. in addition to whole hours.
   start_minute: z
     .union([z.string(), z.number()])
     .optional()

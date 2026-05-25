@@ -8,7 +8,7 @@
  * Options (added on top of the base tariff):
  *   - dangerous_breed (cat. 1/2 dog):     +5€
  *   - urgent (RDV dans < 30 min):         +7€
- *   - late (start ≥ 19h30 Paris time):    +8€
+ *   - late (start ≥ 19h00 Paris time):    +8€
  *
  * IMPORTANT: clients NEVER send a price. The action layer always re-derives
  * the price from these constants - the booking row is then validated by a

@@ -11,14 +11,14 @@ import { getStripe } from "@/lib/stripe/client";
 
 /**
  * Stripe webhook endpoint. Receives signed events about bookings paying through
- * Stripe Checkout. Two transitions matter for MVP:
+ * the embedded checkout (Stripe Elements + PaymentIntent). Two transitions
+ * matter for MVP:
  *
- *   checkout.session.completed → booking moves from pending_payment to
+ *   payment_intent.succeeded → booking moves from pending_payment to
  *     confirmed (no sitter-acceptance step). The sitter is notified of the new
  *     garde and the client gets a confirmation email.
- *   checkout.session.expired   → if the booking is still pending_payment after
- *     the 30-minute Stripe-imposed expiry, drop the row. The slot was held but
- *     never paid for.
+ *   payment_intent.canceled  → drop the booking row if it's still
+ *     pending_payment (the intent was abandoned or explicitly cancelled).
  *
  * Handler discipline:
  *   - Verify the signature before doing anything else. An unsigned (or wrongly
@@ -59,11 +59,11 @@ export async function POST(request: NextRequest) {
 
   try {
     switch (event.type) {
-      case "checkout.session.completed":
-        await handleCheckoutCompleted(event.data.object);
+      case "payment_intent.succeeded":
+        await handlePaymentSucceeded(event.data.object);
         break;
-      case "checkout.session.expired":
-        await handleCheckoutExpired(event.data.object);
+      case "payment_intent.canceled":
+        await handlePaymentCanceled(event.data.object);
         break;
       default:
         // Acknowledge unknown events so Stripe stops retrying them.
@@ -78,26 +78,24 @@ export async function POST(request: NextRequest) {
   return Response.json({ received: true });
 }
 
-async function handleCheckoutCompleted(session: Stripe.Checkout.Session): Promise<void> {
-  const bookingId = session.metadata?.booking_id;
+async function handlePaymentSucceeded(intent: Stripe.PaymentIntent): Promise<void> {
+  const bookingId = intent.metadata?.booking_id;
   if (!bookingId) {
-    console.error("[stripe webhook] checkout.completed missing booking_id metadata", session.id);
+    console.error("[stripe webhook] payment_intent.succeeded missing booking_id metadata", intent.id);
     return;
   }
-  const paymentIntentId =
-    typeof session.payment_intent === "string"
-      ? session.payment_intent
-      : (session.payment_intent?.id ?? null);
 
   const admin = createAdminClient();
 
   // Only flip the row if it's still pending_payment - guard against duplicate
-  // delivery and races with a manual cancel.
+  // delivery and races with a manual cancel. The PI id is already on the row
+  // (set at booking creation in createBookingAction), so we don't update it
+  // here - matching on it would only narrow the row further.
   const { data: updated, error } = await admin
     .from("bookings")
     .update({
       status: "confirmed",
-      stripe_payment_intent_id: paymentIntentId,
+      stripe_payment_intent_id: intent.id,
     })
     .eq("id", bookingId)
     .eq("status", "pending_payment")
@@ -122,8 +120,8 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session): Promis
   await sendClientBookingConfirmedNotification(bookingId);
 }
 
-async function handleCheckoutExpired(session: Stripe.Checkout.Session): Promise<void> {
-  const bookingId = session.metadata?.booking_id;
+async function handlePaymentCanceled(intent: Stripe.PaymentIntent): Promise<void> {
+  const bookingId = intent.metadata?.booking_id;
   if (!bookingId) return;
 
   const admin = createAdminClient();
@@ -135,6 +133,6 @@ async function handleCheckoutExpired(session: Stripe.Checkout.Session): Promise<
     .eq("id", bookingId)
     .eq("status", "pending_payment");
   if (error) {
-    console.error("[stripe webhook] expired cleanup failed", bookingId, error);
+    console.error("[stripe webhook] cancel cleanup failed", bookingId, error);
   }
 }

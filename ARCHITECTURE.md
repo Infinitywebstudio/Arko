@@ -119,7 +119,7 @@ La plateforme **n'utilise pas Stripe Connect**. Conséquences :
 | 2h | 35,00 € | 23,00 € | 12,00 € |
 | 3h | 50,00 € | 33,00 € | 17,00 € |
 
-**Options** (+addons sur le total client) : chien cat. 1/2 +5 €, urgent (<30 min) +7 €, tardive (début ≥ 19 h 30) +8 €. La répartition options vs base est documentée dans le code (constante `OPTION_RECIPIENT`, par défaut 100 % plateforme — à valider avec le client).
+**Options** (+addons sur le total client) : chien cat. 1/2 +5 €, urgent (<30 min) +7 €, tardive (début ≥ 19 h) +8 €. La répartition options vs base est documentée dans le code (constante `OPTION_RECIPIENT`, par défaut 100 % plateforme — à valider avec le client).
 
 ### 4.3 Flow technique
 

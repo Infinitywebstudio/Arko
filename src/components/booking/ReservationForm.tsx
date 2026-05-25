@@ -126,8 +126,8 @@ function formatHHMM(minutesSinceMidnight: number): string {
   return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
 }
 
-// "Late" surcharge mirrors the server: starts at or after 19h30 Paris time.
-const LATE_MINUTES_THRESHOLD = 19 * 60 + 30;
+// "Late" surcharge mirrors the server: starts at or after 19h00 Paris time.
+const LATE_MINUTES_THRESHOLD = 19 * 60;
 
 function formatDateLong(dateStr: string): string {
   const d = new Date(`${dateStr}T12:00:00Z`);
