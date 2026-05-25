@@ -64,24 +64,56 @@ function arkoAppearance(): Appearance {
       ".Tab": {
         border: "1px solid #D8D5C8",
         backgroundColor: "#FFFFFF",
+        color: "#2E322E",
         padding: "12px 8px",
         minHeight: "72px",
       },
       ".Tab:hover": {
         borderColor: "#8A8B7E",
+        color: "#0F1310",
       },
       ".Tab--selected": {
         border: "1.5px solid #3C582E",
         backgroundColor: "#F1F6EE",
         color: "#223419",
       },
+      ".Tab--selected:hover": {
+        border: "1.5px solid #3C582E",
+        backgroundColor: "#F1F6EE",
+        color: "#223419",
+      },
       ".Tab--selected:focus": {
+        border: "1.5px solid #3C582E",
+        backgroundColor: "#F1F6EE",
+        color: "#223419",
         boxShadow: "0 0 0 3px #F1F6EE",
+      },
+      ".TabIcon--selected": {
+        fill: "#3C582E",
+      },
+      ".TabIcon--selected:hover": {
+        fill: "#3C582E",
       },
       ".TabLabel": {
         fontSize: "12px",
         fontWeight: "600",
         letterSpacing: "0.02em",
+        color: "#2E322E",
+      },
+      ".TabLabel:hover": {
+        color: "#0F1310",
+      },
+      ".TabIcon": {
+        fill: "#5F6259",
+      },
+      ".TabIcon:hover": {
+        fill: "#0F1310",
+      },
+      ".TabLabel--selected": {
+        color: "#223419",
+      },
+      ".TabLabel--selected:hover": {
+        color: "#223419",
       },
       ".Label": {
         fontSize: "11px",
