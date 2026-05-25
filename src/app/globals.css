@@ -382,11 +382,7 @@ img { max-width: 100%; display: block; }
   display: flex;
   align-items: center;
   padding: var(--space-2) var(--space-4);
-  border-bottom: 1px solid var(--ink-200);
-  background: var(--ink-0);
-  position: sticky;
-  top: 0;
-  z-index: 10;
+  background: transparent;
 }
 .checkout-back {
   width: 40px;
@@ -404,15 +400,15 @@ img { max-width: 100%; display: block; }
 .checkout-page {
   max-width: 1100px;
   margin: 0 auto;
-  padding: var(--space-8) var(--space-5) var(--space-10);
+  padding: var(--space-2) var(--space-5) var(--space-6);
 }
 .checkout-title {
   font-family: var(--font-display);
   font-weight: 900;
-  font-size: 44px;
+  font-size: 32px;
   letter-spacing: 0.01em;
   color: var(--ink-900);
-  margin-bottom: var(--space-6);
+  margin-bottom: var(--space-4);
   line-height: 1;
 }
 
@@ -516,7 +512,7 @@ img { max-width: 100%; display: block; }
 /* ----- Recap card (right column on desktop) ----- */
 .checkout-recap-desktop {
   position: sticky;
-  top: 84px;
+  top: var(--space-4);
 }
 .checkout-recap-card {
   background: var(--ink-0);
@@ -707,7 +703,7 @@ img { max-width: 100%; display: block; }
   }
 }
 @media (max-width: 560px) {
-  .checkout-title { font-size: 34px; }
-  .checkout-page { padding: var(--space-5) var(--space-4); }
+  .checkout-title { font-size: 26px; }
+  .checkout-page { padding: var(--space-2) var(--space-4) var(--space-5); }
   .checkout-payment-card { padding: var(--space-4); }
 }
