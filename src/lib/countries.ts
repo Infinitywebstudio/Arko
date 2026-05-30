@@ -351,7 +351,12 @@ export function parseE164(
  * caller can decide whether to persist null vs. an incomplete number.
  */
 export function toE164(country: Country, local: string): string | null {
-  const digits = digitsOnly(local);
+  // E.164 numbers never carry a national trunk prefix. Strip leading zeros so
+  // a French user typing "06 12 34 56 78" produces +33612345678, not
+  // +330612345678 — the latter passes shape validation but is unroutable
+  // (Brevo soft-bounces, some carriers reject outright). Safe across countries:
+  // no E.164 subscriber number ever starts with 0.
+  const digits = digitsOnly(local).replace(/^0+/, "");
   if (digits.length === 0) return null;
   return `${country.dialCode}${digits}`;
 }
