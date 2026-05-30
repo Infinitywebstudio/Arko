@@ -6,8 +6,10 @@ import { sendSms } from "./client";
 const PARIS_TZ = "Europe/Paris";
 
 /**
- * Compact date for SMS: "22/05 a 14h30". Kept short and GSM-7-safe so the whole
- * message stays in a single 160-char segment (one billable SMS).
+ * Compact date for SMS: "22/05 à 14h30". Kept short and GSM-7-safe so the whole
+ * message stays in a single 160-char segment (one billable SMS). The `à` is in
+ * the GSM-7 base alphabet (same 1-byte cost as ASCII letters); avoid `â`/`ê`/
+ * curly quotes/emoji which would force UCS-2 and split the SMS.
  */
 const formatShort = (iso: string): string => {
   const parts = new Intl.DateTimeFormat("fr-FR", {
@@ -18,7 +20,7 @@ const formatShort = (iso: string): string => {
     minute: "2-digit",
   }).formatToParts(new Date(iso));
   const get = (type: string) => parts.find((p) => p.type === type)?.value ?? "";
-  return `${get("day")}/${get("month")} a ${get("hour")}h${get("minute")}`;
+  return `${get("day")}/${get("month")} à ${get("hour")}h${get("minute")}`;
 };
 
 /**
@@ -37,7 +39,7 @@ export async function sendSitterBookingSms(bookingId: string): Promise<void> {
 
     const { data: booking, error } = await admin
       .from("bookings")
-      .select("id, sitter_id, start_at, duration_hours, client_full_name")
+      .select("id, sitter_id, start_at, duration_hours, client_full_name, client_phone")
       .eq("id", bookingId)
       .single();
     if (error || !booking) {
@@ -58,16 +60,27 @@ export async function sendSitterBookingSms(bookingId: string): Promise<void> {
       return;
     }
 
-    const firstName = booking.client_full_name.split(" ")[0] || booking.client_full_name;
     const when = formatShort(booking.start_at);
 
     const siteUrl =
       process.env.NEXT_PUBLIC_SITE_URL ??
       (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000");
 
-    // Single GSM-7 segment. No emoji/curly quotes (would force UCS-2 and split
-    // into multiple billable segments).
-    const content = `ARKO - Nouvelle garde confirmee : ${firstName}, ${when} (${booking.duration_hours}h). Contact + details dans votre espace : ${siteUrl}/sitter`;
+    // Structured layout mirrors the sitter email so the SMS is scannable at
+    // a glance: who, how to reach them, when, and where to read the rest.
+    // Stays in a single GSM-7 segment for typical French names (<=50 chars):
+    // `é`/`à` are in the base alphabet, no UCS-2 fallback. The `Tél` line is
+    // omitted if the booking has no phone on file (defensive — the booking
+    // flow normally requires it).
+    const content = [
+      "ARKO - Garde confirmée",
+      `Client : ${booking.client_full_name}`,
+      booking.client_phone ? `Tél : ${booking.client_phone}` : null,
+      `Date : ${when} (${booking.duration_hours}h)`,
+      `Détails : ${siteUrl}/sitter`,
+    ]
+      .filter(Boolean)
+      .join("\n");
 
     await sendSms({ to: sitterPhone, content, context: "booking" });
   } catch (e) {
