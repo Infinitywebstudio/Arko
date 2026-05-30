@@ -112,6 +112,19 @@ export async function createBookingAction(
   }
   const input = parsed.data;
 
+  // ---------- Sitter must be a real sitter ----------------
+  // The schema only checks sitter_id is a UUID, and the bookings FK only checks
+  // the id exists in profiles (any role). Reject self-booking and confirm the
+  // target is actually a sitter via sitters_public (the only sitter-row source
+  // a client can read before a booking exists).
+  if (input.sitter_id === session.userId) {
+    return {
+      ok: false,
+      error: "Tu ne peux pas te réserver toi-même.",
+      fieldErrors: { sitter_id: "Sitter invalide" },
+    };
+  }
+
   // ---------- Time gates ----------------------------------
   const startAt = parisDateTimeToUtc(input.start_date, input.start_hour, input.start_minute);
   const now = new Date();
@@ -134,6 +147,20 @@ export async function createBookingAction(
 
   // ---------- Slot must fit sitter's weekly availability --
   const supabase = await createClient();
+
+  const { data: sitterPublic } = await supabase
+    .from("sitters_public")
+    .select("id")
+    .eq("id", input.sitter_id)
+    .maybeSingle();
+  if (!sitterPublic) {
+    return {
+      ok: false,
+      error: "Sitter introuvable.",
+      fieldErrors: { sitter_id: "Sitter invalide" },
+    };
+  }
+
   const weekday = parisWeekday(startAt);
   const { data: slots, error: slotsErr } = await supabase
     .from("sitter_availability")

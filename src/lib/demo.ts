@@ -19,9 +19,13 @@
  * intermediate mode - everything is either fully real or fully simulated.
  *
  * Treat demo mode as a build-time-shaped, runtime-evaluated flag: it MUST
- * NOT be on in production. The infrastructure has no hard guard for this;
- * it's a discipline rule documented here.
+ * NOT be on in production. On top of the documented discipline rule, we now
+ * enforce a HARD guard below so a leaked/misplaced env var can never let
+ * bookings confirm without payment on the production deployment.
  */
 export function isDemoMode(): boolean {
+  // Hard guard: never honour DEMO_MODE on the production Vercel deployment,
+  // regardless of how the var got set. VERCEL_ENV is 'production' there.
+  if (process.env.VERCEL_ENV === "production") return false;
   return process.env.DEMO_MODE === "true";
 }
