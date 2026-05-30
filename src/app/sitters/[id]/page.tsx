@@ -169,10 +169,9 @@ export default async function SitterProfilePage({
             ) : (
               <Link
                 href={`/sitters/${sitter.id}/reserver`}
-                className="arrow-link"
-                style={{ fontSize: 14, fontWeight: 600 }}
+                className="btn btn-primary btn-lg"
               >
-                Réserver une garde <Icon name="arrow" size={14} />
+                Réserver une garde <Icon name="arrow" size={16} />
               </Link>
             )}
           </div>

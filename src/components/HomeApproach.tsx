@@ -56,7 +56,7 @@ const SITTER_STEPS: Step[] = [
     i: "user",
     n: "01",
     t: "Créez votre profil",
-    d: "Bio, expérience, photo. Validation rapide par l’équipe ARKO.",
+    d: "Description, expérience, photo. Validation rapide par l’équipe ARKO.",
   },
   {
     i: "clock",
