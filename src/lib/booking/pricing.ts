@@ -1,9 +1,9 @@
 /**
  * Server-side booking pricing. Hardcoded per the validated tariff sheet:
  *
- *   1h → client pays 19€   sitter gets 13€   platform keeps  6€
- *   2h → client pays 35€   sitter gets 23€   platform keeps 12€
- *   3h → client pays 50€   sitter gets 33€   platform keeps 17€
+ *   1h → client pays 19€   sitter gets 12€   platform keeps  7€
+ *   2h → client pays 35€   sitter gets 21€   platform keeps 14€
+ *   3h → client pays 50€   sitter gets 30€   platform keeps 20€
  *
  * Options (added on top of the base tariff):
  *   - dangerous_breed (cat. 1/2 dog):     +5€
@@ -25,9 +25,9 @@
 export type Duration = 1 | 2 | 3;
 
 const BASE_TARIFF: Record<Duration, { price_cents: number; sitter_payout_cents: number; platform_fee_cents: number }> = {
-  1: { price_cents: 1900, sitter_payout_cents: 1300, platform_fee_cents: 600 },
-  2: { price_cents: 3500, sitter_payout_cents: 2300, platform_fee_cents: 1200 },
-  3: { price_cents: 5000, sitter_payout_cents: 3300, platform_fee_cents: 1700 },
+  1: { price_cents: 1900, sitter_payout_cents: 1200, platform_fee_cents: 700 },
+  2: { price_cents: 3500, sitter_payout_cents: 2100, platform_fee_cents: 1400 },
+  3: { price_cents: 5000, sitter_payout_cents: 3000, platform_fee_cents: 2000 },
 };
 
 const OPTION_SURCHARGES_CENTS = {
