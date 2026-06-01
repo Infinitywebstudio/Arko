@@ -677,7 +677,7 @@ export function HomeFooter() {
     },
     {
       t: "Contact",
-      l: [{ label: "hello@arko.life", href: "mailto:hello@arko.life" }],
+      l: [{ label: "support@arko.life", href: "mailto:support@arko.life" }],
     },
   ];
   return (

@@ -68,7 +68,7 @@ export default function AidePage() {
           }}
         >
           <a
-            href="mailto:hello@arko.life"
+            href="mailto:support@arko.life"
             style={{
               display: "block",
               padding: "var(--space-5)",
@@ -91,7 +91,7 @@ export default function AidePage() {
               Email
             </div>
             <div style={{ fontWeight: 600, fontSize: 16, marginTop: 4 }}>
-              hello@arko.life
+              support@arko.life
             </div>
           </a>
           <a
