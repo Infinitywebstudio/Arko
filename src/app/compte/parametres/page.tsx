@@ -68,7 +68,7 @@ export default async function ClientAccountSettingsPage() {
             margin: 0,
           }}
         >
-          Tes informations, email, mot de passe et suppression du compte.
+          Vos informations, email, mot de passe et suppression du compte.
         </p>
       </div>
 
@@ -76,7 +76,7 @@ export default async function ClientAccountSettingsPage() {
         <div>
           <h2 style={sectionLabelStyle}>Mes informations</h2>
           <p style={{ ...sectionHelpStyle, marginTop: 6 }}>
-            Nom et téléphone - affichés à ton sitter une fois la garde acceptée.
+            Nom et téléphone - affichés à votre sitter une fois la garde acceptée.
           </p>
         </div>
         <IdentityForm
@@ -101,7 +101,7 @@ export default async function ClientAccountSettingsPage() {
         <div>
           <h2 style={sectionLabelStyle}>Mot de passe</h2>
           <p style={{ ...sectionHelpStyle, marginTop: 6 }}>
-            Au moins 8 caractères. Ton mot de passe actuel est requis.
+            Au moins 8 caractères. Votre mot de passe actuel est requis.
           </p>
         </div>
         <PasswordForm />

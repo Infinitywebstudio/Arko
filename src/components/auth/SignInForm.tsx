@@ -53,7 +53,7 @@ export default function SignInForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(
     callbackError === "callback_failed"
-      ? "Lien expiré ou invalide. Réessaie de te connecter."
+      ? "Lien expiré ou invalide. Réessayez de vous connecter."
       : null,
   );
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
@@ -105,7 +105,7 @@ export default function SignInForm() {
             lineHeight: 1.6,
           }}
         >
-          Connecte-toi à ton compte ARKO.
+          Connectez-vous à votre compte ARKO.
         </p>
       </div>
 
@@ -122,7 +122,7 @@ export default function SignInForm() {
           }}
           role="status"
         >
-          Mot de passe modifié. Connecte-toi avec ton nouveau mot de passe.
+          Mot de passe modifié. Connectez-vous avec votre nouveau mot de passe.
         </div>
       )}
 
@@ -249,7 +249,7 @@ export default function SignInForm() {
           href={redirect ? `/inscription?redirect=${encodeURIComponent(redirect)}` : "/inscription"}
           style={{ color: "var(--coral-600)", fontWeight: 600 }}
         >
-          Inscris-toi
+          Inscrivez-vous
         </Link>
       </p>
     </form>

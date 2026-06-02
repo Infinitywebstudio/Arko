@@ -143,8 +143,8 @@ export default async function ReservationThankYouPage({
           }}
         >
           {stillPending
-            ? "Ton paiement est en cours de validation, on confirme ta réservation dans quelques secondes par email."
-            : "Ta réservation est confirmée et le sitter a été prévenu. Tu reçois ses coordonnées par email pour convenir des détails."}
+            ? "Votre paiement est en cours de validation, on confirme votre réservation dans quelques secondes par email."
+            : "Votre réservation est confirmée et le sitter a été prévenu. Vous recevez ses coordonnées par email pour convenir des détails."}
         </p>
 
         <div

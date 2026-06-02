@@ -222,7 +222,7 @@ export default function ReservationForm({ sitter, slots, clientName }: Props) {
   const goNext = () => {
     setError(null);
     if (step === 1 && !canLeaveStep1) {
-      setError("Choisis une heure de début.");
+      setError("Choisissez une heure de début.");
       return;
     }
     setStep((s) => (s < 4 ? ((s + 1) as Step) : s));
@@ -239,7 +239,7 @@ export default function ReservationForm({ sitter, slots, clientName }: Props) {
     setFieldErrors({});
 
     if (startMin === null) {
-      setError("Choisis une heure de début.");
+      setError("Choisissez une heure de début.");
       setFieldErrors({ start_hour: "Heure requise" });
       setStep(1);
       return;
@@ -370,7 +370,7 @@ export default function ReservationForm({ sitter, slots, clientName }: Props) {
               lineHeight: 1.5,
             }}
           >
-            Quand veux-tu que la garde commence ? Tu choisiras la durée juste après.
+            Quand voulez-vous que la garde commence ? Vous choisirez la durée juste après.
           </p>
 
           <div className="booking-datetime-grid">
@@ -1013,7 +1013,7 @@ function SlotList({
           textAlign: "center",
         }}
       >
-        Aucun créneau disponible le {formatDateLong(date)}. Choisis une autre date.
+        Aucun créneau disponible le {formatDateLong(date)}. Choisissez une autre date.
       </div>
     );
   }

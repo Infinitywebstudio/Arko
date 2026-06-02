@@ -9,7 +9,7 @@ import { getCurrentUser, navUserFrom } from "@/lib/auth/helpers";
 
 export const metadata: Metadata = {
   title: "Tous les dog-sitters · ARKO",
-  description: "Parcours tous les dog-sitters ARKO disponibles dans Arles.",
+  description: "Parcourez tous les dog-sitters ARKO disponibles dans Arles.",
 };
 
 // Tints used for the gradient placeholder behind a sitter card when no photo.
@@ -43,7 +43,7 @@ export default async function SittersListPage() {
             marginBottom: "var(--space-4)",
           }}
         >
-          Trouve ton{" "}
+          Trouvez votre{" "}
           <span style={{ color: "var(--coral-500)" }}>sitter</span>
         </h1>
         <p
@@ -181,12 +181,12 @@ function EmptyState() {
         lineHeight: 1.6,
       }}
     >
-      Pas encore de sitter inscrit. Reviens dans quelques jours, ou{" "}
+      Pas encore de sitter inscrit. Revenez dans quelques jours, ou{" "}
       <Link
         href="/inscription"
         style={{ color: "var(--coral-600)", fontWeight: 600, textDecoration: "underline" }}
       >
-        deviens dog-sitter →
+        devenez dog-sitter →
       </Link>
     </div>
   );

@@ -136,7 +136,7 @@ export default function SignUpWizard() {
 
     if (step === 1) {
       if (!data.role) {
-        setError("Choisis ton type de compte pour continuer.");
+        setError("Choisissez votre type de compte pour continuer.");
         return;
       }
       setStep(2);
@@ -176,7 +176,7 @@ export default function SignUpWizard() {
     if (!data.terms) errs.terms = "Acceptation requise";
     if (Object.keys(errs).length) {
       setFieldErrors(errs);
-      if (errs.terms) setError("Tu dois accepter les CGU pour continuer.");
+      if (errs.terms) setError("Vous devez accepter les CGU pour continuer.");
       return;
     }
 
@@ -275,7 +275,7 @@ export default function SignUpWizard() {
               Bienvenue sur{" "}
               <span style={{ fontFamily: "var(--font-brand), system-ui, sans-serif", letterSpacing: "0.02em", color: "var(--coral-600)" }}>ARKO</span>
             </h1>
-            <p style={subtitleStyle}>Comment veux-tu utiliser la plateforme ?</p>
+            <p style={subtitleStyle}>Comment voulez-vous utiliser la plateforme ?</p>
           </div>
           <div
             style={{
@@ -306,9 +306,9 @@ export default function SignUpWizard() {
       {step === 2 && (
         <>
           <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-            <h1 style={titleStyle}>Quel est ton email ?</h1>
+            <h1 style={titleStyle}>Quel est votre email ?</h1>
             <p style={subtitleStyle}>
-              On t'enverra un lien de vérification - pense à confirmer ton inscription.
+              On vous enverra un lien de vérification - pensez à confirmer votre inscription.
             </p>
           </div>
           <div>
@@ -335,7 +335,7 @@ export default function SignUpWizard() {
       {step === 3 && (
         <>
           <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-            <h1 style={titleStyle}>Crée un mot de passe</h1>
+            <h1 style={titleStyle}>Créez un mot de passe</h1>
             <p style={subtitleStyle}>
               Au moins 8 caractères. Mélange majuscules, chiffres et symboles pour plus de
               sécurité.
@@ -434,9 +434,9 @@ export default function SignUpWizard() {
       {step === 4 && (
         <>
           <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-            <h1 style={titleStyle}>Quelques infos sur toi</h1>
+            <h1 style={titleStyle}>Quelques infos sur vous</h1>
             <p style={subtitleStyle}>
-              On a besoin de ton nom et ton numéro pour te mettre en contact avec
+              On a besoin de votre nom et votre numéro pour vous mettre en contact avec
               {data.role === "sitter" ? " les clients" : " les sitters"}.
             </p>
           </div>
@@ -560,9 +560,9 @@ export default function SignUpWizard() {
             margin: 0,
           }}
         >
-          Tu as déjà un compte ?{" "}
+          Vous avez déjà un compte ?{" "}
           <Link href="/connexion" style={{ color: "var(--coral-600)", fontWeight: 600 }}>
-            Connecte-toi
+            Connectez-vous
           </Link>
         </p>
       )}

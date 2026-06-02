@@ -27,12 +27,12 @@ export function ClientBookingCancelledBySitter({
 
       <Text style={{ fontSize: 15, lineHeight: 1.6, margin: "0 0 12px" }}>
         Le paiement de <strong>{refundAmountLabel}</strong> a été automatiquement
-        remboursé sur ta carte. Le retour des fonds peut prendre 5 à 10 jours
-        selon ta banque.
+        remboursé sur votre carte. Le retour des fonds peut prendre 5 à 10 jours
+        selon votre banque.
       </Text>
 
       <Text style={{ fontSize: 15, lineHeight: 1.6, margin: "0 0 20px" }}>
-        Trouve un autre sitter disponible :
+        Trouvez un autre sitter disponible :
       </Text>
 
       <PrimaryButton href={sittersUrl}>Voir d’autres sitters</PrimaryButton>

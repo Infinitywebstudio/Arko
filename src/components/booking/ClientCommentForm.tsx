@@ -72,7 +72,7 @@ export default function ClientCommentForm({ bookingId, initial }: Props) {
             color: "var(--ink-500)",
           }}
         >
-          Ton commentaire
+          Votre commentaire
         </div>
         <div
           style={{

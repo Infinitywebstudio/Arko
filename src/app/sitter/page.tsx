@@ -113,7 +113,7 @@ export default async function SitterHomePage() {
           <div style={{ fontFamily: "var(--font-mono)", fontSize: 12, opacity: 0.7, marginTop: 4 }}>
             {hasSlots
               ? `${todaySlots.length} créneau${todaySlots.length > 1 ? "x" : ""} configuré${todaySlots.length > 1 ? "s" : ""}`
-              : "Configure tes créneaux pour apparaître dans les recherches"}
+              : "Configurez vos créneaux pour apparaître dans les recherches"}
           </div>
         </div>
       </section>
@@ -187,7 +187,7 @@ export default async function SitterHomePage() {
               href="/sitter/disponibilites"
               style={{ color: "var(--coral-600)", fontWeight: 600, textDecoration: "underline" }}
             >
-              Configure ta semaine →
+              Configurez votre semaine →
             </Link>
           </div>
         )}

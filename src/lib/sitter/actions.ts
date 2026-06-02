@@ -48,7 +48,7 @@ export async function updateSitterProfileAction(
   if (!parsed.success) {
     return {
       ok: false,
-      error: "Vérifie les informations saisies.",
+      error: "Vérifiez les informations saisies.",
       fieldErrors: fieldErrorsFromZod(parsed.error),
     };
   }
@@ -60,7 +60,7 @@ export async function updateSitterProfileAction(
   if (!identityParsed.success) {
     return {
       ok: false,
-      error: "Vérifie les informations saisies.",
+      error: "Vérifiez les informations saisies.",
       fieldErrors: fieldErrorsFromZod(identityParsed.error),
     };
   }
@@ -81,7 +81,7 @@ export async function updateSitterProfileAction(
     .eq("id", session.userId);
 
   if (sitterUpdate.error) {
-    return { ok: false, error: "Impossible d'enregistrer ton profil." };
+    return { ok: false, error: "Impossible d'enregistrer votre profil." };
   }
 
   const profileUpdate = await supabase
@@ -93,7 +93,7 @@ export async function updateSitterProfileAction(
     .eq("id", session.userId);
 
   if (profileUpdate.error) {
-    return { ok: false, error: "Impossible d'enregistrer ton identité." };
+    return { ok: false, error: "Impossible d'enregistrer votre identité." };
   }
 
   revalidatePath("/sitter/profil");
@@ -126,7 +126,7 @@ export async function replaceAvailabilityAction(
   if (!parsed.success) {
     return {
       ok: false,
-      error: "Vérifie tes créneaux.",
+      error: "Vérifiez vos créneaux.",
       fieldErrors: fieldErrorsFromZod(parsed.error),
     };
   }

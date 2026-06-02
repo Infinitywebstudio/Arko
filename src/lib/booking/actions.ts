@@ -106,7 +106,7 @@ export async function createBookingAction(
   if (!parsed.success) {
     return {
       ok: false,
-      error: "Vérifie les informations saisies.",
+      error: "Vérifiez les informations saisies.",
       fieldErrors: fieldErrorsFromZod(parsed.error),
     };
   }
@@ -120,7 +120,7 @@ export async function createBookingAction(
   if (input.sitter_id === session.userId) {
     return {
       ok: false,
-      error: "Tu ne peux pas te réserver toi-même.",
+      error: "Vous ne pouvez pas vous réserver vous-même.",
       fieldErrors: { sitter_id: "Sitter invalide" },
     };
   }
@@ -133,7 +133,7 @@ export async function createBookingAction(
     return {
       ok: false,
       error: "Le créneau choisi est déjà passé.",
-      fieldErrors: { start_date: "Choisis une date/heure dans le futur" },
+      fieldErrors: { start_date: "Choisissez une date/heure dans le futur" },
     };
   }
   const maxAhead = new Date(now.getTime() + MAX_DAYS_AHEAD * 24 * 60 * 60 * 1000);
@@ -393,7 +393,7 @@ export async function cancelBookingAction(
     })
     .eq("id", bookingId);
   if (updErr) {
-    return { ok: false, error: "Mise à jour impossible. Contacte le support." };
+    return { ok: false, error: "Mise à jour impossible. Contactez le support." };
   }
 
   const {
@@ -534,7 +534,7 @@ export async function cancelBookingBySitterAction(
     .eq("id", bookingId)
     .eq("status", "confirmed");
   if (updErr) {
-    return { ok: false, error: "Mise à jour impossible. Contacte le support." };
+    return { ok: false, error: "Mise à jour impossible. Contactez le support." };
   }
 
   const { sendClientBookingCancelledBySitterNotification } = await import("@/lib/email/booking");

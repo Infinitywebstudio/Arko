@@ -39,9 +39,9 @@ export default function CookieConsent() {
           translations: {
             fr: {
               consentModal: {
-                title: "On respecte ta vie privée",
+                title: "On respecte votre vie privée",
                 description:
-                  'ARKO utilise uniquement des cookies strictement nécessaires (session, paiement) pour faire fonctionner le site. Aucun tracker tiers n\'est posé sans ton accord. <a href="/confidentialite">En savoir plus</a>.',
+                  'ARKO utilise uniquement des cookies strictement nécessaires (session, paiement) pour faire fonctionner le site. Aucun tracker tiers n\'est posé sans votre accord. <a href="/confidentialite">En savoir plus</a>.',
                 acceptAllBtn: "Tout accepter",
                 acceptNecessaryBtn: "Tout refuser",
                 showPreferencesBtn: "Personnaliser",
@@ -56,7 +56,7 @@ export default function CookieConsent() {
                   {
                     title: "À propos de ces cookies",
                     description:
-                      "Tu peux activer ou désactiver les catégories optionnelles. Les cookies strictement nécessaires restent toujours actifs car ils permettent à ARKO de fonctionner (connexion à ton compte, finalisation d'une réservation).",
+                      "Vous pouvez activer ou désactiver les catégories optionnelles. Les cookies strictement nécessaires restent toujours actifs car ils permettent à ARKO de fonctionner (connexion à votre compte, finalisation d'une réservation).",
                   },
                   {
                     title: "Strictement nécessaires",

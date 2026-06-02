@@ -57,10 +57,10 @@ export default function ConfidentialitePage() {
             lineHeight: 1.7,
           }}
         >
-          Cette page sera finalisée avec notre DPO avant le lancement. En résumé : tes
+          Cette page sera finalisée avec notre DPO avant le lancement. En résumé : vos
           données personnelles (nom, email, téléphone) sont stockées chez Supabase
-          (Frankfurt, UE), ne sont jamais revendues, et tu peux les supprimer à tout
-          moment depuis ton espace compte.
+          (Frankfurt, UE), ne sont jamais revendues, et vous pouvez les supprimer à tout
+          moment depuis votre espace compte.
         </p>
         <h2
           style={{
@@ -95,14 +95,14 @@ export default function ConfidentialitePage() {
         >
           <li>
             <strong>Strictement nécessaires</strong> (toujours actifs) : cookies de
-            session Supabase pour te connecter, et redirection Stripe Checkout pour
+            session Supabase pour vous connecter, et redirection Stripe Checkout pour
             payer une garde. Sans eux, le site ne peut pas fonctionner — exemptés de
             consentement par la CNIL.
           </li>
           <li style={{ marginTop: "var(--space-2)" }}>
             <strong>Mesure d'audience</strong> (optionnel, désactivé par défaut) :
             aucun outil de mesure n'est déployé pour le moment. Si nous en ajoutons
-            un, il ne se chargera qu'avec ton accord explicite.
+            un, il ne se chargera qu'avec votre accord explicite.
           </li>
         </ul>
         <p
@@ -114,7 +114,7 @@ export default function ConfidentialitePage() {
             marginTop: "var(--space-4)",
           }}
         >
-          Tu peux revenir sur tes préférences à tout moment :{" "}
+          Vous pouvez revenir sur vos préférences à tout moment :{" "}
           <CookieSettingsLink
             style={{
               color: "var(--coral-600)",
@@ -134,7 +134,7 @@ export default function ConfidentialitePage() {
             marginTop: "var(--space-6)",
           }}
         >
-          Pour toute question RGPD, écris-nous à{" "}
+          Pour toute question RGPD, écrivez-nous à{" "}
           <a
             href="mailto:privacy@arko.life"
             style={{ color: "var(--coral-600)", textDecoration: "underline" }}

@@ -37,7 +37,7 @@ export default async function SitterAvailabilityPage() {
             margin: 0,
           }}
         >
-          Indique tes créneaux pour chaque jour de la semaine. Tu peux mettre plusieurs créneaux par jour
+          Indiquez vos créneaux pour chaque jour de la semaine. Vous pouvez mettre plusieurs créneaux par jour
           (matin / après-midi) jusqu&apos;à 4 par jour.
         </p>
       </div>

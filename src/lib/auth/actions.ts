@@ -71,23 +71,23 @@ function translateAuthError(message: string): string {
   if (m.includes("invalid login credentials"))
     return "Email ou mot de passe incorrect.";
   if (m.includes("email not confirmed"))
-    return "Email pas encore vérifié. Consulte ta boîte de réception.";
+    return "Email pas encore vérifié. Consultez votre boîte de réception.";
   if (m.includes("user already registered") || m.includes("already been registered"))
     return "Un compte existe déjà avec cet email.";
   if (m.includes("rate limit") || m.includes("for security purposes"))
-    return "Trop de tentatives. Réessaye dans quelques minutes.";
+    return "Trop de tentatives. Réessayez dans quelques minutes.";
   if (m.includes("password should be at least") || m.includes("password should contain"))
     return "Mot de passe trop court (8 caractères minimum).";
   if (m.includes("should be different from the old password") || m.includes("same_password") || m.includes("same password"))
     return "Le nouveau mot de passe doit être différent de l'ancien.";
   if (m.includes("weak password") || m.includes("password is too weak"))
-    return "Mot de passe trop faible. Ajoute des chiffres ou des symboles.";
+    return "Mot de passe trop faible. Ajoutez des chiffres ou des symboles.";
   if (m.includes("session_not_found") || m.includes("jwt expired"))
-    return "Session expirée. Reconnecte-toi.";
+    return "Session expirée. Reconnectez-vous.";
   // Server log the original so we can extend the translation map on the
   // next surprise. Never reaches the client.
   console.warn("[auth] untranslated error:", message);
-  return "Une erreur est survenue. Réessaye dans un instant.";
+  return "Une erreur est survenue. Réessayez dans un instant.";
 }
 
 // =============================================================
@@ -107,7 +107,7 @@ export async function signUpAction(formData: FormData): Promise<ActionResult> {
   if (!parsed.success) {
     return {
       ok: false,
-      error: "Vérifie les informations saisies.",
+      error: "Vérifiez les informations saisies.",
       fieldErrors: fieldErrorsFromZod(parsed.error),
     };
   }
@@ -224,7 +224,7 @@ export async function resetPasswordAction(
   if (!parsed.success) {
     return {
       ok: false,
-      error: "Vérifie les informations saisies.",
+      error: "Vérifiez les informations saisies.",
       fieldErrors: fieldErrorsFromZod(parsed.error),
     };
   }
@@ -280,7 +280,7 @@ export async function updateIdentityAction(
   if (!parsed.success) {
     return {
       ok: false,
-      error: "Vérifie les informations saisies.",
+      error: "Vérifiez les informations saisies.",
       fieldErrors: fieldErrorsFromZod(parsed.error),
     };
   }
@@ -295,7 +295,7 @@ export async function updateIdentityAction(
     .eq("id", session.userId);
 
   if (error) {
-    return { ok: false, error: "Impossible d'enregistrer tes informations." };
+    return { ok: false, error: "Impossible d'enregistrer vos informations." };
   }
 
   revalidatePath("/compte");
@@ -370,7 +370,7 @@ export async function updatePasswordAction(formData: FormData): Promise<ActionRe
   if (!parsed.success) {
     return {
       ok: false,
-      error: "Vérifie les informations saisies.",
+      error: "Vérifiez les informations saisies.",
       fieldErrors: fieldErrorsFromZod(parsed.error),
     };
   }
@@ -427,7 +427,7 @@ export async function deleteAccountAction(formData: FormData): Promise<ActionRes
   if (!parsed.success) {
     return {
       ok: false,
-      error: "Vérifie les informations saisies.",
+      error: "Vérifiez les informations saisies.",
       fieldErrors: fieldErrorsFromZod(parsed.error),
     };
   }
@@ -460,15 +460,15 @@ export async function deleteAccountAction(formData: FormData): Promise<ActionRes
     .gt("start_at", nowIso);
 
   if (countErr) {
-    return { ok: false, error: "Vérification des réservations impossible. Réessaye." };
+    return { ok: false, error: "Vérification des réservations impossible. Réessayez." };
   }
   if ((activeCount ?? 0) > 0) {
     const plural = (activeCount ?? 0) > 1;
     return {
       ok: false,
       error: plural
-        ? `Tu as ${activeCount} réservations à venir. Annule-les avant de supprimer ton compte.`
-        : "Tu as une réservation à venir. Annule-la avant de supprimer ton compte.",
+        ? `Vous avez ${activeCount} réservations à venir. Annulez-les avant de supprimer votre compte.`
+        : "Vous avez une réservation à venir. Annulez-la avant de supprimer votre compte.",
     };
   }
 
@@ -492,7 +492,7 @@ export async function deleteAccountAction(formData: FormData): Promise<ActionRes
   const admin = createAdminClient();
   const { error: delErr } = await admin.auth.admin.deleteUser(session.userId);
   if (delErr) {
-    return { ok: false, error: "Suppression impossible. Contacte le support." };
+    return { ok: false, error: "Suppression impossible. Contactez le support." };
   }
 
   // Clear local session cookies. scope=local skips the /auth/logout round-trip,

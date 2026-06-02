@@ -83,7 +83,7 @@ export default async function SitterAccountSettingsPage() {
         <div>
           <h2 style={sectionLabelStyle}>Mot de passe</h2>
           <p style={{ ...sectionHelpStyle, marginTop: 6 }}>
-            Au moins 8 caractères. Ton mot de passe actuel est requis.
+            Au moins 8 caractères. Votre mot de passe actuel est requis.
           </p>
         </div>
         <PasswordForm />

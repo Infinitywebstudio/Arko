@@ -3,7 +3,7 @@ import Link from "next/link";
 import { Icon } from "@/components/mascot";
 
 export const metadata: Metadata = {
-  title: "Vérifie ton email · ARKO",
+  title: "Vérifiez votre email · ARKO",
 };
 
 export default function VerifyEmailPage() {
@@ -43,7 +43,7 @@ export default function VerifyEmailPage() {
           marginBottom: 12,
         }}
       >
-        Vérifie ton{" "}
+        Vérifiez votre{" "}
         <span style={{ color: "var(--coral-500)" }}>email</span>
       </h1>
       <p
@@ -56,8 +56,8 @@ export default function VerifyEmailPage() {
           marginBottom: 24,
         }}
       >
-        On vient de t&apos;envoyer un lien de vérification. Clique dessus depuis ta boîte
-        mail pour activer ton compte. Pense à vérifier les spams.
+        On vient de vous envoyer un lien de vérification. Cliquez dessus depuis votre boîte
+        mail pour activer votre compte. Pensez à vérifier les spams.
       </p>
       <Link href="/connexion" className="btn btn-outline" style={{ display: "inline-flex" }}>
         Aller à la connexion

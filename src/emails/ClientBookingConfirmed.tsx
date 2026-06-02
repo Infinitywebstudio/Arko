@@ -33,10 +33,10 @@ export function ClientBookingConfirmed({
   ];
 
   return (
-    <Layout preview={`Ta garde du ${dateLabel} avec ${sitterName} est confirmée`}>
+    <Layout preview={`Votre garde du ${dateLabel} avec ${sitterName} est confirmée`}>
       <Kicker tone="primary">Réservation confirmée</Kicker>
       <EmailHeading>
-        Ta garde avec <strong>{sitterName}</strong> est confirmée
+        Votre garde avec <strong>{sitterName}</strong> est confirmée
       </EmailHeading>
 
       <InfoTable rows={rows} />
@@ -59,7 +59,7 @@ export function ClientBookingConfirmed({
         <Text
           style={{ fontSize: 14, margin: "0 0 8px", color: colors.mutedStrong }}
         >
-          Numéro non disponible - contacte le support.
+          Numéro non disponible - contactez le support.
         </Text>
       )}
 

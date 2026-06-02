@@ -62,7 +62,7 @@ export default function CheckoutForm({
     if (stripeError) {
       setError(
         stripeError.message ??
-          "Le paiement n'a pas pu aboutir. Vérifie tes informations ou essaie une autre carte.",
+          "Le paiement n'a pas pu aboutir. Vérifiez vos informations ou essayez une autre carte.",
       );
       setPending(false);
     }

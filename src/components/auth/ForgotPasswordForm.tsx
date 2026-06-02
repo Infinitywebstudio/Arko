@@ -62,7 +62,7 @@ export default function ForgotPasswordForm() {
             marginBottom: 24,
           }}
         >
-          Si un compte existe avec cet email, tu vas recevoir un lien de réinitialisation
+          Si un compte existe avec cet email, vous allez recevoir un lien de réinitialisation
           dans quelques instants.
         </p>
         <Link href="/connexion" className="btn btn-outline" style={{ display: "inline-flex" }}>
@@ -108,7 +108,7 @@ export default function ForgotPasswordForm() {
             margin: 0,
           }}
         >
-          Entre l&apos;email de ton compte. On t&apos;envoie un lien pour le réinitialiser.
+          Entrez l&apos;email de votre compte. On vous envoie un lien pour le réinitialiser.
         </p>
       </div>
 

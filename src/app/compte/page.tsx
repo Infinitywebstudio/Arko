@@ -67,7 +67,7 @@ export default async function ComptePage() {
             marginTop: "var(--space-3)",
           }}
         >
-          Trouve un sitter, suis tes réservations et gère ton compte.
+          Trouvez un sitter, suivez vos réservations et gérez votre compte.
         </p>
       </header>
 

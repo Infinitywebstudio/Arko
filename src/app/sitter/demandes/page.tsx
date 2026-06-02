@@ -115,7 +115,7 @@ export default async function SitterDemandesPage() {
             href="/sitter/disponibilites"
             style={{ color: "var(--coral-600)", fontWeight: 600, textDecoration: "underline" }}
           >
-            Vérifie tes disponibilités →
+            Vérifiez vos disponibilités →
           </Link>
         </div>
       )}
@@ -197,10 +197,10 @@ function serialize(b: Booking) {
 
 const STATUS_LABEL_PAST: Record<string, string> = {
   cancelled_by_client: "Annulée par le client",
-  cancelled_by_sitter: "Tu as annulé - remboursée",
+  cancelled_by_sitter: "Vous avez annulé - remboursée",
   completed: "Terminée",
   // Legacy statuses kept for historical rows created before direct confirmation.
-  refused_by_sitter: "Tu as refusé",
+  refused_by_sitter: "Vous avez refusé",
   no_response: "Sans réponse - remboursée",
 };
 
@@ -257,7 +257,7 @@ function HistoryRow({ booking, now }: { booking: Booking; now: number }) {
             }}
           >
             <span style={{ fontFamily: "var(--font-mono)", fontStyle: "normal", fontSize: 10, color: "var(--ink-500)", marginRight: 4 }}>
-              Toi :
+              Vous :
             </span>
             &ldquo;{booking.sitter_comment}&rdquo;
           </div>

@@ -141,7 +141,7 @@ export default function SitterProfileForm({ initial, identity }: Props) {
           onChange={(e) => setBio(e.target.value)}
           maxLength={2000}
           rows={5}
-          placeholder="Quelques mots sur toi : expérience avec les chiens, ce qui te motive, ton approche…"
+          placeholder="Quelques mots sur vous : expérience avec les chiens, ce qui vous motive, votre approche…"
           style={textareaStyle(!!fieldErrors.bio)}
           disabled={isPending}
         />

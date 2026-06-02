@@ -23,21 +23,21 @@ export function ClientBookingCancellationConfirmed({
       preview={`Annulation confirmée - garde du ${dateLabel} remboursée`}
     >
       <Kicker tone="muted">Annulation confirmée</Kicker>
-      <EmailHeading>Ton annulation est prise en compte.</EmailHeading>
+      <EmailHeading>Votre annulation est prise en compte.</EmailHeading>
 
       <Text style={{ fontSize: 15, lineHeight: 1.6, margin: "0 0 12px" }}>
-        Ta garde avec <strong>{sitterName}</strong> prévue le {dateLabel} a
+        Votre garde avec <strong>{sitterName}</strong> prévue le {dateLabel} a
         bien été annulée.
       </Text>
 
       <Text style={{ fontSize: 15, lineHeight: 1.6, margin: "0 0 12px" }}>
         Le paiement de <strong>{refundAmountLabel}</strong> a été
-        automatiquement remboursé sur ta carte. Le retour des fonds peut
-        prendre 5 à 10 jours selon ta banque.
+        automatiquement remboursé sur votre carte. Le retour des fonds peut
+        prendre 5 à 10 jours selon votre banque.
       </Text>
 
       <Text style={{ fontSize: 15, lineHeight: 1.6, margin: "0 0 20px" }}>
-        Besoin d&apos;un autre créneau ? Découvre les sitters disponibles :
+        Besoin d&apos;un autre créneau ? Découvrez les sitters disponibles :
       </Text>
 
       <PrimaryButton href={sittersUrl}>Voir d&apos;autres sitters</PrimaryButton>

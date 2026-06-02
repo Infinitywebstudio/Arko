@@ -24,7 +24,7 @@ export default async function SitterProfilePage() {
         }}
       >
         <p style={{ fontFamily: "var(--font-mono)", fontSize: 14, color: "var(--ink-700)" }}>
-          Ton profil sitter n&apos;est pas encore initialisé. Reconnecte-toi ou contacte le support.
+          Votre profil sitter n&apos;est pas encore initialisé. Reconnectez-vous ou contactez le support.
         </p>
       </div>
     );
@@ -67,7 +67,7 @@ export default async function SitterProfilePage() {
               cursor: "not-allowed",
             }}
           >
-            Voir ton profil public
+            Voir votre profil public
             <span
               style={{
                 fontFamily: "var(--font-mono)",

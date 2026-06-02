@@ -71,7 +71,7 @@ export default function ResetPasswordForm() {
             margin: 0,
           }}
         >
-          Choisis un nouveau mot de passe. Au moins 8 caractères.
+          Choisissez un nouveau mot de passe. Au moins 8 caractères.
         </p>
       </div>
 

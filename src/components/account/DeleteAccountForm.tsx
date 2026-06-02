@@ -114,7 +114,7 @@ export default function DeleteAccountForm({ role }: Props) {
           margin: 0,
         }}
       >
-        Tape <strong>SUPPRIMER</strong> et confirme avec ton mot de passe.
+        Tapez <strong>SUPPRIMER</strong> et confirmez avec votre mot de passe.
       </p>
 
       <div>

@@ -39,7 +39,7 @@ export function SitterBookingNotification({
     { label: "Quand", value: dateLabel },
     { label: "Lieu", value: meetingLabel },
     ...(optionsLabel ? [{ label: "Options", value: optionsLabel }] : []),
-    { label: "Tu reçois", value: payoutLabel, emphasis: true },
+    { label: "Vous recevez", value: payoutLabel, emphasis: true },
   ];
 
   return (
@@ -48,7 +48,7 @@ export function SitterBookingNotification({
       <EmailHeading>Nouvelle garde confirmée</EmailHeading>
       <Text style={{ fontSize: 15, lineHeight: 1.6, margin: "0 0 8px" }}>
         <strong>{clientFullName}</strong> a réservé et payé une garde de{" "}
-        <strong>{durationHours}h</strong>. Elle est confirmée - tu n’as rien à
+        <strong>{durationHours}h</strong>. Elle est confirmée - vous n’avez rien à
         valider.
       </Text>
 
@@ -85,7 +85,7 @@ export function SitterBookingNotification({
           lineHeight: 1.5,
         }}
       >
-        Empêché ? Tu peux annuler depuis ARKO avant le début de la garde - le
+        Empêché ? Vous pouvez annuler depuis ARKO avant le début de la garde - le
         client est alors remboursé automatiquement.
       </Text>
     </Layout>

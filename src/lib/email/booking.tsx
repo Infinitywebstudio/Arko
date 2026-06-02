@@ -219,7 +219,7 @@ export async function sendClientBookingConfirmedNotification(
 
   await deliver({
     to: clientEmail,
-    subject: `ARKO - Ta garde du ${dateLabel} est confirmée`,
+    subject: `ARKO - Votre garde du ${dateLabel} est confirmée`,
     text,
     html,
     context: "booking confirmed",

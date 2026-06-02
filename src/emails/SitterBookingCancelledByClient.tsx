@@ -29,12 +29,12 @@ export function SitterBookingCancelledByClient({
 
       <Text style={{ fontSize: 15, lineHeight: 1.6, margin: "0 0 12px" }}>
         Le créneau de <strong>{durationHours}h</strong> redevient disponible.
-        Le paiement a été remboursé au client, tu n&apos;as pas de paiement à
+        Le paiement a été remboursé au client, vous n&apos;avez pas de paiement à
         recevoir pour cette garde.
       </Text>
 
       <Text style={{ fontSize: 15, lineHeight: 1.6, margin: "0 0 20px" }}>
-        Pense à mettre à jour tes disponibilités si besoin.
+        Pensez à mettre à jour vos disponibilités si besoin.
       </Text>
 
       <PrimaryButton href={dashboardUrl}>Voir mon planning</PrimaryButton>
