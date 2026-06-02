@@ -46,6 +46,7 @@ export default function SignInForm() {
   const params = useSearchParams();
   const redirect = params.get("redirect");
   const callbackError = params.get("error");
+  const resetDone = params.get("reset") === "success";
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -107,6 +108,23 @@ export default function SignInForm() {
           Connecte-toi à ton compte ARKO.
         </p>
       </div>
+
+      {resetDone && (
+        <div
+          style={{
+            background: "var(--success-50)",
+            color: "var(--success-700)",
+            border: "1px solid var(--success-500)",
+            padding: "10px 14px",
+            borderRadius: 12,
+            fontFamily: "var(--font-mono)",
+            fontSize: 12,
+          }}
+          role="status"
+        >
+          Mot de passe modifié. Connecte-toi avec ton nouveau mot de passe.
+        </div>
+      )}
 
       <div>
         <label htmlFor="email" style={labelStyle}>

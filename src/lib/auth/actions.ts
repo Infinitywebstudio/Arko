@@ -238,8 +238,14 @@ export async function resetPasswordAction(
     return { ok: false, error: translateAuthError(error.message) };
   }
 
+  // A password reset must NOT auto-login. The recovery link established a
+  // temporary session to authorise updateUser; tear it down so the user
+  // re-authenticates with the new password on /connexion. `?reset=success`
+  // lets the sign-in form confirm the change.
+  await supabase.auth.signOut();
+
   revalidatePath("/", "layout");
-  return { ok: true, redirectTo: "/compte" };
+  return { ok: true, redirectTo: "/connexion?reset=success" };
 }
 
 // =============================================================
