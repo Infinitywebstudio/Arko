@@ -193,8 +193,13 @@ export async function forgotPasswordAction(
   }
 
   const supabase = await createClient();
+  // The recovery link must go through /auth/callback so the emailed `code` is
+  // exchanged for a session (PKCE) before the user reaches the form. Landing
+  // straight on /reinitialiser-mot-de-passe leaves the user unauthenticated,
+  // so the subsequent updateUser({ password }) fails with "Auth session
+  // missing". `next` carries them to the reset form once the session is set.
   const { error } = await supabase.auth.resetPasswordForEmail(parsed.data.email, {
-    redirectTo: `${getSiteUrl()}/reinitialiser-mot-de-passe`,
+    redirectTo: `${getSiteUrl()}/auth/callback?next=/reinitialiser-mot-de-passe`,
   });
 
   if (error) {
